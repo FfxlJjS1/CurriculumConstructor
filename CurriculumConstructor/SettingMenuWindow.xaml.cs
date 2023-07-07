@@ -10,19 +10,25 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace CurriculumConstructor
 {
     /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
+    /// Логика взаимодействия для SettingMenuWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class SettingMenuWindow : Window
     {
-        public MainWindow()
+        public SettingMenuWindow(string profileNumber, RowElement rowElement)
         {
             InitializeComponent();
+
+            this.Title = profileNumber + " - " + rowElement.Discipline;
+        }
+
+        private void btnShowSubElementClick(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -1,0 +1,46 @@
+﻿<Window x:Class="CurriculumConstructor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CurriculumConstructor"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="550" Width="900">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="250"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBox x:Name="FilePathNameTextBlock" FontSize="18" VerticalContentAlignment="Center" Margin="0 0 10 0" Grid.Column="0"/>
+
+            <Button Click="FileSelectClick" Grid.Column="1" FontSize="16" Content="Выберите файл (*.xlsx, *.xls)"/>
+        </Grid>
+
+        <DataGrid x:Name="DataGridDisciplines" Grid.Row="1" IsReadOnly="True" AutoGenerateColumns="False" MouseDoubleClick="DataGridDisciplines_MouseDoubleClick">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Дисциплина" Binding="{Binding Path=Discipline}"/>
+                <DataGridTextColumn Header="Экзамен" Binding="{Binding Path=Exam}"/>
+                <DataGridTextColumn Header="Зачет" Binding="{Binding Path=Offset}"/>
+                <DataGridTextColumn Header="Зачет с оценкой" Binding="{Binding Path=OffsetWithMark}"/>
+                <DataGridTextColumn Header="Экспертное" Binding="{Binding Path=Expert}"/>
+                <DataGridTextColumn Header="Фактическое" Binding="{Binding Path=Actual}"/>
+                <DataGridTextColumn Header="Семестр 1" Binding="{Binding Path=Semester1}"/>
+                <DataGridTextColumn Header="Семестр 2" Binding="{Binding Path=Semester2}"/>
+                <DataGridTextColumn Header="Семестр 3" Binding="{Binding Path=Semester3}"/>
+                <DataGridTextColumn Header="Семестр 4" Binding="{Binding Path=Semester4}"/>
+                <DataGridTextColumn Header="Семестр 5" Binding="{Binding Path=Semester5}"/>
+                <DataGridTextColumn Header="Семестр 6" Binding="{Binding Path=Semester6}"/>
+                <DataGridTextColumn Header="Семестр 7" Binding="{Binding Path=Semester7}"/>
+                <DataGridTextColumn Header="Семестр 8" Binding="{Binding Path=Semester8}"/>
+                <DataGridTextColumn Header="Кафедра" Binding="{Binding Path=Department}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
