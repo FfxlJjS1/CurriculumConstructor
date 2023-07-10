@@ -5,29 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CurriculumConstructor"
         mc:Ignorable="d"
+        Loaded="Window_Loaded"
         Title="SettingMenuWindow" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition MinWidth="400"/>
+            <ColumnDefinition MinWidth="150" MaxWidth="400"/>
+            <ColumnDefinition MinWidth="500"/>
         </Grid.ColumnDefinitions>
 
         <ScrollViewer Grid.Column="0" Margin="5">
-            <StackPanel Orientation="Vertical">
-                <ItemsControl ItemsSource="{Binding}">
-                    <ItemsPanelTemplate>
-                        <Grid Margin="0 0 0 10"/>
-                    </ItemsPanelTemplate>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Button Content="{Binding Path=Text}"
-                                    Uid="{Binding Path=Id}"
-                                    Click="btnShowSubElementClick"
-                                    Margin="2"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
+            <ListView x:Name="SettingMenu">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0 0 0 10">
+                            <TextBlock Uid="{Binding Path=Id}" TextAlignment="Center" Text="{Binding Path=Text}" MouseUp="TextBlock_MouseUp"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </ScrollViewer>
 
         <Frame x:Name="ContentFrame" Grid.Column="1" NavigationUIVisibility="Hidden"/>

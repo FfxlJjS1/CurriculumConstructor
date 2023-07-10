@@ -26,7 +26,19 @@ namespace CurriculumConstructor
             this.Title = profileNumber + " - " + rowElement.Discipline;
         }
 
-        private void btnShowSubElementClick(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            SettingMenu.Items.Clear();
+            SettingMenu.ItemsSource = new List<IdName>() { new IdName() { Id = 1, Text = "Предварительный просмотр документа" } };
+        }
+
+        private class IdName
+        {
+            public int Id { get; set; }
+            public string Text { get; set; }
+        }
+
+        private void TextBlock_MouseUp(object sender, MouseButtonEventArgs e)
         {
 
         }

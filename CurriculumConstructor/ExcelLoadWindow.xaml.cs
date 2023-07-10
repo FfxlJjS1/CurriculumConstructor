@@ -132,6 +132,8 @@ namespace CurriculumConstructor
 
             RowElement rowElement = dataGrid.Items[selectedIndex] as RowElement;
 
+            DocumentReplaceObject.Discipline = rowElement.Discipline;
+
             SettingMenuWindow settingMenuWindow = new SettingMenuWindow(profileNumber, rowElement);
 
             Hide();

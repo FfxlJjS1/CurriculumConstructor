@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Policy;
 using System.Security.RightsManagement;
 using System.Text;
@@ -64,7 +65,63 @@ namespace CurriculumConstructor
 
         public void ExportWordToFile(string WordFileName)
         {
+            try
+            {
+                var app = new Word.Application();
+                var wrodDocument = app.Documents.Open("shablon.docx");
 
+                // Replace simple text
+                Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
+                keyValuePairs.Add("<INDEX>", DocumentReplaceObject.Index);
+                keyValuePairs.Add("<DISCIPLINE>", DocumentReplaceObject.Discipline);
+                keyValuePairs.Add("<DIRECTION>", DocumentReplaceObject.Direction);
+                keyValuePairs.Add("<PROFILE>", DocumentReplaceObject.Profile);
+                keyValuePairs.Add("<QUALIFICATION>", DocumentReplaceObject.Qualification);
+                keyValuePairs.Add("<FORM_STUDY>", DocumentReplaceObject.FormStudy);
+                keyValuePairs.Add("<LANGUAGE_STUDY>", DocumentReplaceObject.LanguageStudy);
+                keyValuePairs.Add("<YEAR_START>", DocumentReplaceObject.YearStart);
+                keyValuePairs.Add("<AUTHOR>", DocumentReplaceObject.Author);
+                //keyValuePairs.Add("<AUTHOR'S>", DocumentReplaceObject.);
+                keyValuePairs.Add("<REVIEWER>", DocumentReplaceObject.Reviewer);
+                keyValuePairs.Add("<DEPARTMENT_CHAIR>", DocumentReplaceObject.DepartmentChar);
+                keyValuePairs.Add("<YEAR>", DocumentReplaceObject.Year);
+                keyValuePairs.Add("<CURRICULUM_HOURS>", DocumentReplaceObject.CurriculumHours.ToString());
+                keyValuePairs.Add("<TEACHER_CONTACT_TIME>", DocumentReplaceObject.TeacherContactTime.ToString());
+                keyValuePairs.Add("<LECTORE_TIME>", DocumentReplaceObject.LectoreTime.ToString());
+                keyValuePairs.Add("<PRACTICE_TIME>", DocumentReplaceObject.PracticeTime.ToString());
+                keyValuePairs.Add("<LABORATORY_TIME>", DocumentReplaceObject.LaboratoryTime.ToString());
+                keyValuePairs.Add("<SELFWORK_TIME>", DocumentReplaceObject.SelfworkTime.ToString());
+                keyValuePairs.Add("<EXAM_TIME>", DocumentReplaceObject.ExamTime.ToString());
+
+                foreach (var item in keyValuePairs)
+                {
+                    Word.Find find = app.Selection.Find;
+                    find.Text = item.Key;
+                    find.Replacement.Text = item.Value;
+
+                    Object wrap = Word.WdFindWrap.wdFindContinue;
+                    Object replace = Word.WdReplace.wdReplaceAll;
+
+                    find.Execute(FindText: Type.Missing,
+                        MatchCase: false,
+                        MatchWholeWord: false,
+                        MatchWildcards: false,
+                        MatchSoundsLike: Type.Missing,
+                        MatchAllWordForms: false,
+                        Forward: true,
+                        Wrap: wrap,
+                        Format: false,
+                        ReplaceWith: Type.Missing, Replace: replace
+                    );
+                }
+
+                // Set tables with data
+
+            }
+            catch(Exception ex)
+            {
+                System.Windows.MessageBox.Show("Ошибка! " + ex.Message);
+            }
         }
 
         public void PreviewWordFile()
@@ -73,42 +130,43 @@ namespace CurriculumConstructor
         }
     }
 
-    public class DecumentReplaceObject
+    public static class DocumentReplaceObject
     {
         // Variables with object data type will restructured so don't use it
-        public string Discipline;
-        public string Index;
-        public string Direction;
-        public string Profile;
-        public string Qualification;
-        public string FormStrude;
-        public string LanguageStudy;
-        public string YearStart;
-        public string Author;
-        public string Reviewer;
-        public string DepartmentChar;
-        public string Year;
-        public object TableOfFormedCompetenciesOfTheDiscipline;
-        public int CurriculumHours;
-        public int TeacherContactTime;
-        public int LectoreTime;
-        public int PricticeTime;
-        public int SelfworkTime;
-        public int ExamTime;
-        public object DisciplineThematicPlanTable;
-        public object DisciplineContentTable;
-        public object LaboratoryExaluationCriteria86;
-        public object LaboratoryExaluationCriteria71;
-        public object LaboratoryExaluationCriteria55;
-        public object LaboratoryExaluationCriteria0;
-        public string LaboratoryExercise;
-        public object PracticeExaluationCriteria86;
-        public object PracticeExaluationCriteria71;
-        public object PracticeExaluationCriteria55;
-        public object PracticeExaluationCriteria0;
-        public object EvaluationToolContentTable;
-        public object TableOfSampleVariantsOfTestItems;
-        public object AdditionalPointsForActivities;
+        public static string Discipline;
+        public static string Index;
+        public static string Direction;
+        public static string Profile;
+        public static string Qualification;
+        public static string FormStudy;
+        public static string LanguageStudy;
+        public static string YearStart;
+        public static string Author;
+        public static string Reviewer;
+        public static string DepartmentChar;
+        public static string Year;
+        public static object TableOfFormedCompetenciesOfTheDiscipline;
+        public static int CurriculumHours;
+        public static int TeacherContactTime;
+        public static int LectoreTime;
+        public static int LaboratoryTime;
+        public static int PracticeTime;
+        public static int SelfworkTime;
+        public static int ExamTime;
+        public static object DisciplineThematicPlanTable;
+        public static object DisciplineContentTable;
+        public static object LaboratoryExaluationCriteria86;
+        public static object LaboratoryExaluationCriteria71;
+        public static object LaboratoryExaluationCriteria55;
+        public static object LaboratoryExaluationCriteria0;
+        public static string LaboratoryExercise;
+        public static object PracticeExaluationCriteria86;
+        public static object PracticeExaluationCriteria71;
+        public static object PracticeExaluationCriteria55;
+        public static object PracticeExaluationCriteria0;
+        public static object EvaluationToolContentTable;
+        public static object TableOfSampleVariantsOfTestItems;
+        public static object AdditionalPointsForActivities;
 
 
     }
