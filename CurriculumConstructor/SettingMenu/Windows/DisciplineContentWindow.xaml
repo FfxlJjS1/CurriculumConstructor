@@ -1,0 +1,35 @@
+﻿<Window x:Class="CurriculumConstructor.SettingMenu.Windows.DisciplineContentWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CurriculumConstructor.SettingMenu.Windows"
+        mc:Ignorable="d"
+        Title="DisciplineContentWindow"  WindowStartupLocation="CenterScreen" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.3*"> </ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <ListBox SelectionChanged="ThemeListBox_SelectionChanged" Name="ThemeListBox"></ListBox>
+        </Grid>
+        <Grid Grid.Column="1">
+            <ScrollViewer>
+                <StackPanel Margin="5">
+                    <TextBlock Text="Тема" />
+                    <TextBox TextWrapping="Wrap" Text="{Binding Theme}"  Name="ThemeTextBox" SpellCheck.IsEnabled="True" Language="ru-ru" MinHeight="50" AcceptsReturn="True" />
+
+                    <TextBlock Text="Используемый метод" />
+                    <TextBox TextWrapping="Wrap" Text="{Binding Method}" Name="MethodTextBox" SpellCheck.IsEnabled="True" Language="ru-ru"  AcceptsReturn="True" />
+                    <Button Click="SaveClick" Content="Сохранить"/>
+                    <Button Content="Новый" Click="AddClick" />
+                    <Button Click="DeleteClick" Content="Удалить" />
+                </StackPanel>
+            </ScrollViewer>
+            
+        </Grid>
+        
+    </Grid>
+</Window>

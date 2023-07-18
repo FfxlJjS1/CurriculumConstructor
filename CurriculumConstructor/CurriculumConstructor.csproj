@@ -56,8 +56,27 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Service\Nav.cs" />
     <Compile Include="SettingMenuWindow.xaml.cs">
       <DependentUpon>SettingMenuWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SettingMenu\Model\DisciplinaryModule.cs" />
+    <Compile Include="SettingMenu\Model\ListOfResultsModel.cs" />
+    <Compile Include="SettingMenu\Model\PlanOfDisciplinesModel.cs" />
+    <Compile Include="SettingMenu\Model\ThemeDisciplines.cs" />
+    <Compile Include="SettingMenu\Model\TitleModel.cs" />
+    <Compile Include="SettingMenu\OptionSettingMenu.cs" />
+    <Compile Include="SettingMenu\Pages\ListOfResultPage.xaml.cs">
+      <DependentUpon>ListOfResultPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SettingMenu\Pages\PlanOfDisciplinesPage.xaml.cs">
+      <DependentUpon>PlanOfDisciplinesPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SettingMenu\Pages\Title.xaml.cs">
+      <DependentUpon>Title.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SettingMenu\Windows\DisciplineContentWindow.xaml.cs">
+      <DependentUpon>DisciplineContentWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="WordDocumentConstructor.cs" />
     <Compile Include="WordPreviewViewWindow.xaml.cs">
@@ -76,6 +95,22 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="SettingMenuWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SettingMenu\Pages\ListOfResultPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SettingMenu\Pages\PlanOfDisciplinesPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SettingMenu\Pages\Title.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SettingMenu\Windows\DisciplineContentWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
