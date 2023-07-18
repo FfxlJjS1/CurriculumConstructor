@@ -60,17 +60,29 @@
     <Compile Include="SettingMenuWindow.xaml.cs">
       <DependentUpon>SettingMenuWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SettingMenu\Model\CriterionEvaluationModel.cs" />
     <Compile Include="SettingMenu\Model\DisciplinaryModule.cs" />
+    <Compile Include="SettingMenu\Model\IntermediateCertificationModel.cs" />
     <Compile Include="SettingMenu\Model\ListOfResultsModel.cs" />
     <Compile Include="SettingMenu\Model\PlanOfDisciplinesModel.cs" />
+    <Compile Include="SettingMenu\Model\TestTasksModel.cs" />
     <Compile Include="SettingMenu\Model\ThemeDisciplines.cs" />
     <Compile Include="SettingMenu\Model\TitleModel.cs" />
     <Compile Include="SettingMenu\OptionSettingMenu.cs" />
+    <Compile Include="SettingMenu\Pages\CriterionEvaluationPage.xaml.cs">
+      <DependentUpon>CriterionEvaluationPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SettingMenu\Pages\IntermediateCertificationPage.xaml.cs">
+      <DependentUpon>IntermediateCertificationPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SettingMenu\Pages\ListOfResultPage.xaml.cs">
       <DependentUpon>ListOfResultPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="SettingMenu\Pages\PlanOfDisciplinesPage.xaml.cs">
       <DependentUpon>PlanOfDisciplinesPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SettingMenu\Pages\TestTaskPage.xaml.cs">
+      <DependentUpon>TestTaskPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="SettingMenu\Pages\Title.xaml.cs">
       <DependentUpon>Title.xaml</DependentUpon>
@@ -98,11 +110,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="SettingMenu\Pages\CriterionEvaluationPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SettingMenu\Pages\IntermediateCertificationPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SettingMenu\Pages\ListOfResultPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SettingMenu\Pages\PlanOfDisciplinesPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SettingMenu\Pages\TestTaskPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

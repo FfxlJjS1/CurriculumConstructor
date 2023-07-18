@@ -16,7 +16,9 @@ namespace CurriculumConstructor.SettingMenu.Model
         public PlanOfDisciplinesModel() 
         {
             ThemeDisciplines = new List<ThemeDisciplines>();
-        }   
+        }
+        public static PlanOfDisciplinesModel PlanOfDisciplines { get; set; } = new PlanOfDisciplinesModel();
+
         /// <summary>
         /// Список тем дисциплин
         /// </summary>

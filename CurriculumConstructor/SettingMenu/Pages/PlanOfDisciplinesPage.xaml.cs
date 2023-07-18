@@ -22,9 +22,10 @@ namespace CurriculumConstructor.SettingMenu.Pages
     /// </summary>
     public partial class PlanOfDisciplinesPage : Page
     {
-        public PlanOfDisciplinesPage(PlanOfDisciplinesModel model)
+        public PlanOfDisciplinesPage()
         {
             InitializeComponent();
+            PlanOfDisciplinesModel model = PlanOfDisciplinesModel.PlanOfDisciplines;
             if (model == null)
             {
                 _model = new PlanOfDisciplinesModel();

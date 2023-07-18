@@ -21,9 +21,10 @@ namespace CurriculumConstructor.SettingMenu.Pages
     /// </summary>
     public partial class Title : Page
     {
-        public Title(TitleModel titleModel)
+        public Title()
         {
             InitializeComponent();
+            TitleModel titleModel = TitleModel.Title; 
             _titleModel = titleModel;
             if (titleModel == null) _titleModel = new TitleModel();
             DataContext = _titleModel;

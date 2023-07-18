@@ -38,6 +38,10 @@ namespace CurriculumConstructor
             AddOption("Титульник");
             AddOption("Перечень планируемых результатов");
             AddOption("Тематический план дисциплины");
+            AddOption("Промежуточная аттестация");
+            AddOption("Тестовые задания для оценки уровня сформированности компетенций");
+            AddOption("Критерии оценивания (лабораторные)");
+            AddOption("Критерии оценивания (практика)");
             SettingMenu.ItemsSource = optionSettingMenuList;
                 
 
@@ -70,15 +74,31 @@ namespace CurriculumConstructor
             }
             else if (id == 2)
             {
-                ContentFrame.Navigate(new Title(null));
+                ContentFrame.Navigate(new Title());
             }
             else if (id == 3)
             {
-                ContentFrame.Navigate(new ListOfResultPage(null));
+                ContentFrame.Navigate(new ListOfResultPage());
             }
             else if (id == 4)
             {
-                ContentFrame.Navigate(new PlanOfDisciplinesPage(null)); 
+                ContentFrame.Navigate(new PlanOfDisciplinesPage()); 
+            }
+            else if (id == 5)
+            {
+                ContentFrame.Navigate(new IntermediateCertificationPage());
+            }
+            else if (id == 6)
+            {
+                ContentFrame.Navigate(new TestTaskPage());
+            }
+            else if (id ==7)
+            {
+                ContentFrame.Navigate(new CriterionEvaluationPage(КритерийОценивания.Теория));
+            }
+            else if (id == 8)
+            {
+                ContentFrame.Navigate(new CriterionEvaluationPage(КритерийОценивания.Практика));
             }
             else
             {

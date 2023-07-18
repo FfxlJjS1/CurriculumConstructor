@@ -17,28 +17,23 @@ using System.Windows.Shapes;
 namespace CurriculumConstructor.SettingMenu.Pages
 {
     /// <summary>
-    /// Логика взаимодействия для ListOfResultPage.xaml
+    /// Логика взаимодействия для IntermediateCertificationPage.xaml
     /// </summary>
-    public partial class ListOfResultPage : Page
+    public partial class IntermediateCertificationPage : Page
     {
-        public ListOfResultPage()
+        public IntermediateCertificationPage()
         {
             InitializeComponent();
-            ListOfResultsModel model = ListOfResultsModel.ListOfResults;
-            if (model == null)
-            {
-                _model = new ListOfResultsModel();
-            }
-            else
-            {
-                _model = model;
-            }
+            _model = IntermediateCertificationModel.IntermediateCertification;
+            if (_model == null) _model = new IntermediateCertificationModel();
             DataContext = _model;
         }
-        private ListOfResultsModel _model;
-        private void SaveClick(object sender, RoutedEventArgs e)
+
+        IntermediateCertificationModel _model;
+
+        private void Save_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(_model.Col1);
+            MessageBox.Show($"{_model.Title}") ;
         }
     }
 }

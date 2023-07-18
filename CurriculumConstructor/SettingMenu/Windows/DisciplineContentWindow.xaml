@@ -23,7 +23,7 @@
 
                     <TextBlock Text="Используемый метод" />
                     <TextBox TextWrapping="Wrap" Text="{Binding Method}" Name="MethodTextBox" SpellCheck.IsEnabled="True" Language="ru-ru"  AcceptsReturn="True" />
-                    <Button Click="SaveClick" Content="Сохранить"/>
+                    <Button Click="SaveClick" Content="Добавить"/>
                     <Button Content="Новый" Click="AddClick" />
                     <Button Click="DeleteClick" Content="Удалить" />
                 </StackPanel>

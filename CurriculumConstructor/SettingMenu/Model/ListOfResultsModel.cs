@@ -14,6 +14,8 @@ namespace CurriculumConstructor.SettingMenu.Model
     /// </summary>
     public class ListOfResultsModel : INotifyPropertyChanged
     {
+        public static ListOfResultsModel ListOfResults { get; set; } = new ListOfResultsModel();
+
         /// <summary>
         /// Оцениваемые компетенции  (код, наименование)
         /// </summary>

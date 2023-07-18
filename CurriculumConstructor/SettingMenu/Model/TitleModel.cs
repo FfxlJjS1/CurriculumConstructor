@@ -10,6 +10,8 @@ namespace CurriculumConstructor.SettingMenu.Model
 {
     public class TitleModel : INotifyPropertyChanged
     {
+        public static TitleModel Title = new TitleModel();
+
         private string author;
         private string reviewer;
         private string head;

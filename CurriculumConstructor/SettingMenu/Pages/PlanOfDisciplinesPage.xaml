@@ -19,7 +19,7 @@
         <Grid Grid.Column="0">
             <StackPanel>
                 <ListBox DisplayMemberPath="Theme" Margin="10" MinHeight="75" SelectionChanged="ThemeDisciplinesListBox_SelectionChanged"  Name="ThemeDisciplinesListBox" />
-                <Button Click="AddClick" Content="Добавить" />
+                <Button Click="AddClick" Content="Новый" />
                 <Button Click="DelClick" Content="Удалить" />
                 <Button Click="ContentClick" Content="Содержание дисциплины" />
             </StackPanel>
@@ -41,7 +41,7 @@
                 <TextBlock Text="СРС" />
                 <TextBox Text="{Binding Crc}" />
 
-                <Button Content="Сохранить" Click="SaveClick" />
+                <Button Content="Добавить тему" Click="SaveClick" />
 
             </StackPanel>
         </Grid>
