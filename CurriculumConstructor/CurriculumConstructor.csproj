@@ -62,6 +62,7 @@
     </Compile>
     <Compile Include="SettingMenu\Model\CriterionEvaluationModel.cs" />
     <Compile Include="SettingMenu\Model\DisciplinaryModule.cs" />
+    <Compile Include="SettingMenu\Model\ExamModel.cs" />
     <Compile Include="SettingMenu\Model\IntermediateCertificationModel.cs" />
     <Compile Include="SettingMenu\Model\ListOfResultsModel.cs" />
     <Compile Include="SettingMenu\Model\PlanOfDisciplinesModel.cs" />
@@ -71,6 +72,12 @@
     <Compile Include="SettingMenu\OptionSettingMenu.cs" />
     <Compile Include="SettingMenu\Pages\CriterionEvaluationPage.xaml.cs">
       <DependentUpon>CriterionEvaluationPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SettingMenu\Pages\ExamPage.xaml.cs">
+      <DependentUpon>ExamPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SettingMenu\Pages\ExtraPointsPage.xaml.cs">
+      <DependentUpon>ExtraPointsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="SettingMenu\Pages\IntermediateCertificationPage.xaml.cs">
       <DependentUpon>IntermediateCertificationPage.xaml</DependentUpon>
@@ -111,6 +118,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SettingMenu\Pages\CriterionEvaluationPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SettingMenu\Pages\ExamPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SettingMenu\Pages\ExtraPointsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

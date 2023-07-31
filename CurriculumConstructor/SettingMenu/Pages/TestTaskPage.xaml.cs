@@ -21,10 +21,22 @@ namespace CurriculumConstructor.SettingMenu.Pages
     /// </summary>
     public partial class TestTaskPage : Page
     {
-        public TestTaskPage()
+        public TestTaskPage(ТипТеста типТеста)
         {
             InitializeComponent();
-            _model = TestTasksModel.TestTasks;
+            if (ТипТеста.модуль == типТеста)
+            {
+                _model = TestTasksModel.TestTasks;
+            }
+            else if (ТипТеста.экзамен == типТеста)
+            {
+                _model = TestTasksModel.TestTasksExam;
+            }
+            else
+            {
+                throw new Exception();
+            }
+            
             Reload();
         }
 
@@ -77,5 +89,11 @@ namespace CurriculumConstructor.SettingMenu.Pages
             IsEdit = true;
 
         }
+    }
+
+   public enum ТипТеста
+    {
+        модуль,
+        экзамен,
     }
 }

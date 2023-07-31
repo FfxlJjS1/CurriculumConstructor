@@ -42,6 +42,9 @@ namespace CurriculumConstructor
             AddOption("Тестовые задания для оценки уровня сформированности компетенций");
             AddOption("Критерии оценивания (лабораторные)");
             AddOption("Критерии оценивания (практика)");
+            AddOption("Экзамен (вопросы)");
+            AddOption("Экзамен (тест)");
+            AddOption("Дополнительные баллы");
             SettingMenu.ItemsSource = optionSettingMenuList;
                 
 
@@ -90,7 +93,7 @@ namespace CurriculumConstructor
             }
             else if (id == 6)
             {
-                ContentFrame.Navigate(new TestTaskPage());
+                ContentFrame.Navigate(new TestTaskPage(ТипТеста.модуль));
             }
             else if (id ==7)
             {
@@ -99,6 +102,18 @@ namespace CurriculumConstructor
             else if (id == 8)
             {
                 ContentFrame.Navigate(new CriterionEvaluationPage(КритерийОценивания.Практика));
+            }
+            else if (id == 9)
+            {
+                ContentFrame.Navigate(new ExamPage());
+            }
+            else if (id == 10)
+            {
+                ContentFrame.Navigate(new TestTaskPage(ТипТеста.экзамен));
+            }
+            else if (id == 11)
+            {
+                ContentFrame.Navigate(new ExtraPointsPage());
             }
             else
             {

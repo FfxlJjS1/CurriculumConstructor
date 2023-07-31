@@ -17,6 +17,10 @@ namespace CurriculumConstructor.SettingMenu.Model
         /// список тестовых заданий
         /// </summary>
         public static List<TestTasksModel> TestTasks { get; set; } = new List<TestTasksModel>();
+        /// <summary>
+        /// список тестовых заданий для экзамена
+        /// </summary>
+        public static List<TestTasksModel> TestTasksExam { get; set; } = new List<TestTasksModel>();
 
         private string question;
         private string ans1;
