@@ -11,7 +11,7 @@
     <Grid>
         <ScrollViewer>
             <StackPanel>
-                <TextBlock AcceptsReturn="True" Text="Студентам могут быть добавлены дополнительные баллы за следующие виды деятельности:" />
+                <TextBlock TextWrapping="Wrap" Text="Студентам могут быть добавлены дополнительные баллы за следующие виды деятельности:" />
                 <TextBox Name="TextBoxExtraPointText" AcceptsReturn="True" SpellCheck.IsEnabled="True" Language="ru-ru"  />
                 <Button Click="SaveClick" Content="Сохранить" />
             </StackPanel>
