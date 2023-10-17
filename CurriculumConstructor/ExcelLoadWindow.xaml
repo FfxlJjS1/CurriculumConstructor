@@ -25,21 +25,15 @@
 
         <DataGrid x:Name="DataGridDisciplines" Grid.Row="1" IsReadOnly="True" AutoGenerateColumns="False" MouseDoubleClick="DataGridDisciplines_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Дисциплина" Binding="{Binding Path=Discipline}"/>
+                <DataGridTextColumn Header="Индекс" Binding="{Binding Path=Index}"/>
+                <DataGridTextColumn Header="Дисциплина" Binding="{Binding Path=DisciplineName}"/>
                 <DataGridTextColumn Header="Экзамен" Binding="{Binding Path=Exam}"/>
                 <DataGridTextColumn Header="Зачет" Binding="{Binding Path=Offset}"/>
                 <DataGridTextColumn Header="Зачет с оценкой" Binding="{Binding Path=OffsetWithMark}"/>
                 <DataGridTextColumn Header="Экспертное" Binding="{Binding Path=Expert}"/>
                 <DataGridTextColumn Header="Фактическое" Binding="{Binding Path=Actual}"/>
-                <DataGridTextColumn Header="Семестр 1" Binding="{Binding Path=Semester1}"/>
-                <DataGridTextColumn Header="Семестр 2" Binding="{Binding Path=Semester2}"/>
-                <DataGridTextColumn Header="Семестр 3" Binding="{Binding Path=Semester3}"/>
-                <DataGridTextColumn Header="Семестр 4" Binding="{Binding Path=Semester4}"/>
-                <DataGridTextColumn Header="Семестр 5" Binding="{Binding Path=Semester5}"/>
-                <DataGridTextColumn Header="Семестр 6" Binding="{Binding Path=Semester6}"/>
-                <DataGridTextColumn Header="Семестр 7" Binding="{Binding Path=Semester7}"/>
-                <DataGridTextColumn Header="Семестр 8" Binding="{Binding Path=Semester8}"/>
-                <DataGridTextColumn Header="Кафедра" Binding="{Binding Path=Department}"/>
+                <DataGridTextColumn Header="Код" Binding="{Binding Path=Code}"/>
+                <DataGridTextColumn Header="Кафедра" Binding="{Binding Path=DepartmentName}"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

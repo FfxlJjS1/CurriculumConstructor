@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using TestWord;
+using CurriculumConstructor.SettingMenu.Model;
 
 namespace CurriculumConstructor
 {
@@ -23,11 +24,15 @@ namespace CurriculumConstructor
     /// </summary>
     public partial class SettingMenuWindow : Window
     {
-        public SettingMenuWindow(string profileNumber, RowElement rowElement)
+        public SettingMenuWindow(DisciplineRow disciplineRow)
         {
             InitializeComponent();
             Nav.SettingMenuFrame = ContentFrame;
-            this.Title = profileNumber + " - " + rowElement.Discipline;
+
+            TitleModel.Title.Index = disciplineRow.Index;
+            TitleModel.Title.Discipline = disciplineRow.DisciplineName;
+
+            this.Title = TitleModel.Title.ProfileNumber + " - " + disciplineRow.DisciplineName;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -66,7 +71,7 @@ namespace CurriculumConstructor
 
         private void SettingMenu_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            OptionSettingMenu optionSettingMenu = SettingMenu.SelectedItem as OptionSettingMenu;
+            OptionSettingMenu? optionSettingMenu = SettingMenu.SelectedItem as OptionSettingMenu;
             if (optionSettingMenu == null)
             {
                 return;
@@ -81,14 +86,14 @@ namespace CurriculumConstructor
                     //EXCEL ИЛИ ПРОГРАММНО РАССЧИТАТЬ
                     //0-1
                     {"<YEAR>", "2023" },
-                    {"<INDEX>", "Б1.0.23" },
-                    {"<DISCIPLINE>", "Метрология, стандартизация и сертификация" }, //6, 6.3.1.1 (ЛАБЫ), 6.4, 11, аннотация
-                    {"<DIRECTION>", "15.03.04 - Автоматизация технологических процессов и производств" }, //2, 6.4, 12, аннотация
-                    {"<PROFILE>", "Автоматизация технологических процессов и производств" }, //2, 12, аннотация
-                    {"<QUALIFICATION>", "бакалавр" },
-                    {"<FORM_STUDY>", "очная" },
+                    {"<INDEX>", TitleModel.Title.Index },
+                    {"<DISCIPLINE>", TitleModel.Title.Discipline }, //6, 6.3.1.1 (ЛАБЫ), 6.4, 11, аннотация
+                    {"<DIRECTION>", TitleModel.Title.ProfileNumber + " " +  TitleModel.Title.ProfileName }, //2, 6.4, 12, аннотация
+                    {"<PROFILE>", TitleModel.Title.ProfileName }, //2, 12, аннотация
+                    {"<QUALIFICATION>", TitleModel.Title.Qualification },
+                    {"<FORM_STUDY>", TitleModel.Title.EducationForm },
                     {"<LANGUAGE_STUDY>", "русский" },
-                    {"<YEAR_START>", "2023" },
+                    {"<YEAR_START>", TitleModel.Title.StartYear },
                     //2
                     {"<BLOCK_1>", "Блока 1 \"Дисциплины (модули)\""},
                     {"<BLOCK_2>", "обязательной части"},
@@ -102,9 +107,9 @@ namespace CurriculumConstructor
                     //
 
                     //ВВОДИМЫЕ ДАННЫЕ
-                    {"<AUTHOR>", "И.П.Ситдикова" },
-                    {"<REVIEWER>", "К.Л.Горшкова" },
-                    {"<DEPARTMENT_CHAIR>", "И.П.Ситдикова" },
+                    {"<AUTHOR>", TitleModel.Title.Author },
+                    {"<REVIEWER>", TitleModel.Title.Reviewer },
+                    {"<DEPARTMENT_CHAIR>", TitleModel.Title.Department_chair },
                     //5
                     //{"<METHOD_BOOK>", "Ситдикова И.П., Ахметзянов Р.Р. Метрология, стандартизация и сертификация: методические указания для выполнения лабораторных работ и организации самостоятельной работы по дисциплине «Метрология, стандартизация и сертификация» для бакалавров направления подготовки 15.03.04 «Автоматизация технологических процессов и производств» очной формы обучения. – Альметьевск: АГНИ, 2021г." }
 
