@@ -18,6 +18,7 @@ using CurriculumConstructor.SettingMenu.Model;
 using System.Drawing;
 using Microsoft.Office.Interop.Excel;
 using Button = System.Windows.Controls.Button;
+using System.Runtime.ConstrainedExecution;
 
 namespace CurriculumConstructor
 {
@@ -26,6 +27,7 @@ namespace CurriculumConstructor
     /// </summary>
     public partial class MainWindow : System.Windows.Window
     {
+        TitleData TitleData = new TitleData();
         Dictionary<int, (string, string)> ParentGroupId_Block_Part = new Dictionary<int, (string, string)>();
 
         public MainWindow()
@@ -50,7 +52,7 @@ namespace CurriculumConstructor
 
                 DataGridDisciplines.ItemsSource = await Task.Run(() => LoadExcelDataGrid(filePathName));
 
-                this.Title = TitleModel.Title.ProfileNumber + " - " + TitleModel.Title.ProfileName;
+                this.Title = TitleData.ProfileNumber + " - " + TitleData.ProfileName;
             }
 
             (sender as Button).IsEnabled = true;
@@ -70,23 +72,23 @@ namespace CurriculumConstructor
             {
                 var titularWorksheet = workbook.Worksheets.Item["Титул"];
 
-                TitleModel.Title.ProfileNumber = GetCell(titularWorksheet, 16, 2);
-                TitleModel.Title.ProfileName = GetCell(titularWorksheet, 19, 2);
-                TitleModel.Title.DepartmentName = GetCell(titularWorksheet, 26, 2);
-                TitleModel.Title.StartYear = GetCell(titularWorksheet, 29, 20);
+                TitleData.ProfileNumber = GetCell(titularWorksheet, 16, 2);
+                TitleData.ProfileName = GetCell(titularWorksheet, 19, 2);
+                TitleData.DepartmentName = GetCell(titularWorksheet, 26, 2);
+                TitleData.StartYear = GetCell(titularWorksheet, 29, 20);
 
-                TitleModel.Title.EducationForm = GetCell(titularWorksheet, 31, 1);
-                TitleModel.Title.EducationPeriod = GetCell(titularWorksheet, 32, 1);
-                TitleModel.Title.Qualification = GetCell(titularWorksheet, 29, 1);
+                TitleData.EducationForm = GetCell(titularWorksheet, 31, 1);
+                TitleData.EducationPeriod = GetCell(titularWorksheet, 32, 1);
+                TitleData.Qualification = GetCell(titularWorksheet, 29, 1);
 
-                TitleModel.Title.EducationForm = TitleModel.Title.EducationForm.Substring(TitleModel.Title.EducationForm.IndexOf(": ") + 2);
-                TitleModel.Title.EducationPeriod = TitleModel.Title.EducationPeriod.Substring(TitleModel.Title.EducationPeriod.IndexOf(": ") + 2);
-                TitleModel.Title.Qualification = TitleModel.Title.Qualification.Substring(TitleModel.Title.Qualification.IndexOf(": ") + 2);
+                TitleData.EducationForm = TitleData.EducationForm.Substring(TitleData.EducationForm.IndexOf(": ") + 2);
+                TitleData.EducationPeriod = TitleData.EducationPeriod.Substring(TitleData.EducationPeriod.IndexOf(": ") + 2);
+                TitleData.Qualification = TitleData.Qualification.Substring(TitleData.Qualification.IndexOf(": ") + 2);
             }
 
             var worksheet = workbook.Worksheets.Item["План"];
             int semestersCount = Convert.ToInt32(
-                string.Join("", TitleModel.Title.EducationPeriod.TakeWhile(x => char.IsDigit(x)))
+                string.Join("", TitleData.EducationPeriod.TakeWhile(x => char.IsDigit(x)))
                 ) * 2; // Years * semesters count in one year
 
             List<DisciplineRow> disciplineRows = new List<DisciplineRow>();
@@ -168,6 +170,8 @@ namespace CurriculumConstructor
                 rowElement.Control = GetCell(worksheet, rowNumber, 7) ?? "0";
                 rowElement.Expert = GetCell(worksheet, rowNumber, 8) ?? "0";
                 rowElement.Actual = GetCell(worksheet, rowNumber, 9) ?? "0";
+                rowElement.HoursPerCreditUnit = GetCell(worksheet, rowNumber, 10) ?? "0";
+                rowElement.ContansHours = GetCell(worksheet, rowNumber, 13) ?? "0";
 
                 for (int semesterNumber = 1; semesterNumber <= semestersCount; semesterNumber++)
                 {
@@ -219,12 +223,24 @@ namespace CurriculumConstructor
 
             DocumentReplaceObject.Discipline = rowElement.DisciplineName;
 
-            SettingMenuWindow settingMenuWindow = new SettingMenuWindow(rowElement);
+            SettingMenuWindow settingMenuWindow = new SettingMenuWindow(ParentGroupId_Block_Part[rowElement.ParentGroup], TitleData, rowElement);
 
             Hide();
             settingMenuWindow.ShowDialog();
             Show();
         }
+    }
+
+    public class TitleData
+    {
+        public string ProfileNumber { get; set; } = "";
+        public string ProfileName { get; set; } = "";
+
+        public string Qualification { get; set; } = "";
+        public string DepartmentName { get; set; } = "";
+        public string EducationForm { get; set; } = "";
+        public string EducationPeriod { get; set; } = "";
+        public string StartYear { get; set; } = "";
     }
 
     public class DisciplineRow
@@ -239,6 +255,10 @@ namespace CurriculumConstructor
         public string Control { get; set; }
         public string Expert { get; set; }
         public string Actual { get; set; }
+        public int HoursPerCreditUnit { get; set; }
+        public int ContansHours { get; set; }
+        
+
         public List<Semester> Semesters { get; set; } = new List<Semester>();
         public int Code { get; set; }
         public string DepartmentName { get; set; }

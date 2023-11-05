@@ -6,43 +6,50 @@
       xmlns:local="clr-namespace:CurriculumConstructor.SettingMenu.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-     Loaded="Page_Loaded"
-       
+      Loaded="Page_Loaded"
+      Background="#eff2f7"
       Title="PlanOfDisciplinesPage">
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
             <StackPanel>
                 <ListBox DisplayMemberPath="Theme" Margin="10" MinHeight="75" SelectionChanged="ThemeDisciplinesListBox_SelectionChanged"  Name="ThemeDisciplinesListBox" />
-                <Button Click="AddClick" Content="Новый" />
-                <Button Click="DelClick" Content="Удалить" />
-                <Button Click="ContentClick" Content="Содержание дисциплины" />
+                <Button Click="AddClick" Content="Новый"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
+                <Button Click="DelClick" Content="Удалить"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
+                <Button Click="ContentClick" Content="Содержание дисциплины" Style="{StaticResource ModernWhiteButton}" Margin="5" />
             </StackPanel>
-          
         </Grid>
         
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="1" Margin="5">
             <StackPanel>
                 <TextBlock Text="Тема дисциплины" />
-                <TextBox Text="{Binding Theme}" />
-                <TextBlock Text="Семестр" />
-                <TextBox Text="{Binding Semestr}" />
+                <TextBox Text="{Binding ThemeName}"  Style="{StaticResource ModernTextBox}"/>
+                <StackPanel Margin="0 10 0 5" Orientation="Horizontal">
+                    <TextBlock Text="Семестр: "  VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding Semester}" Width="105" Margin="5 0" Style="{StaticResource ModernTextBox}"/>
+                    <TextBlock Text="Модуль (семестра) :"  VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding SemesterModule}" Width="105" Margin="5 0" Style="{StaticResource ModernTextBox}"/>
+                </StackPanel>
                 <TextBlock Text="Лекция" />
-                <TextBox Text="{Binding Lecture}" />
+                <TextBox Text="{Binding LectureHours}"  Style="{StaticResource ModernTextBox}"/>
                 <TextBlock Text="Практические занятия" />
-                <TextBox Text="{Binding Practice}" />
+                <TextBox Text="{Binding PracticeHours}"  Style="{StaticResource ModernTextBox}"/>
                 <TextBlock Text="Лабораторные занятия" />
-                <TextBox Text="{Binding Lab}" />
+                <TextBox Text="{Binding LaboratoryWorkHours}" Style="{StaticResource ModernTextBox}" />
                 <TextBlock Text="СРС" />
-                <TextBox Text="{Binding Crc}" />
+                <TextBox Text="{Binding IndependentHours}" Style="{StaticResource ModernTextBox}"/>
 
-                <Button Content="Добавить тему" Click="SaveClick" />
+                <Button Content="Добавить тему" Click="SaveClick" Style="{StaticResource ModernWhiteButton}" Margin="0 10" />
 
+                <TextBlock x:Name="txtboxLecture" Height="20" Text="Лекций: 0/0;" FontSize="16" Margin="0 5"/>
+                <TextBlock x:Name="txtboxPractice" Height="20" Text="Практический занятий: 0/0;" FontSize="16" Margin="0 5" />
+                <TextBlock x:Name="txtboxLaboratory" Height="20" Text="Лабораторных занятий: 0/0;" FontSize="16" Margin="0 5" />
+                <TextBlock x:Name="txtboxIndependent" Height="20" Text="СРС: 0/0." FontSize="16" Margin="0 5" />
             </StackPanel>
         </Grid>
         

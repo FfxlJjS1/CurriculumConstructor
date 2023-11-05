@@ -4,6 +4,16 @@
              xmlns:local="clr-namespace:CurriculumConstructor"
              StartupUri="ExcelLoadWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/TextBoxTheme.xaml"/>
+                <ResourceDictionary Source="Themes/PasswordTextBoxTheme.xaml"/>
+                <ResourceDictionary Source="Themes/WhiteButtonTheme.xaml"/>
+                <ResourceDictionary Source="Themes/MenuButtonTheme.xaml"/>
+                <ResourceDictionary Source="Themes/SearchTextBoxTheme.xaml"/>
+                <ResourceDictionary Source="Themes/ComboBoxTextBoxStyle.xaml"/>
+                <ResourceDictionary Source="Themes/ComboBoxTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

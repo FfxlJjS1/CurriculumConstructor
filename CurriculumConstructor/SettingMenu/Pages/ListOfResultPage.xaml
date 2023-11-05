@@ -5,26 +5,63 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:CurriculumConstructor.SettingMenu.Pages"
       mc:Ignorable="d" 
+      Background="#eff2f7"
       d:DesignHeight="450" d:DesignWidth="800"
       Title="ListOfResultPage">
 
-    <Grid>
-        <StackPanel Margin="15" HorizontalAlignment="Center">
-            <TextBlock Text="Оцениваемые компетенции (код, наименование)" />
-            <TextBox AcceptsReturn="True" Text="{Binding Col1}"  />
-            <TextBlock Text="Код и наименование индикатора (индикаторов) достижения компетенции" />
-            <TextBox  AcceptsReturn="True" Text="{Binding Col2}"  />
-            <TextBlock Text="Результаты освоения компетенции" />
-            <TextBlock Text="Знать:" />
-            <TextBox  AcceptsReturn="True" Text="{Binding Row1}"  />
-            <TextBlock Text="Уметь:" />
-            <TextBox  AcceptsReturn="True" Text="{Binding Row2}"  />
-            <TextBlock Text="Владеть:" />
-            <TextBox  AcceptsReturn="True" Text="{Binding Row3}"  />
+        <Grid>
+            <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
+        <Grid Grid.Row="0">
+            <StackPanel Height="50" Orientation="Horizontal" HorizontalAlignment="Left">
+                <TextBlock Text="ОПК: " VerticalAlignment="Center"/>
+                <ComboBox x:Name="ComboboxOPKs" DisplayMemberPath="Code" Selected="ComboboxOPKs_Selected" FontSize="16" Height="40" Width="760"/>
+            </StackPanel>
+        </Grid>
 
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+ VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <Button Content="Сохранить" Click="SaveClick" />
-        </StackPanel>
+                <StackPanel Orientation="Vertical" Grid.Row="0">
+                    <TextBlock Text="Оцениваемые компетенциии (код, наименование):" Margin="5 0" VerticalAlignment="Center"/>
+                    <TextBox x:Name="txtboxBlCompetencyName" Margin="5" Text="{Binding CodeName}"  Style="{StaticResource ModernTextBox}" Height="50"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Grid.Row="1">
+                    <TextBlock Text="Код и наименование индикатора (код, наименование) достожения компетенции:" Margin="5 0" VerticalAlignment="Center"/>
+                    <TextBox x:Name="txtboxBlCompetencyAchivments" Margin="5" Text="{Binding CompetencyAchivmentIndicators}" Style="{StaticResource ModernTextBox}" Height="50"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Grid.Row="2">
+                    <TextBlock Text="Результаты освоения компетенции (знать):" Margin="5 0" VerticalAlignment="Center"/>
+                    <TextBox x:Name="txtboxBlCompetencyToKnow" Margin="5" Text="{Binding ToKnowResult}" Style="{StaticResource ModernTextBox}" Height="50"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Grid.Row="3">
+                    <TextBlock Text="Результаты освоения компетенции (уметь):" Margin="5 0" VerticalAlignment="Center"/>
+                    <TextBox x:Name="txtboxBlCompetencyToAble" Margin="5" Text="{Binding ToAbilityResult}" Style="{StaticResource ModernTextBox}" Height="50"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Grid.Row="4">
+                    <TextBlock Text="Результаты освоения компетенции (владеть):" Margin="5 0" VerticalAlignment="Center"/>
+                    <TextBox x:Name="txtboxBlCompetencyToOwn" Margin="5" Text="{Binding ToOwnResult}" Style="{StaticResource ModernTextBox}" Height="50"/>
+                </StackPanel>
+
+                <Button Grid.Row="5" Click="Button_Click" Content="Сохранить ОПК" Style="{StaticResource ModernWhiteButton}" Width="200" HorizontalAlignment="Right"/>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>

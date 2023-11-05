@@ -1,10 +1,13 @@
-﻿using Microsoft.Office.Interop.Excel;
+﻿using CurriculumConstructor;
+using CurriculumConstructor.SettingMenu.Model;
+using Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Interop.Word;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Linq;
 using System.Windows.Data;
@@ -24,12 +27,15 @@ namespace TestWord
         //данные
         DisciplineModel discipline;
         List<ThemeModel> themes;
+        GeneralModel generalModel;
 
-        public WordHelper(string fileName)
+        public WordHelper(string fileName, GeneralModel generalModel)
         {
             if (File.Exists(fileName))
             {
                 _fileInfo = new FileInfo(fileName);
+
+                this.generalModel = generalModel;
             }
             else
             {
@@ -37,7 +43,7 @@ namespace TestWord
             }
         }
 
-        internal bool Process(Dictionary<string, string> items)
+        internal bool Process()
         {
             try
             {
@@ -47,7 +53,9 @@ namespace TestWord
                 wordDocument = app.Documents.Open(file, ReadOnly: false);
 
                 getData();
-                replaceText(items);
+
+                replaceText(new Dictionary<string, string>());
+
                 createTable1();
                 createTable2();
                 createTable3_15("<TABLE3>");
@@ -88,6 +96,11 @@ namespace TestWord
                 }
             }
             return false;
+        }
+
+        internal void PreviewView()
+        {
+            // 
         }
 
         private void getData()
@@ -508,6 +521,54 @@ namespace TestWord
         {
             Object missing = Type.Missing;
 
+            List<Semester> semesters = generalModel.Semesters;
+
+            if(items.Count <= 0)
+            {
+                items = new Dictionary<string, string>
+                {
+                    //EXCEL ИЛИ ПРОГРАММНО РАССЧИТАТЬ
+                    //0-1
+                    {"<YEAR>", DateTime.Now.Year.ToString() },
+                    {"<INDEX>", generalModel.Index },
+                    {"<DISCIPLINE>", generalModel.DisciplineName }, //6, 6.3.1.1 (ЛАБЫ), 6.4, 11, аннотация
+                    {"<DIRECTION>", generalModel.ProfileNumber + " " +  generalModel.ProfileName }, //2, 6.4, 12, аннотация
+                    {"<PROFILE>", generalModel.ProfileName }, //2, 12, аннотация
+                    {"<QUALIFICATION>", generalModel.Qualification },
+                    {"<FORM_STUDY>", generalModel.EducationForm },
+                    {"<LANGUAGE_STUDY>", "русский" },
+                    {"<YEAR_START>", generalModel.StartYear },
+                    //2
+                    {"<BLOCK_1>", generalModel.ParentBlock_1}, // "Блока 1 \"Дисциплины (модули)\""
+                    {"<BLOCK_2>", generalModel.ParentSubBlock_1}, // "обязательной части"
+                    {"<COURSE_SEMESTER>",  string.Join(", " ,semesters.Select(semester =>  ((int)((semester.SemesterNumber - 1) / 2) + 1).ToString() + " курсе в " + semester.SemesterNumber + " семестре"))},
+                    //3
+                    {"<TOILSOMENESS>", generalModel.Actual + " зачетных единиц, "
+                        + (Convert.ToInt32(generalModel.Actual) * Convert.ToInt32(generalModel.HoursPerCreditUnit)).ToString()
+                        + " часов"},
+                    {"<WORK>",
+                        "Контактная работа обучающихся с преподавателем - " + generalModel.ContansHours.ToString() + " часов;"
+                        + "\r\n- лекции " + semesters.Sum(semester => Convert.ToInt32(semester.Lectures)).ToString() + " ч.;"
+                        + "\r\n- практические занятия " + semesters.Sum(semester => Convert.ToInt32(semester.PracticeWorks)).ToString() + " ч.;"
+                        + "\r\n- лабораторные работы " + semesters.Sum(semester => Convert.ToInt32(semester.LaboratoryWorks)).ToString() + " ч."
+                        + "\r\nСамостоятельная работа " + semesters.Sum(semester => Convert.ToInt32(semester.IndependentWork)).ToString() + " ч."
+                        + "\r\nКонтроль (экзамен) " + semesters.Sum(semester => Convert.ToInt32(semester.Control)).ToString() + " ч."},
+                    {"<ATTESTATION>", "экзамен в 4 семестре"}, //6.4 //зачет с оценкой в 1, 2, 3 семестрах, экзамен в 4 семестре
+                    //6
+                    {"<ATTESTATION_2>", "экзамена"}, //зачета с оценкой (1, 2, 3 семестры) и экзамена (4 семестр)
+                    //
+
+                    //ВВОДИМЫЕ ДАННЫЕ
+                    {"<AUTHOR>", generalModel.Author },
+                    {"<AUTHOR_IN_THE_INSTRUMENTAL_CASE>", generalModel.AuthorInTheInstrumentalCase }, // Before 1 in the same page // Автор в творительном падеже
+                    {"<REVIEWER>", generalModel.Reviewer },
+                    {"<DEPARTMENT_CHAIR>", generalModel.DepartmentChair },
+                    //5
+                    {"<METHOD_BOOK>", generalModel.MethodBook }
+
+                };
+            }
+
             //замена простого текст
             foreach (var item in items)
             {
@@ -580,7 +641,7 @@ namespace TestWord
             dt2.Columns.Add(new DataColumn("Лабораторные", typeof(string)));
             dt2.Columns.Add(new DataColumn("СРС", typeof(string)));
 
-            for (int i = 0; i < themes.Count+3; i++)
+            for (int i = 0; i < generalModel.DisciplineThematicPlan.Count+3; i++)
                 dt2.Rows.Add();
 
             app.Selection.Find.Execute("<TABLE2>");
@@ -658,17 +719,18 @@ namespace TestWord
             wordTable2.Cell(2, 7).Width = width_column7;
             wordTable2.Cell(2, 5).Height = 3.31f * 28.35f;
 
-            int countItems = themes.Count;
+            var themes = generalModel.DisciplineThematicPlan;
+            int countItems = generalModel.DisciplineThematicPlan.Count;
 
             for (int i = 0; i < countItems; i++)
             {
                 wordTable2.Cell(3 + i, 1).Range.Text = (i+1).ToString();
-                wordTable2.Cell(3 + i, 2).Range.Text = themes[i].theme;
-                wordTable2.Cell(3 + i, 3).Range.Text = themes[i].semester.ToString();
-                wordTable2.Cell(3 + i, 4).Range.Text = themes[i].lecture_hour !=0 ? themes[i].lecture_hour.ToString() : "-";
-                wordTable2.Cell(3 + i, 5).Range.Text = themes[i].practical_hour != 0 ? themes[i].practical_hour.ToString() : "-";
-                wordTable2.Cell(3 + i, 6).Range.Text = themes[i].laboratory_hour != 0 ? themes[i].laboratory_hour.ToString() : "-";
-                wordTable2.Cell(3 + i, 7).Range.Text = themes[i].independent_hour != 0 ? themes[i].independent_hour.ToString() : "-";
+                wordTable2.Cell(3 + i, 2).Range.Text = themes[i].ThemeName;
+                wordTable2.Cell(3 + i, 3).Range.Text = themes[i].Semester.ToString();
+                wordTable2.Cell(3 + i, 4).Range.Text = themes[i].LectureHours !=0 ? themes[i].LectureHours.ToString() : "-";
+                wordTable2.Cell(3 + i, 5).Range.Text = themes[i].PracticeHours != 0 ? themes[i].PracticeHours.ToString() : "-";
+                wordTable2.Cell(3 + i, 6).Range.Text = themes[i].LaboratoryWorkHours != 0 ? themes[i].LaboratoryWorkHours.ToString() : "-";
+                wordTable2.Cell(3 + i, 7).Range.Text = themes[i].IndependentHours != 0 ? themes[i].IndependentHours.ToString() : "-";
 
                 wordTable2.Cell(3 + i, 1).Width = width_column1;
                 wordTable2.Cell(3 + i, 2).Width = width_column2;
@@ -686,10 +748,10 @@ namespace TestWord
             wordTable2.Cell(3 + countItems, 1).Range.Text = "";
             wordTable2.Cell(3 + countItems, 2).Range.Text = "Итого по дисциплине";
             wordTable2.Cell(3 + countItems, 3).Range.Text = "";
-            wordTable2.Cell(3 + countItems, 4).Range.Text = discipline.total_lecture_hour.ToString();
-            wordTable2.Cell(3 + countItems, 5).Range.Text = discipline.total_practical_hour.ToString();
-            wordTable2.Cell(3 + countItems, 6).Range.Text = discipline.total_laboratory_hour.ToString();
-            wordTable2.Cell(3 + countItems, 7).Range.Text = discipline.total_independent_hour.ToString();
+            wordTable2.Cell(3 + countItems, 4).Range.Text = generalModel.NeedTotalLectureHours.ToString();
+            wordTable2.Cell(3 + countItems, 5).Range.Text = generalModel.NeedTotalPracticeHours.ToString();
+            wordTable2.Cell(3 + countItems, 6).Range.Text = generalModel.NeedTotalLaboratoryWorkHours.ToString();
+            wordTable2.Cell(3 + countItems, 7).Range.Text = generalModel.NeedTotalIndependentHours.ToString();
 
             wordTable2.Cell(3 + countItems, 1).Width = width_column1;
             wordTable2.Cell(3 + countItems, 2).Width = width_column2;
@@ -710,7 +772,6 @@ namespace TestWord
             //Столбец СРС
             wordTable2.Cell(1, 5).Merge(wordTable2.Cell(2, 7));
         }
-
 
 
         private void createTable3_15(string tag)
@@ -1542,20 +1603,11 @@ namespace TestWord
         //Экзамен 6.3.4.3. Содержание оценочного средства
         private void createTable8()
         {
-            //вопросы к экзамену
-            List<QuestionModel> questions = new List<QuestionModel>()
-            {
-                new QuestionModel("Основные, дополнительные, производные, внесистемные единицы, допускаемые к применению наравне с единицами СИ", new List<string>(){"ОПК-11", "ОПК-12"}),
-                new QuestionModel("Кратные и дольные единицы измерений", new List<string>(){"ОПК-11", "ОПК-12"}),
-                new QuestionModel("Международная система единиц физических величин (СИ), ее применение в России", new List<string>(){"ОПК-11"}),
-                new QuestionModel("Эталоны физических величин", new List<string>(){"ОПК-12"}),
-            };
-
             app.Selection.Find.Execute("<TABLE8>");
             var wordRange = app.Selection.Range;
 
             int colomn_count = 2+discipline.competences.Count;
-            int row_count = 1+questions.Count;
+            int row_count = 1+generalModel.QuestionCodes.Count;
 
             Word.Table wordTable = wordDocument.Tables.Add(wordRange, row_count, colomn_count);
             wordTable.Borders.Enable = Convert.ToInt32(true);
@@ -1569,17 +1621,17 @@ namespace TestWord
                 wordTable.Cell(1, 3 + i).Range.Text = discipline.competences[i].kod;
 
             int current_row = 2;
-            for (int i = 0; i < questions.Count; i++)
+            for (int i = 0; i < generalModel.QuestionCodes.Count; i++)
             {
-                var question = questions[i];
+                var question = generalModel.QuestionCodes[i];
                 wordTable.Cell(current_row, 1).Range.Text = (i + 1).ToString();
-                wordTable.Cell(current_row, 2).Range.Text = question.name;
+                wordTable.Cell(current_row, 2).Range.Text = question.Question;
                 for (int j = 0; j < discipline.competences.Count; j++)
                 {
                     var current_competence = discipline.competences[j];
-                    for (int k = 0; k < question.competence.Count; k++)
+                    for (int k = 0; k < question.Competencies.Count; k++)
                     {
-                        if (question.competence[k] == current_competence.kod)
+                        if (question.Competencies[k] == current_competence.kod)
                             wordTable.Cell(current_row, 3 + j).Range.Text = "+";
                     }
                 }
@@ -2141,67 +2193,7 @@ namespace TestWord
         //11 материально техническая база
         private void createTable14()
         {
-            List<MaterialBaseModel> list_material = new List<MaterialBaseModel>()
-            {
-                new MaterialBaseModel(
-                    "Ул. Р. Фахретдина, 42. Учебный корпус В, аудитория В-207, (учебная аудитория для проведения занятий лекционного типа, практического типа, групповых и индивидуальных консультаций, текущего контроля и промежуточной аттестации, выполнения курсовых работ)", 
-                    new List<string>()
-                    {
-                        "Компьютер в комплекте с монитором ITCorp",
-                        "Проектор NEC",
-                        "Экран проекционный",
-                        "Принтер Pantum P2207",
-                    }
-                ),
-                new MaterialBaseModel(
-                    "Ул. Р. Фахретдина, 42. Учебный корпус В, аудитория В-138, (учебная аудитория для проведения занятий лекционного и практического типа, групповых и индивидуальных консультаций, текущего контроля и промежуточной аттестации)",
-                    new List<string>()
-                    {
-                        "Компьютер в комплекте с монитором ITCorp",
-                        "Проектор NEC",
-                        "Экран проекционный",
-                        "Принтер Pantum P2207",
-                        "Стенд лабораторный учебный",
-                        "Установка поверочная переносная УПП-3",
-                        "Установка для формирования и измерения давления МЛИ-4",
-                        "Установка для формирования и измерения температуры МЛИ -2",
-                        "Установка для формирования и измерения электрических величин МЛИ-3",
-                    }
-                ),
-                new MaterialBaseModel(
-                    "Ул. Р. Фахретдина, 42. Учебный корпус В, аудитория В-214 компьютерный (учебная аудитория для проведения текущего контроля и промежуточной аттестации, курсового проектирования, самостоятельной работы",
-                    new List<string>()
-                    {
-                        "Компьютер в комплекте с монитором IT Corp 3250 – 11 шт. с подключением к сети \"Интернет\" и обеспечением доступа в электронную информационно-образовательную среду института",
-                        "Проектор NEC",
-                        "Экран на штативе",
-                        "Принтер HP LJ P3015d",
-                        "Сканер Epson Perfection V33",
-                    }
-                ),
-                new MaterialBaseModel(
-                    "Ул. Р. Фахретдина, 42. Учебный корпус В, аудитория В-204,(учебная аудитория проведения занятий лекционного, лабораторного и практического типов, групповых и индивидуальных консультаций)",
-                    new List<string>()
-                    {
-                        "Компьютер в комплекте с монитором ITCorp",
-                        "Проектор NEC",
-                        "Экран проекционный",
-                        "Принтер Pantum P2207",
-                        "Стенд учебный «Электрические измерения и основы метрологии»",
-                    }
-                ),
-                new MaterialBaseModel(
-                    "Ул. Р. Фахретдина, 42. Учебный корпус В, аудитория В-216 (учебная аудитория для проведения занятий лекционного типа)",
-                    new List<string>()
-                    {
-                        "Компьютер в комплекте с монитором",
-                        "Проектор BenQ MW612",
-                        "Экран проекционный",
-                        "Экран с электроприводом",
-                    }
-                ),
-            };
-            int row = 1 + list_material.Count;
+            int row = 1 + generalModel.PlaceTheirEquipments.Count;
             int column = 3;
             app.Selection.Find.Execute("<TABLE14>");
             Word.Range wordTableRange = app.Selection.Range;
@@ -2218,17 +2210,17 @@ namespace TestWord
             wordTable.Cell(1, 2).Range.Text = "Наименование специальных* помещений и помещений для самостоятельной работы";
             wordTable.Cell(1, 3).Range.Text = "Оснащенность специальных помещений и помещений для самостоятельной работы";
             int current_row = 2;
-            for (int i = 0; i < list_material.Count; i++)
+            for (int i = 0; i < generalModel.PlaceTheirEquipments.Count; i++)
             {
                 wordTable.Cell(current_row, 1).Range.Text = $"{i + 1}";
-                wordTable.Cell(current_row, 2).Range.Text = $"{list_material[i].room}";
+                wordTable.Cell(current_row, 2).Range.Text = $"{generalModel.PlaceTheirEquipments[i].PlaceName}";
                 string equipment = "";
-                for (int j = 0; j < list_material[i].equipment.Count; j++)
+                for (int j = 0; j < generalModel.PlaceTheirEquipments[i].EquipmentsName.Count; j++)
                 {
-                    if (list_material[i].equipment.Count==1)
-                        equipment = list_material[i].equipment[j];
+                    if (generalModel.PlaceTheirEquipments[i].EquipmentsName.Count==1)
+                        equipment = generalModel.PlaceTheirEquipments[i].EquipmentsName[j];
                     else
-                        equipment = equipment + $"{j + 1}. {list_material[i].equipment[j]}\n";
+                        equipment = equipment + $"{j + 1}. {generalModel.PlaceTheirEquipments[i].EquipmentsName[j]}\n";
                 }
                 wordTable.Cell(current_row, 3).Range.Text = equipment;
                 //форматирование

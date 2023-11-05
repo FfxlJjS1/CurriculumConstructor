@@ -20,7 +20,7 @@ namespace CurriculumConstructor.SettingMenu.Windows
     /// </summary>
     public partial class DisciplineContentWindow : Window
     {
-        public DisciplineContentWindow(ThemeDisciplines tD)
+        public DisciplineContentWindow(ref GeneralModel.DisciplineThematicTheme discThematicTheme)
         {
             InitializeComponent();
             this.Title = $"{tD.Theme} ({tD.AllHour} ч.)";
@@ -28,6 +28,7 @@ namespace CurriculumConstructor.SettingMenu.Windows
             if (tD.disciplinaryModules == null) _themeDisciplines.disciplinaryModules = new List<DisciplinaryModule>();
             Reload();
         }
+
         private ThemeDisciplines _themeDisciplines;
         private DisciplinaryModule _disciplinaryModule;
         private bool IsEdit;

@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CurriculumConstructor"
         mc:Ignorable="d"
+        Background="#eff2f7"
         Title="MainWindow" Height="550" Width="900">
     <Grid>
         <Grid.RowDefinitions>
@@ -18,9 +19,9 @@
                 <ColumnDefinition Width="250"/>
             </Grid.ColumnDefinitions>
 
-            <TextBox x:Name="FilePathNameTextBlock" FontSize="18" VerticalContentAlignment="Center" Margin="0 0 10 0" Grid.Column="0"/>
+            <TextBox x:Name="FilePathNameTextBlock" FontSize="18" VerticalContentAlignment="Center" Style="{StaticResource ModernTextBox}" Margin="0 0 10 0" Grid.Column="0"/>
 
-            <Button Click="FileSelectClick" Grid.Column="1" FontSize="16" Content="Выберите файл (*.xlsx, *.xls)"/>
+            <Button Click="FileSelectClick" Grid.Column="1" Style="{StaticResource ModernWhiteButton}" FontSize="16" Content="Выберите файл (*.xlsx, *.xls)"/>
         </Grid>
 
         <DataGrid x:Name="DataGridDisciplines" Grid.Row="1" IsReadOnly="True" AutoGenerateColumns="False" MouseDoubleClick="DataGridDisciplines_MouseDoubleClick">

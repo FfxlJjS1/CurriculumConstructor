@@ -17,37 +17,30 @@ using System.Windows.Shapes;
 namespace CurriculumConstructor.SettingMenu.Pages
 {
     /// <summary>
-    /// Логика взаимодействия для ListOfResultPage.xaml
+    /// Логика взаимодействия для TitlePage.xaml
     /// </summary>
-    public partial class ListOfResultPage : Page
+    public partial class TitlePage : Page
     {
         private GeneralModel generalModel;
-        public ListOfResultPage(ref GeneralModel generalModel)
+
+        public TitlePage(ref GeneralModel generalModel)
         {
             InitializeComponent();
 
             this.generalModel = generalModel;
 
-            ComboboxOPKs.ItemsSource = generalModel.competencyPlanningResults.Select(x => new
-            {
-                x.Code,
-                x.CodeName
-            });
-        }
-
-        private void SaveClick(object sender, RoutedEventArgs e)
-        {
-
+            txtBoxAuthor.Text = generalModel.Author;
+            txtBoxAuthorInTheInstrumentalCase.Text = generalModel.AuthorInTheInstrumentalCase;
+            txtBoxReviewer.Text = generalModel.Reviewer;
+            txtBoxHead.Text = generalModel.Head;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-
-        }
-
-        private void ComboboxOPKs_Selected(object sender, RoutedEventArgs e)
-        {
-            this.DataContext = generalModel.competencyPlanningResults[(sender as ComboBox).SelectedIndex];
+            generalModel.Author = txtBoxAuthor.Text;
+            generalModel.AuthorInTheInstrumentalCase = txtBoxAuthorInTheInstrumentalCase.Text;
+            generalModel.Reviewer = txtBoxReviewer.Text;
+            generalModel.Head = txtBoxHead.Text;
         }
     }
 }

@@ -5,27 +5,86 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CurriculumConstructor"
         mc:Ignorable="d"
-        Loaded="Window_Loaded"
+        WindowStyle="None"
         WindowStartupLocation="CenterScreen"
-        Title="SettingMenuWindow" Height="450" Width="800">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="150" MaxWidth="400"/>
-            <ColumnDefinition MinWidth="500"/>
-        </Grid.ColumnDefinitions>
+        Background="Transparent"
+        AllowsTransparency="True"
+        Title="SettingMenuWindow"
+        MinHeight="500" MinWidth="600"
+        Height="600" Width="1000">
+    <Border Background="#eff2f7" CornerRadius="20"  MouseDown="Border_MouseDown">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <ScrollViewer Grid.Column="0" Margin="5">
-            <ListView SelectionChanged="SettingMenu_SelectionChanged" x:Name="SettingMenu">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="0 0 0 10">
-                            <TextBlock Uid="{Binding Path=Id}" TextAlignment="Center" Text="{Binding Path=Text}" MouseUp="TextBlock_MouseUp"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </ScrollViewer>
+            <Border Padding="20" CornerRadius="20,0,0,20" Width="250" Background="#252737">
+                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                    <RadioButton x:Name="titleMenuButton" Content="Титульник" 
+                                 FontSize="14"
+                                 Height="40"
+                                 Foreground="#eff2f7"
+                                 Checked="MeuButton_Checked"
+                                 Style="{StaticResource MenuButtonTheme}"/>
+                    <RadioButton x:Name="planningResultMenuButton" Content="Планируемые результаты"
+                                 FontSize="14"
+                                 Height="40"
+                                 Foreground="#eff2f7"
+                                 Checked="MeuButton_Checked"
+                                 Style="{StaticResource MenuButtonTheme}"/>
+                    <RadioButton x:Name="thematicPlanMenuButton" Content="Тематический план"
+                                 FontSize="14"
+                                 Height="40"
+                                 Foreground="#eff2f7"
+                                 Checked="MeuButton_Checked"
+                                 Style="{StaticResource MenuButtonTheme}"/>
+                    <RadioButton x:Name="intermediateCertificationMenuButton" Content="Промежуточная аттестация"
+                                 FontSize="14"
+                                 Height="40"
+                                 Foreground="#eff2f7"
+                                 Checked="MeuButton_Checked"
+                                 Style="{StaticResource MenuButtonTheme}"/>
+                    <RadioButton x:Name="testTasksMenuButton" Content="Тестовые задания"
+                                 FontSize="14"
+                                 Height="40"
+                                 Foreground="#eff2f7"
+                                 Checked="MeuButton_Checked"
+                                 Style="{StaticResource MenuButtonTheme}"/>
+                    <RadioButton x:Name="evaluationCriteriaMenuButton" Content="Критерии оценивания"
+                                 FontSize="14"
+                                 Height="40"
+                                 Foreground="#eff2f7"
+                                 Checked="MeuButton_Checked"
+                                 Style="{StaticResource MenuButtonTheme}"/>
+                    <RadioButton x:Name="examMenuButton" Content="Экзамен"
+                                 FontSize="14"
+                                 Height="40"
+                                 Foreground="#eff2f7"
+                                 Checked="MeuButton_Checked"
+                                 Style="{StaticResource MenuButtonTheme}"/>
+                    <RadioButton x:Name="additionalPointsMenuButton" Content="Дополнительные баллы"
+                                 FontSize="14"
+                                 Height="40"
+                                 Foreground="#eff2f7"
+                                 Checked="MeuButton_Checked"
+                                 Style="{StaticResource MenuButtonTheme}"/>
+                    <RadioButton x:Name="previewViewMenuButton" Content="Предварительный просмотр"
+                                 FontSize="14"
+                                 Height="40"
+                                 Foreground="#eff2f7"
+                                 Checked="MeuButton_Checked"
+                                 Style="{StaticResource MenuButtonTheme}"/>
+                </StackPanel>
+            </Border>
+            
+            <Button x:Name="btnSignOut" Margin="40,20,40,20" VerticalAlignment="Bottom" Click="btnSignOut_Click" Style="{StaticResource ModernWhiteButton}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Выйти"  Padding="2"/>
+                </StackPanel>
+            </Button>
 
-        <Frame x:Name="ContentFrame" Grid.Column="1" NavigationUIVisibility="Hidden"/>
-    </Grid>
+            <Frame x:Name="ContentFrame" NavigationUIVisibility="Hidden" Grid.Column="1" Padding="15"/>
+        </Grid>
+    </Border>
 </Window>

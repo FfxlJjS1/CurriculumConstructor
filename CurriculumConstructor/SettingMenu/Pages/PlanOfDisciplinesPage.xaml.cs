@@ -22,28 +22,26 @@ namespace CurriculumConstructor.SettingMenu.Pages
     /// </summary>
     public partial class PlanOfDisciplinesPage : Page
     {
-        public PlanOfDisciplinesPage()
+        private GeneralModel generalModel;
+
+        public PlanOfDisciplinesPage(ref GeneralModel generalModel)
         {
             InitializeComponent();
-            PlanOfDisciplinesModel model = PlanOfDisciplinesModel.PlanOfDisciplines;
-            if (model == null)
-            {
-                _model = new PlanOfDisciplinesModel();
-            }
-            else
-            {
-                _model = model;
-            }
-           
+
+
+            this.generalModel = generalModel;
+            this._model = generalModel.DisciplineThematicPlan;
         }
-        private PlanOfDisciplinesModel _model;
-        private ThemeDisciplines _themeDisciplines;
+
+        private List<GeneralModel.DisciplineThematicTheme> _model;
+
+        private GeneralModel.DisciplineThematicTheme _themeDisciplines;
         private bool IsEdit;
         private void SaveClick(object sender, RoutedEventArgs e)
         {
             if (IsEdit == false)
             {
-                _model.ThemeDisciplines.Add(_themeDisciplines);
+                _model.Add(_themeDisciplines);
             }
             
             Reload();
@@ -61,7 +59,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
                 MessageBox.Show("Нужно выбрать тему!");
                 return;
             }
-            _model.ThemeDisciplines.Remove(_themeDisciplines);
+
+            _model.Remove(_themeDisciplines);
             Reload();
         }
 
@@ -71,21 +70,32 @@ namespace CurriculumConstructor.SettingMenu.Pages
             {
                 return;
             }
+
             IsEdit = true;
-            ThemeDisciplines theme = ThemeDisciplinesListBox.SelectedItem as ThemeDisciplines;
+
+            GeneralModel.DisciplineThematicTheme theme = ThemeDisciplinesListBox.SelectedItem as GeneralModel.DisciplineThematicTheme;
+
             _themeDisciplines = theme;
             DataContext = _themeDisciplines;
         }
+
         private void Reload()
         {
-            ThemeDisciplinesListBox.ItemsSource = _model.ThemeDisciplines;
-            _themeDisciplines = new ThemeDisciplines();
+            ThemeDisciplinesListBox.ItemsSource = _model;
+
+            _themeDisciplines = new GeneralModel.DisciplineThematicTheme();
+
             IsEdit = false;
+            
             ThemeDisciplinesListBox.SelectedItem = null;
             ThemeDisciplinesListBox.Items.Refresh();
+
             DataContext = _themeDisciplines;
-           
-            
+
+            txtboxLecture.Text = "Лекций: " + _model.Sum(x => x.LectureHours).ToString() + "/" + generalModel.NeedTotalLectureHours.ToString();
+            txtboxPractice.Text = "Практический занятий: " + _model.Sum(x => x.PracticeHours).ToString() + "/" + generalModel.NeedTotalPracticeHours.ToString();
+            txtboxLaboratory.Text = "Лабораторных занятий: " + _model.Sum(x => x.LaboratoryWorkHours).ToString() + "/" + generalModel.NeedTotalLaboratoryWorkHours.ToString();
+            txtboxIndependent.Text = "СРС: " + _model.Sum(x => x.IndependentHours).ToString() + "/" + generalModel.NeedTotalIndependentHours.ToString();
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
@@ -100,7 +110,9 @@ namespace CurriculumConstructor.SettingMenu.Pages
                 MessageBox.Show("Нужно выбрать тему!");
                 return;
             }
-            DisciplineContentWindow disciplineContentWindow = new DisciplineContentWindow(_themeDisciplines);
+
+            DisciplineContentWindow disciplineContentWindow = new DisciplineContentWindow(ref _themeDisciplines);
+
             disciplineContentWindow.ShowDialog();
         }
     }
