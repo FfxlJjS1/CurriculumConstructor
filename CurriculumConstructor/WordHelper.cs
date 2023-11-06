@@ -20,13 +20,11 @@ namespace TestWord
 {
     class WordHelper
     {
-        private FileInfo _fileInfo; 
+        private FileInfo _fileInfo;
         private Word.Application app;
         private Word._Document wordDocument;
 
         //данные
-        DisciplineModel discipline;
-        List<ThemeModel> themes;
         GeneralModel generalModel;
 
         public WordHelper(string fileName, GeneralModel generalModel)
@@ -43,7 +41,7 @@ namespace TestWord
             }
         }
 
-        internal bool Process()
+        internal bool Process(bool forPreview, string nameForSave = "shablon_1.docx")
         {
             try
             {
@@ -51,8 +49,6 @@ namespace TestWord
 
                 app = new Word.Application();
                 wordDocument = app.Documents.Open(file, ReadOnly: false);
-
-                getData();
 
                 replaceText(new Dictionary<string, string>());
 
@@ -74,7 +70,10 @@ namespace TestWord
                 createTable3_15("<TABLE15>");
                 createTable16();
 
-                saveWord();
+                if (forPreview)
+                    PreviewView(nameForSave);
+                else
+                    saveWord();
 
                 app.ActiveDocument.Close();
 
@@ -82,9 +81,9 @@ namespace TestWord
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("Ошибка! "+ex.Message+"\n"+
-                    ex.StackTrace + "\n" + 
-                    ex.TargetSite+"\n"+
+                System.Windows.MessageBox.Show("Ошибка! " + ex.Message + "\n" +
+                    ex.StackTrace + "\n" +
+                    ex.TargetSite + "\n" +
                     ex.HelpLink);
                 Console.WriteLine(ex.Message);
             }
@@ -98,395 +97,20 @@ namespace TestWord
             return false;
         }
 
-        internal void PreviewView()
+        internal void PreviewView(string nameForTempSave)
         {
-            // 
+            //Если нужно, через FileInfo можно получить другие данные
+            FileInfo targetDir = new FileInfo("./" + nameForTempSave);
+
+            string pathToFolder = targetDir.FullName + "";
+            string name_folder = targetDir.Name;
+
+            Object newFileName = System.IO.Path.Combine(@pathToFolder.ToString(), nameForTempSave);
+            app.ActiveDocument.SaveAs2(newFileName);
         }
-
-        private void getData()
-        {
-            //6.1 Перечень оценочных средств - текущий контроль
-            List<EvaluationToolModel> controls = new List<EvaluationToolModel>()
-            {
-                new EvaluationToolModel("лабораторная работа",
-                    "Темы, задания для выполнения лабораторных работ; вопросы к их защите",
-                    "Может выполняться в индивидуальном порядке или группой обучающихся. Задания в лабораторных работах должны включать элемент командной работы. Позволяет оценить умения, обучающихся самостоятельно конструировать свои знания в процессе решения практических задач и оценить уровень сформированности аналитических, исследовательских навыков, а также навыков практического мышления. Позволяет оценить способность к профессиональным трудовым действиям"
-                ),
-                new EvaluationToolModel("Практическая задача",
-                    "Комплект задач и заданий",
-                    "Средство оценки умения применять полученные теоретические знания в практической ситуации. Задача должна быть направлена на оценивание тех компетенций, которые подлежат освоению в данной дисциплине, должна содержать четкую инструкцию по выполнению или алгоритм действий"
-                ),
-                new EvaluationToolModel("Тестирование компьютерное",
-                    "Фонд тестовых заданий",
-                    "Система стандартизированных заданий, позволяющая автоматизировать процедуру измерения уровня знаний и умений, обучающегося по соответствующим компетенциям. Обработка результатов тестирования на компьютере обеспечивается специальными программами. Позволяет проводить самоконтроль (репетиционное тестирование), может выступать в роли тренажера при подготовке к зачету или экзамену"
-                ),
-            };
-            //6.1 Перечень оценочных средств - промежуточная аттестация
-            List<EvaluationToolModel> attestations = new List<EvaluationToolModel>()
-            {
-                new EvaluationToolModel("Экзамен",
-                    "Перечень вопросов, фонд тестовых заданий",
-                    "Итоговая форма определения степени достижения запланированных результатов обучения (оценивания уровня освоения компетенций). Экзамен нацелен на комплексную проверку освоения дисциплины. Экзамен проводится в форме тестирования по всем темам дисциплины"
-                ),
-            };
-
-            //данные - код, имя, знать, уметь, владеть, индикаторы
-            //1 Перечень планируемых результатов обучения по дисциплине
-            //6.2 Уровень освоения компетенций и критерии оценивания результатов обучения
-            //Аннотация
-            List<CompetenceModel> competences = new List<CompetenceModel>(){
-                new CompetenceModel("ОПК-11",
-                    "Способен проводить научные эксперименты с использованием современного исследовательского оборудования и приборов, оценивать результаты исследований",
-                    "Фундаментальные физические законы, константы и эффекты, используемые при измерениях, физические ограничения точности измерений, международную систему единиц величин и основные теории размерностей",
-                    "Применять методы и средства измерений для решения измерительных задач",
-                    "Способами расчёта погрешностей измерений",
-                    new List<CompetenceModel>(){
-                        new CompetenceModel("ОПК-11.1", "Знает фундаментальные физические законы, константы и эффекты, используемые при измерениях, физические ограничения точности измерений, международную систему единиц величин и основные теории размерностей"),
-                        new CompetenceModel("ОПК-11.3", "Умеет применять методы и средства измерений для решения измерительных задач"),
-                        new CompetenceModel("ОПК-11.4", "Владеет навыками работы  используемых средств измерения и контроля технологических процессов и   способами расчёта погрешностей измерений"),
-                    },
-                    new List<ResultDescModel>(){
-                        //знать 5,4,3,2
-                        new ResultDescModel(
-                            "Сформированные систематические представления об фундаментальных физических законах, константах и эффектах, используемых при измерениях, физических ограничениях точности измерений, международной системе единиц величин и основных теориях размерностей",
-                            "Сформированные, но содержащие отдельные пробелы представления об фундаментальных физических законах, константах и эффектах, используемых при измерениях, физических ограничениях точности измерений, международной системе единиц величин и основных теориях размерностей",
-                            "Неполные представления об фундаментальных физических законах, константах и эффектах, используемых при измерениях, физических ограничениях точности измерений, международной системе единиц величин и основных теориях размерностей",
-                            "Фрагментарные представления об фундаментальных физических законах, константах и эффектах, используемых при измерениях, физических ограничениях точности измерений, международной системе единиц величин и основных теориях размерностей"),
-                        //уметь 5,4,3,2
-                        new ResultDescModel(
-                            "Сформированное умение применять методы и средства измерений для решения измерительных задач",
-                            "В целом успешное, но содержащее отдельные пробелы умение применять методы и средства измерений для решения измерительных задач",
-                            "В целом успешное, но не систематическое умение применять методы и средства измерений для решения измерительных задач",
-                            "Фрагментарное умение применять методы и средства измерений для решения измерительных задач"),
-                        //владеть 5,4,3,2
-                        new ResultDescModel(
-                            "Успешное и систематическое владение способами расчёта погрешностей измерений",
-                            "В целом успешное, но содержащее отдельные пробелы владение способами расчёта погрешностей измерений",
-                            "В целом успешное, но не систематическое владение способами расчёта погрешностей измерений",
-                            "Фрагментарное владение способами расчёта погрешностей измерений")
-                    }
-                ),
-                new CompetenceModel("ОПК-12",
-                    "Способен проводить научные эксперименты с использованием современного исследовательского оборудования и приборов, оценивать результаты исследований",
-                    "Фундаментальные физические законы, константы и эффекты, используемые при измерениях, физические ограничения точности измерений, международную систему единиц величин и основные теории размерностей",
-                    "Применять методы и средства измерений для решения измерительных задач",
-                    "Способами расчёта погрешностей измерений",
-                    new List<CompetenceModel>(){
-                        new CompetenceModel("ОПК-12.1", "Знает фундаментальные физические законы, константы и эффекты, используемые при измерениях, физические ограничения точности измерений, международную систему единиц величин и основные теории размерностей"),
-                        new CompetenceModel("ОПК-12.3", "Умеет применять методы и средства измерений для решения измерительных задач"),
-                        new CompetenceModel("ОПК-12.4", "Владеет навыками работы  используемых средств измерения и контроля технологических процессов и   способами расчёта погрешностей измерений"),
-                    },
-                    new List<ResultDescModel>(){
-                        //знать 5,4,3,2
-                        new ResultDescModel(
-                            "Сформированные систематические представления об фундаментальных физических законах, константах и эффектах, используемых при измерениях, физических ограничениях точности измерений, международной системе единиц величин и основных теориях размерностей",
-                            "Сформированные, но содержащие отдельные пробелы представления об фундаментальных физических законах, константах и эффектах, используемых при измерениях, физических ограничениях точности измерений, международной системе единиц величин и основных теориях размерностей",
-                            "Неполные представления об фундаментальных физических законах, константах и эффектах, используемых при измерениях, физических ограничениях точности измерений, международной системе единиц величин и основных теориях размерностей",
-                            "Фрагментарные представления об фундаментальных физических законах, константах и эффектах, используемых при измерениях, физических ограничениях точности измерений, международной системе единиц величин и основных теориях размерностей"),
-                        //уметь 5,4,3,2
-                        new ResultDescModel(
-                            "Сформированное умение применять методы и средства измерений для решения измерительных задач",
-                            "В целом успешное, но содержащее отдельные пробелы умение применять методы и средства измерений для решения измерительных задач",
-                            "В целом успешное, но не систематическое умение применять методы и средства измерений для решения измерительных задач",
-                            "Фрагментарное умение применять методы и средства измерений для решения измерительных задач"),
-                        //владеть 5,4,3,2
-                        new ResultDescModel(
-                            "Успешное и систематическое владение способами расчёта погрешностей измерений",
-                            "В целом успешное, но содержащее отдельные пробелы владение способами расчёта погрешностей измерений",
-                            "В целом успешное, но не систематическое владение способами расчёта погрешностей измерений",
-                            "Фрагментарное владение способами расчёта погрешностей измерений")
-                    }
-                ),
-            };
-
-            themes = new List<ThemeModel>() {
-                new ThemeModel("Тема 1. Основы метрологии", 4, 1, 2, 4, 4, 4,
-                    new List<ChildThemeModel> {
-                        new ChildThemeModel("История развития метрологии", 2, "", 0),
-                    },
-                    new List<ChildThemeModel> {
-                        new ChildThemeModel("Измерение линейных размеров с помощью штангенинструментов", 2, "", 1),
-                        new ChildThemeModel("Электрические измерения напряжения", 2, "", 1),
-                    },
-                    new List<ChildThemeModel> {
-                        new ChildThemeModel("Системы физических единиц", 2, "", 1),
-                        new ChildThemeModel("Размерность физических единиц", 2, "", 1)
-                    }
-                ),
-                new ThemeModel("Тема 2. Средства и методы измерения", 4, 1, 4, 4, 6, 4,
-                    new List<ChildThemeModel> {
-                        new ChildThemeModel("Виды и методы измерений", 2, "Проблемная лекция", 0),
-                        new ChildThemeModel("Средства измерений", 2, "Лекция с запланированными ошибками", 0),
-                    },
-                    new List<ChildThemeModel> {
-                        new ChildThemeModel("Поверка СИ температуры", 2, "", 1),
-                        new ChildThemeModel("Проверка средств измерения давления", 2, "", 1),
-                        new ChildThemeModel("Аттестация средств измерения давления", 2, "", 1),
-                    },
-                    new List<ChildThemeModel> {
-                        new ChildThemeModel("Температурные шкалы", 2, "", 1),
-                        new ChildThemeModel("Метрологические характеристики средств измерения", 2, "работа в малых группах", 1),
-                    }
-                ),
-                new ThemeModel("Тема 3. Погрешности измерения", 4, 2, 4, 6, 8, 4,
-                    new List<ChildThemeModel> {
-                        new ChildThemeModel("Основы метрологического обеспечения производства", 2, "", 0),
-                        new ChildThemeModel("Понятие о погрешности измерений", 2, "", 0),
-                    },
-                    new List<ChildThemeModel> {
-                        new ChildThemeModel("Определение метрологических характеристик средств измерения", 2, "", 1),
-                        new ChildThemeModel("Влияние газового фактора на точность измерений", 2, "", 1),
-                        new ChildThemeModel("Определение погрешностей СИ при изменении характеристики среды", 2, "", 1),
-                        new ChildThemeModel("Влияние не стабильности потока на точность измерения", 2, "", 1),
-                    },
-                    new List<ChildThemeModel> {
-                        new ChildThemeModel("Определение погрешностей измерения", 2, "групповое обсуждение", 1),
-                        new ChildThemeModel("Погрешности косвенных измерений", 2, "", 1),
-                        new ChildThemeModel("Определение доверительных границ и доверительных интервалов", 2, "работа в малых группах", 1),
-                    }
-                ),
-                new ThemeModel("Тема 4. Основы стандартизации", 4, 2, 4, 2, 0, 4,
-                    new List<ChildThemeModel> {
-                        new ChildThemeModel("История развития стандартизации", 2, "Лекция-визуализация", 0),
-                        new ChildThemeModel("Методы и средства стандартизации", 2, "", 0),
-                    },
-                    null,
-                    new List<ChildThemeModel> {
-                        new ChildThemeModel("Нормативно-правовые документы по стандартизации", 2, "", 1),
-                    }
-                ),
-                new ThemeModel("Тема 5. Основы сертификации", 4, 2, 2, 2, 0, 4,
-                    new List<ChildThemeModel> {
-                        new ChildThemeModel("Основные понятия сертификации", 2, "", 0),
-                    },
-                    null,
-                    new List<ChildThemeModel> {
-                        new ChildThemeModel("Сходства и отличия «Сертификация соответствия» и «Декларирование соответствия»", 2, "", 1),
-                    }
-                ),
-            };
-
-            List<int> semesters = new List<int>() { 4, 8 };
-            int total_lecture_hour = 16;
-            int total_practical_hour = 18;
-            int total_laboratory_hour = 18;
-            int total_independent_hour = 20;
-
-            discipline = new DisciplineModel(
-                semesters,
-                total_lecture_hour,
-                total_laboratory_hour,
-                total_practical_hour,
-                total_independent_hour,
-                themes,
-                competences
-                );
-
-            discipline.controls = controls;
-            discipline.attestations = attestations;
-        }
-
-        private class DisciplineModel
-        {
-            public List<int> semesters { get; set; }
-
-            public int total_lecture_hour { get; set; }
-            public int total_practical_hour { get; set; }
-            public int total_laboratory_hour { get; set; }
-            public int total_independent_hour { get; set; }
-            public List<ThemeModel> themes { get; set; }
-            public List<CompetenceModel> competences { get; set; }
-
-            public List<EvaluationToolModel> controls { get; set; }
-            public List<EvaluationToolModel> attestations { get; set; }
-
-            public DisciplineModel(
-                List<int> semesters, 
-                int total_lecture_hour,
-                int total_laboratory_hour,
-                int total_practical_hour, 
-                int total_independent_hour, 
-                List<ThemeModel> themes, List<CompetenceModel> competences)
-            {
-                this.semesters = semesters;
-                this.total_lecture_hour = total_lecture_hour;
-                this.total_laboratory_hour = total_laboratory_hour;
-                this.total_practical_hour = total_practical_hour;
-                this.total_independent_hour = total_independent_hour;
-                this.themes = themes;
-                this.competences = competences;
-            }
-        }
-
-        private class EvaluationToolModel
-        {
-            public string name { get; set; }
-            public string description { get; set; }
-            public string path { get; set; }
-
-            public EvaluationToolModel(string name, string path, string description)
-            {
-                this.name = name;
-                this.path = path;
-                this.description = description;
-            }
-        }
-
-        private class ThemeModel
-        {
-            public string theme { get; set; }
-            public int semester { get; set; }
-            public int module { get; set; }
-            public int lecture_hour { get; set; }
-            public int practical_hour { get; set; }
-            public int laboratory_hour { get; set; }
-            public int independent_hour { get; set; }
-
-            public List<ChildThemeModel>? lectures { get; set; }
-            public List<ChildThemeModel>? practicals { get; set; }
-            public List<ChildThemeModel>? laboratories { get; set; }
-
-            public ThemeModel(string theme, int semester, int module,
-                int lecture_hour, int practical_hour,
-                int laboratory_hour, int independent_hour)
-            {
-                this.theme = theme;
-                this.semester = semester;
-                this.module = module;
-                this.lecture_hour = lecture_hour;
-                this.practical_hour = practical_hour;
-                this.laboratory_hour = laboratory_hour;
-                this.independent_hour = independent_hour;
-            }
-
-            public ThemeModel(string theme, int semester, int module,
-                int lecture_hour, int practical_hour,
-                int laboratory_hour, int independent_hour, 
-                List<ChildThemeModel>? lectures, 
-                List<ChildThemeModel>? laboratories, 
-                List<ChildThemeModel>? practicals)
-            {
-                this.theme = theme;
-                this.semester = semester;
-                this.module = module;
-                this.lecture_hour = lecture_hour;
-                this.practical_hour = practical_hour;
-                this.laboratory_hour = laboratory_hour;
-                this.independent_hour = independent_hour;
-                this.lectures = lectures;
-                this.laboratories = laboratories;
-                this.practicals = practicals;
-            }
-        }
-
-        private class ChildThemeModel
-        {
-            public string name { get; set; }
-            public int hour { get; set; }
-            public string method { get; set; }
-
-            //баллы
-            public float score { get; set; }
-
-            public ChildThemeModel(string name, int hour, string method, float score)
-            {
-                this.name = name;
-                this.hour = hour;
-                this.method = method;
-                this.score = score;
-            }
-        }
-
-        private class CompetenceModel
-        {
-            public string kod { get; set; } //компетенция, например ОПК11
-            public string name { get; set; }
-
-            public string? know { get; set; }
-            public string? able { get; set; }
-            public string? own { get; set; }
-
-            public List<CompetenceModel>? childs { get; set; } //индикаторы, например ОПК11.1, ОПК11.2
-            public List<ResultDescModel>? results { get; set; } //6.2 знать, уметь, владеть описание по оценкам 
-
-            public CompetenceModel(string kod, string name) //для индикаторов
-            {
-                this.kod = kod;
-                this.name = name;
-            }
-
-            public CompetenceModel(string kod, string name, string know, string able, string own, List<CompetenceModel> childs, List<ResultDescModel> results)
-            {
-                this.kod = kod;
-                this.name = name;
-                this.know = know;
-                this.able = able;
-                this.own = own;
-                this.childs = childs;
-                this.results = results;
-            }
-        }
-
-        private class ResultDescModel
-        {
-            public string result5 { get; set; }
-            public string result4 { get; set; }
-            public string result3 { get; set; }
-            public string result2 { get; set; }
-
-            public ResultDescModel(string result5, string result4, string result3, string result2)
-            {
-                this.result5 = result5;
-                this.result4 = result4;
-                this.result3 = result3;
-                this.result2 = result2;
-            }
-        }
-
-        //6.3.1.2 Тестирование компьютерное
-        private class QuestionModel
-        {
-            public string name { get; set; }
-            public List<QuestionModel> answers { get; set; }
-            public List<string>? competence { get; set; }
-            public int? semester { get; set; }
-            public int? module { get; set; }
-
-            public QuestionModel(string name, int semester, int module, 
-                List<QuestionModel> answers)
-            {
-                this.name = name;
-                this.semester = semester;
-                this.module = module;
-                this.answers = answers;
-            }
-
-            //вопросы к экзамену 6.3.4.3. 
-            public QuestionModel(string name, List<string> competence)
-            {
-                this.name = name;
-                this.competence = competence;
-            }
-
-
-            public QuestionModel(string name)
-            {
-                this.name = name;
-            }
-
-            //тест экзамен
-            public QuestionModel(string name, List<QuestionModel> answers)
-            {
-                this.name = name;
-                this.semester = semester;
-                this.module = module;
-                this.answers = answers;
-            }
-        }
-
 
         private void saveWord()
-        {   
+        {
             //путь и название будущего ФАЙЛА
             String name = DateTime.Now.ToString("dd-MM-yyyy HHmmss ") + _fileInfo.Name;
             String pathMain = "";
@@ -517,13 +141,13 @@ namespace TestWord
                 System.Diagnostics.Process.Start(new ProcessStartInfo(@pathMain) { UseShellExecute = true });
         }
 
-        private void replaceText(Dictionary<string, string> items) 
+        private void replaceText(Dictionary<string, string> items)
         {
             Object missing = Type.Missing;
 
             List<Semester> semesters = generalModel.Semesters;
 
-            if(items.Count <= 0)
+            if (items.Count <= 0)
             {
                 items = new Dictionary<string, string>
                 {
@@ -641,7 +265,7 @@ namespace TestWord
             dt2.Columns.Add(new DataColumn("Лабораторные", typeof(string)));
             dt2.Columns.Add(new DataColumn("СРС", typeof(string)));
 
-            for (int i = 0; i < generalModel.DisciplineThematicPlan.Count+3; i++)
+            for (int i = 0; i < generalModel.DisciplineThematicPlan.Count + 3; i++)
                 dt2.Rows.Add();
 
             app.Selection.Find.Execute("<TABLE2>");
@@ -724,10 +348,10 @@ namespace TestWord
 
             for (int i = 0; i < countItems; i++)
             {
-                wordTable2.Cell(3 + i, 1).Range.Text = (i+1).ToString();
+                wordTable2.Cell(3 + i, 1).Range.Text = (i + 1).ToString();
                 wordTable2.Cell(3 + i, 2).Range.Text = themes[i].ThemeName;
                 wordTable2.Cell(3 + i, 3).Range.Text = themes[i].Semester.ToString();
-                wordTable2.Cell(3 + i, 4).Range.Text = themes[i].LectureHours !=0 ? themes[i].LectureHours.ToString() : "-";
+                wordTable2.Cell(3 + i, 4).Range.Text = themes[i].LectureHours != 0 ? themes[i].LectureHours.ToString() : "-";
                 wordTable2.Cell(3 + i, 5).Range.Text = themes[i].PracticeHours != 0 ? themes[i].PracticeHours.ToString() : "-";
                 wordTable2.Cell(3 + i, 6).Range.Text = themes[i].LaboratoryWorkHours != 0 ? themes[i].LaboratoryWorkHours.ToString() : "-";
                 wordTable2.Cell(3 + i, 7).Range.Text = themes[i].IndependentHours != 0 ? themes[i].IndependentHours.ToString() : "-";
@@ -760,7 +384,7 @@ namespace TestWord
             wordTable2.Cell(3 + countItems, 5).Width = width_column5;
             wordTable2.Cell(3 + countItems, 6).Width = width_column6;
             wordTable2.Cell(3 + countItems, 7).Width = width_column7;
-            
+
             for (int i = 1; i <= 7; i++)
                 wordTable2.Cell(3 + countItems, i).Range.Bold = Convert.ToInt32(true);
 
@@ -783,7 +407,7 @@ namespace TestWord
             dt.Columns.Add(new DataColumn("Оценочные средства", typeof(string)));
 
             //данные - код, имя, знать, уметь, владеть, индикаторы
-            List<CompetenceModel> competences = discipline.competences;
+            List<GeneralModel.CompetencyPlanningResult> competences = generalModel.competencyPlanningResults;
 
             for (int i = 0; i < competences.Count + 1; i++)
             {
@@ -803,18 +427,18 @@ namespace TestWord
             wordTable.Cell(1, 4).Range.Text = "Оценочные средства текущего контроля и промежуточной аттестации";
 
             //заполнение данными
-            for (int i = 0;i < competences.Count;i++)
+            for (int i = 0; i < competences.Count; i++)
             {
-                CompetenceModel item = competences[i];
-                string kod = item.kod; 
-                string name = item.name;
-                string know = item.know;
-                string able = item.able;
-                string own = item.own;
-                List<CompetenceModel> childs = item.childs;
+                var item = competences[i];
+                string kod = item.Code;
+                string name = item.CodeName;
+                string know = item.ToKnowResult;
+                string able = item.ToAbilityResult;
+                string own = item.ToOwnResult;
+                List<GeneralModel.CompetencyPlanningResult.CompetencyAchivmentIndicator> childs = item.CompetencyAchivmentIndicators;
 
                 //Столбец1
-                Word.Range range = wordTable.Cell(2+i, 1).Range;
+                Word.Range range = wordTable.Cell(2 + i, 1).Range;
                 range.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                 range.InsertAfter(kod);
                 range.Font.Bold = Convert.ToInt32(true);
@@ -829,23 +453,23 @@ namespace TestWord
                 Word.Range range2 = wordTable.Cell(2 + i, 2).Range;
                 for (int j = 0; j < childs.Count; j++)
                 {
-                    CompetenceModel child = childs[j];
-                    string kod_child = child.kod;
-                    string name_child = child.name;
+                    var child = childs[j];
+                    string kod_child = child.Code;
+                    string name_child = child.Text;
 
                     range2.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                    range2.InsertAfter(kod_child+".");
+                    range2.InsertAfter(kod_child + ".");
                     range2.Font.Bold = Convert.ToInt32(true);
                     range2.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
                     range2.Collapse(Word.WdCollapseDirection.wdCollapseStart);
 
                     if (j == childs.Count - 1)
                     {
-                        range2.InsertAfter(" "+name_child + ".");
+                        range2.InsertAfter(" " + name_child + ".");
                     }
                     else
                     {
-                        range2.InsertAfter(" "+name_child + ";");
+                        range2.InsertAfter(" " + name_child + ";");
                         range2.InsertParagraphAfter();
                     }
                     range2.Font.Bold = Convert.ToInt32(false);
@@ -873,7 +497,7 @@ namespace TestWord
                 range3.Font.Bold = Convert.ToInt32(true);
                 range3.InsertParagraphAfter();
                 range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-                
+
                 range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                 range3.InsertAfter(able.ToLower() + ";");
                 range3.Font.Bold = Convert.ToInt32(false);
@@ -894,7 +518,9 @@ namespace TestWord
                 range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
                 //!!!!!!!!!!!!!!!!ДОРАБОТАТЬ - данные брать из excel или программы
+                // Работает по странному...
                 //Столбец4
+
                 Word.Range range4 = wordTable.Cell(2 + i, 4).Range;
                 //текущий контроль
                 range4.Collapse(Word.WdCollapseDirection.wdCollapseStart);
@@ -904,7 +530,10 @@ namespace TestWord
                 range4.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
                 range4.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                range4.InsertAfter("Компьютерное тестирование по теме 1-5\nПрактические задачи по темам 1-5\nЛабораторные работыпо темам 1-3"); //!!!!!
+                range4.InsertAfter(
+                    "Компьютерное тестирование по теме 1-5\n"
+                    + "Практические задачи по темам 1-5\n"
+                    + "Лабораторные работыпо темам 1-3"); //!!!!!
                 range4.Font.Bold = Convert.ToInt32(false);
                 range4.InsertParagraphAfter();
                 range4.InsertParagraphAfter();
@@ -955,12 +584,12 @@ namespace TestWord
             Dictionary<string, int> table_keys = new Dictionary<string, int>();
 
             //вставка тэгов в ворд
-            foreach (var semester in discipline.semesters)
+            foreach (var semester in generalModel.Semesters)
             {
-                string semester_text = "<SEMESTER" + semester + ">";
-                string semester_table = "<SEMESTER_TABLE" + semester + ">";
-                text_keys.Add(semester_text, $"Семестр {semester}");
-                table_keys.Add(semester_table, semester);
+                string semester_text = "<SEMESTER" + semester.SemesterNumber + ">";
+                string semester_table = "<SEMESTER_TABLE" + semester.SemesterNumber + ">";
+                text_keys.Add(semester_text, $"Семестр {semester.SemesterNumber}");
+                table_keys.Add(semester_table, semester.SemesterNumber);
 
                 wordRange.Collapse(WdCollapseDirection.wdCollapseStart);
                 wordRange.InsertAfter(semester_text);
@@ -978,6 +607,7 @@ namespace TestWord
                 wordRange.InsertParagraphAfter();
                 wordRange.Collapse(WdCollapseDirection.wdCollapseEnd);
             }
+
             //удаление main_key из word
             app.Selection.Find.Execute(main_key);
             Word.Range wordRangeDelete = app.Selection.Range;
@@ -997,12 +627,12 @@ namespace TestWord
                     dt.Columns.Add(column);
 
                 int count_theme = discipline.themes.Where(a => a.semester.Equals(semester.Value)).Count();
-                int count_theme_lecture = discipline.themes.Where(a => a.semester.Equals(semester.Value) && a.lectures is not null).SelectMany(a=>a.lectures).ToList().Count;
+                int count_theme_lecture = discipline.themes.Where(a => a.semester.Equals(semester.Value) && a.lectures is not null).SelectMany(a => a.lectures).ToList().Count;
                 int count_theme_laboratory = discipline.themes.Where(a => a.semester.Equals(semester.Value) && a.laboratories is not null).SelectMany(a => a.laboratories).ToList().Count;
                 int count_theme_practical = discipline.themes.Where(a => a.semester.Equals(semester.Value) && a.practicals is not null).SelectMany(a => a.practicals).ToList().Count;
                 int total_row = count_theme + count_theme_lecture + count_theme_laboratory + count_theme_practical;
-                
-                for (int i = 0; i < total_row+3; i++)
+
+                for (int i = 0; i < total_row + 3; i++)
                     dt.Rows.Add();
 
                 app.Selection.Find.Wrap = WdFindWrap.wdFindContinue;
@@ -1023,9 +653,9 @@ namespace TestWord
                 int current_laboratories = 1;
                 int current_practical = 1;
 
-                for (int i = 0; i < discipline.themes.Count; i++) 
+                for (int i = 0; i < discipline.themes.Count; i++)
                 {
-                    if (semester.Value.Equals(discipline.themes[i].semester)) 
+                    if (semester.Value.Equals(discipline.themes[i].semester))
                     {
                         if (discipline.themes[i].module == 1)
                         {
@@ -1046,9 +676,9 @@ namespace TestWord
                             current_laboratories = currents[1];
                             current_practical = currents[2];
                             current_row = currents[3];
-                            
+
                         }
-                        else if(discipline.themes[i].module == 2)
+                        else if (discipline.themes[i].module == 2)
                         {
                             if (first_write2)
                             {
@@ -1084,10 +714,11 @@ namespace TestWord
             //замена тэгов на слова семестров
             replaceText(text_keys);
         }
+
         //загрузка данных в таблицу4
         //чтобы убрать повтор кода
         private int[] loadDataTable4(Word.Table wordTable,
-            int current_lecture, int current_laboratories, 
+            int current_lecture, int current_laboratories,
             int current_practical, int current_row, int i)
         {
             List<ChildThemeModel>? lectures = discipline.themes[i].lectures;
@@ -1118,15 +749,15 @@ namespace TestWord
                     rangeColumn1.InsertAfter(" " + lecture.name);
                     rangeColumn1.Font.Italic = Convert.ToInt32(false);
                     rangeColumn1.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-                    
+
                     //Столбец 2 - Кол-во часов
                     wordTable.Cell(current_row, 2).Range.Text = lecture.hour.ToString();
-                    
+
                     //Столбец 3 - Используемый метод
                     wordTable.Cell(current_row, 3).Range.Text = lecture.method;
 
                     //Столбец 4 - Формируемые компетенции
-                    wordTable.Cell(current_row, 4).Range.Text = string.Join(", ", discipline.competences.Select(a => a.kod));
+                    wordTable.Cell(current_row, 4).Range.Text = string.Join(", ", generalModel.Competencies);
 
                     //форматирование
                     wordTable.Cell(current_row, 1).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
@@ -1152,8 +783,8 @@ namespace TestWord
 
                     wordTable.Cell(current_row, 2).Range.Text = lab.hour.ToString();
                     wordTable.Cell(current_row, 3).Range.Text = lab.method;
-                    wordTable.Cell(current_row, 4).Range.Text = string.Join(", ", discipline.competences.Select(a => a.kod));
-                    
+                    wordTable.Cell(current_row, 4).Range.Text = string.Join(", ", generalModel.Competencies);
+
                     //форматирование
                     wordTable.Cell(current_row, 1).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                     wordTable.Cell(current_row, 3).Range.Italic = Convert.ToInt32(true);
@@ -1177,8 +808,8 @@ namespace TestWord
 
                     wordTable.Cell(current_row, 2).Range.Text = practical.hour.ToString();
                     wordTable.Cell(current_row, 3).Range.Text = practical.method;
-                    wordTable.Cell(current_row, 4).Range.Text = string.Join(", ", discipline.competences.Select(a => a.kod));
-                    
+                    wordTable.Cell(current_row, 4).Range.Text = string.Join(", ", generalModel.Competencies);
+
                     //форматирование
                     wordTable.Cell(current_row, 1).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                     wordTable.Cell(current_row, 3).Range.Italic = Convert.ToInt32(true);
@@ -1186,7 +817,7 @@ namespace TestWord
                     current_row++;
                     current_practical++;
                 }
-            int[] currents = {current_lecture, current_laboratories, current_practical, current_row};
+            int[] currents = { current_lecture, current_laboratories, current_practical, current_row };
             return currents;
         }
 
@@ -1203,7 +834,7 @@ namespace TestWord
             List<EvaluationToolModel> attestations = discipline.attestations;
 
             int total_row = controls.Count + attestations.Count;
-            for (int i = 0; i < total_row+3; i++)
+            for (int i = 0; i < total_row + 3; i++)
                 dt.Rows.Add();
 
             app.Selection.Find.Execute("<TABLE5>");
@@ -1269,7 +900,7 @@ namespace TestWord
         //6.2 Уровень освоения компетенции и критерии оценивания результатов обучения
         private void createTable6()
         {
-            List<CompetenceModel> competences = discipline.competences;
+            List<GeneralModel.CompetencyPlanningResult> competences = generalModel.competencyPlanningResults;
 
 
             var dt = new DataTable();
@@ -1282,7 +913,7 @@ namespace TestWord
             dt.Columns.Add("базовый");
             dt.Columns.Add("компетенции не освоены");
 
-            for (int i = 1; i <= (competences.Count * 3)+4; i++)
+            for (int i = 1; i <= (competences.Count * 3) + 4; i++)
                 dt.Rows.Add();
 
             app.Selection.Find.Execute("<TABLE6>");
@@ -1327,13 +958,13 @@ namespace TestWord
             int current_row = 5;
             for (int i = 0; i < competences.Count; i++)
             {
-                CompetenceModel current_competence = competences[i];
-                string kod = current_competence.kod;
-                string name = current_competence.name;
-                string know = current_competence.know;
-                string able = current_competence.able;
-                string own = current_competence.own;
-                List<CompetenceModel> childs = current_competence.childs;
+                var current_competence = competences[i];
+                string kod = current_competence.Code;
+                string name = current_competence.CodeName;
+                string know = current_competence.ToKnowResult;
+                string able = current_competence.ToAbilityResult;
+                string own = current_competence.ToOwnResult;
+                var childs = current_competence.CompetencyAchivmentIndicators;
 
                 //Столбец1
                 wordTable.Cell(current_row, 1).Range.Text = (i + 1).ToString();
@@ -1354,9 +985,9 @@ namespace TestWord
                 Word.Range range3 = wordTable.Cell(current_row, 3).Range;
                 for (int j = 0; j < childs.Count; j++)
                 {
-                    CompetenceModel child = childs[j];
-                    string kod_child = child.kod;
-                    string name_child = child.name;
+                    var child = childs[j];
+                    string kod_child = child.Code;
+                    string name_child = child.Text;
 
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                     range3.InsertAfter(kod_child + ".");
@@ -1421,25 +1052,25 @@ namespace TestWord
                 range4_3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
                 //Столбец5-8
-                List<ResultDescModel> results = current_competence.results;
-                ResultDescModel knowResult = results[0];
-                ResultDescModel ableResult = results[1];
-                ResultDescModel ownResult = results[2];
+                var results = current_competence.CompetencyAchivmentMarkCriteries;
+                var knowResult = results[0];
+                var ableResult = results[1];
+                var ownResult = results[2];
                 //знать
-                wordTable.Cell(current_row, 5).Range.Text = knowResult.result5;
-                wordTable.Cell(current_row, 6).Range.Text = knowResult.result4;
-                wordTable.Cell(current_row, 7).Range.Text = knowResult.result3;
-                wordTable.Cell(current_row, 8).Range.Text = knowResult.result2;
+                wordTable.Cell(current_row, 5).Range.Text = knowResult.Excelent;
+                wordTable.Cell(current_row, 6).Range.Text = knowResult.Good;
+                wordTable.Cell(current_row, 7).Range.Text = knowResult.Satisfactory;
+                wordTable.Cell(current_row, 8).Range.Text = knowResult.Unsatisfactory;
                 //уметь
-                wordTable.Cell(current_row + 1, 5).Range.Text = ableResult.result5;
-                wordTable.Cell(current_row + 1, 6).Range.Text = ableResult.result4;
-                wordTable.Cell(current_row + 1, 7).Range.Text = ableResult.result3;
-                wordTable.Cell(current_row + 1, 8).Range.Text = ableResult.result2;
+                wordTable.Cell(current_row + 1, 5).Range.Text = ableResult.Excelent;
+                wordTable.Cell(current_row + 1, 6).Range.Text = ableResult.Good;
+                wordTable.Cell(current_row + 1, 7).Range.Text = ableResult.Satisfactory;
+                wordTable.Cell(current_row + 1, 8).Range.Text = ableResult.Unsatisfactory;
                 //владеть
-                wordTable.Cell(current_row + 2, 5).Range.Text = ownResult.result5;
-                wordTable.Cell(current_row + 2, 6).Range.Text = ownResult.result4;
-                wordTable.Cell(current_row + 2, 7).Range.Text = ownResult.result3;
-                wordTable.Cell(current_row + 2, 8).Range.Text = ownResult.result2;
+                wordTable.Cell(current_row + 2, 5).Range.Text = ownResult.Excelent;
+                wordTable.Cell(current_row + 2, 6).Range.Text = ownResult.Good;
+                wordTable.Cell(current_row + 2, 7).Range.Text = ownResult.Satisfactory;
+                wordTable.Cell(current_row + 2, 8).Range.Text = ownResult.Unsatisfactory;
 
                 //форматирование - объединение строк, столбцов
                 wordTable.Cell(current_row, 1).Merge(wordTable.Cell(current_row + 2, 1));
@@ -1460,82 +1091,32 @@ namespace TestWord
         //6.3.1.2 Содержание оценочного средства
         private void createTable7()
         {
-            List<QuestionModel> test_computer = new List<QuestionModel>()
-            {
-                new QuestionModel("Укажите цель метрологии:", 4,1,
-                    new List<QuestionModel>(){
-                        new QuestionModel("обеспечение единства измерений с необходимой и требуемой, точностью"),
-                        new QuestionModel("разработка и совершенствование средств и методов измерений повышения их точности"),
-                        new QuestionModel("разработка новой и совершенствование, действующей правовой и нормативной базы"),
-                        new QuestionModel("совершенствование эталонов единиц измерения для повышения их точности"),
-                        new QuestionModel("обеспечение единства измерений с необходимой и требуемой, точностью"),
-                    }
-                ),
-                new QuestionModel("Метрология -..", 4, 1,
-                    new List<QuestionModel>(){
-                        new QuestionModel("ответ1"),
-                        new QuestionModel("ответ2"),
-                        new QuestionModel("ответ3"),
-                        new QuestionModel("ответ4"),
-                    }
-                ),
-                new QuestionModel("Косвенные измерения - это такие измерения, при которых", 4, 1,
-                    new List<QuestionModel>(){
-                        new QuestionModel("ответ1"),
-                        new QuestionModel("ответ2"),
-                        new QuestionModel("ответ3"),
-                        new QuestionModel("ответ4"),
-                        new QuestionModel("ответ5"),
-                    }
-                ),
-                new QuestionModel("Прямые измерения — это такие измерения, при которых:", 4, 1,
-                    new List<QuestionModel>(){
-                        new QuestionModel("ответ1"),
-                        new QuestionModel("ответ2"),
-                        new QuestionModel("ответ3"),
-                        new QuestionModel("ответ4"),
-                    }
-                ),
-                new QuestionModel("Значение любой ФВ Q, представленное в виде Q=q[Q] называется…", 4, 2,
-                    new List<QuestionModel>(){
-                        new QuestionModel("ответ1"),
-                        new QuestionModel("ответ2"),
-                        new QuestionModel("ответ3"),
-                        new QuestionModel("ответ4"),
-                    }
-                ),
-                new QuestionModel("Определяющим уравнением ускорения является: a=v/t. Размерность", 4, 2,
-                    new List<QuestionModel>(){
-                        new QuestionModel("ответ1"),
-                        new QuestionModel("ответ2"),
-                        new QuestionModel("ответ3"),
-                        new QuestionModel("ответ4"),
-                        new QuestionModel("ответ5"),
-                    }
-                ),
-            };
+            List<GeneralModel.CompetencyTestTasksClass> test_computer = generalModel.CompetencyTestTasks;
 
             DataTable dt = new DataTable();
             dt.Columns.Add("Код");
             dt.Columns.Add("Вопрос");
-            int max_answers = test_computer.Max(a => a.answers.Count);
+
+            int max_answers = test_computer.Max(a => a.Tasks.Count);
             for (int i = 1; i <= max_answers; i++)
-                dt.Columns.Add(i+"");
-            int row_count = 2+test_computer.Count+test_computer.Select(a=>a.semester).Distinct().Count()*2;
+                dt.Columns.Add(i + "");
+
+            int row_count = 2 + test_computer.Count + test_computer.Select(a => a.SemesterNumber).Distinct().Count() * 2;
             for (int i = 1; i <= row_count; i++)
                 dt.Rows.Add();
 
             app.Selection.Find.Execute("<TABLE7>");
             Word.Range wordRange = app.Selection.Range;
             Word.Table wordTable = wordDocument.Tables.Add(wordRange, dt.Rows.Count, dt.Columns.Count);
-            //шапка
+
+            // Шапка
             wordTable.Cell(1, 1).Range.Text = "Код компетенции";
             wordTable.Cell(1, 2).Range.Text = "Тестовые вопросы";
             wordTable.Cell(1, 3).Range.Text = "Варианты ответов";
             for (int i = 1; i <= max_answers; i++)
                 wordTable.Cell(2, 2 + i).Range.Text = i.ToString();
 
-            //форматирование
+            // Форматирование
             wordTable.Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
             wordTable.Borders.Enable = Convert.ToInt32(true);
             wordTable.Cell(1, 1).Merge(wordTable.Cell(2, 1));
@@ -1543,58 +1124,65 @@ namespace TestWord
             wordTable.Cell(1, 3).Merge(wordTable.Cell(1, max_answers + 2));
 
             int current_row = 3;
-            foreach (var semester in discipline.semesters)
+            foreach (var semester in generalModel.Semesters)
             {
-                var list1 = test_computer.Where(a => a.semester == semester && a.module == 1).ToList();
-                var list2 = test_computer.Where(a => a.semester == semester && a.module == 2).ToList();
+                var list1 = test_computer.First(a => a.SemesterNumber == semester.SemesterNumber && a.moduleNumber == 1).Tasks;
+                var list2 = test_computer.First(a => a.SemesterNumber == semester.SemesterNumber && a.moduleNumber == 2).Tasks;
 
-                if(list1.Count is 0 && list2.Count is 0)
+                if (list1.Count is 0 && list2.Count is 0)
                     continue;
                 //МОДУЛЬ_1
-                wordTable.Cell(current_row, 1).Range.Text = "Дисциплинарный модуль " + semester + ".1";
+                wordTable.Cell(current_row, 1).Range.Text = "Дисциплинарный модуль " + semester.SemesterNumber + ".1";
                 wordTable.Cell(current_row, 1).Merge(wordTable.Cell(current_row, max_answers + 2));
                 wordTable.Cell(current_row, 1).Range.Bold = Convert.ToInt32(true);
                 current_row++;
 
                 //данные
-                wordTable.Cell(current_row, 1).Range.Text = string.Join(", ", discipline.competences.Select(a => a.kod));
+                wordTable.Cell(current_row, 1).Range.Text = string.Join(", ", generalModel.Competencies);
                 wordTable.Cell(current_row, 1).Range.Bold = Convert.ToInt32(true);
                 wordTable.Cell(current_row, 1).Merge(wordTable.Cell(current_row + list1.Count - 1, 1));
+
                 foreach (var item in list1)
                 {
-                    wordTable.Cell(current_row, 2).Range.Text = item.name;
+                    wordTable.Cell(current_row, 2).Range.Text = item.Question;
                     wordTable.Cell(current_row, 2).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
-                    for (int i = 0; i < item.answers.Count; i++)
+
+                    for (int i = 0; i < item.Answers.Count; i++)
                     {
-                        wordTable.Cell(current_row, 3 + i).Range.Text = item.answers[i].name;
+                        wordTable.Cell(current_row, 3 + i).Range.Text = item.Answers[i];
                         wordTable.Cell(current_row, 3 + i).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                     }
+
                     current_row++;
                 }
 
                 //МОДУЛЬ_2
-                wordTable.Cell(current_row, 1).Range.Text = "Дисциплинарный модуль " + semester + ".2";
+                wordTable.Cell(current_row, 1).Range.Text = "Дисциплинарный модуль " + semester.SemesterNumber + ".2";
                 wordTable.Cell(current_row, 1).Merge(wordTable.Cell(current_row, max_answers + 2));
                 wordTable.Cell(current_row, 1).Range.Bold = Convert.ToInt32(true);
                 current_row++;
 
                 //данные
-                wordTable.Cell(current_row, 1).Range.Text = string.Join(", ", discipline.competences.Select(a => a.kod));
+                wordTable.Cell(current_row, 1).Range.Text = string.Join(", ", generalModel.Competencies);
                 wordTable.Cell(current_row, 1).Range.Bold = Convert.ToInt32(true);
                 wordTable.Cell(current_row, 1).Merge(wordTable.Cell(current_row + list2.Count - 1, 1));
+
                 foreach (var item in list2)
                 {
-                    wordTable.Cell(current_row, 2).Range.Text = item.name;
+                    wordTable.Cell(current_row, 2).Range.Text = item.Question;
                     wordTable.Cell(current_row, 2).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
-                    for (int i = 0; i < item.answers.Count; i++)
+
+                    for (int i = 0; i < item.Answers.Count; i++)
                     {
-                        wordTable.Cell(current_row, 3 + i).Range.Text = item.answers[i].name;
+                        wordTable.Cell(current_row, 3 + i).Range.Text = item.Answers[i];
                         wordTable.Cell(current_row, 3 + i).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                     }
+
                     current_row++;
                 }
 
             }
+
             wordTable.Range.ParagraphFormat.SpaceBefore = 0;
             wordTable.Range.ParagraphFormat.SpaceAfter = 0;
             wordTable.AutoFitBehavior(WdAutoFitBehavior.wdAutoFitFixed);
@@ -1606,8 +1194,8 @@ namespace TestWord
             app.Selection.Find.Execute("<TABLE8>");
             var wordRange = app.Selection.Range;
 
-            int colomn_count = 2+discipline.competences.Count;
-            int row_count = 1+generalModel.QuestionCodes.Count;
+            int colomn_count = 2 + generalModel.Competencies.Count();
+            int row_count = 1 + generalModel.QuestionCodes.Count;
 
             Word.Table wordTable = wordDocument.Tables.Add(wordRange, row_count, colomn_count);
             wordTable.Borders.Enable = Convert.ToInt32(true);
@@ -1617,8 +1205,8 @@ namespace TestWord
             //заполнение
             wordTable.Cell(1, 1).Range.Text = "№ п/п";
             wordTable.Cell(1, 2).Range.Text = "Примерные вопросы к экзамену";
-            for (int i = 0; i < discipline.competences.Count; i++)
-                wordTable.Cell(1, 3 + i).Range.Text = discipline.competences[i].kod;
+            for (int i = 0; i < generalModel.Competencies.Count(); i++)
+                wordTable.Cell(1, 3 + i).Range.Text = generalModel.Competencies[i];
 
             int current_row = 2;
             for (int i = 0; i < generalModel.QuestionCodes.Count; i++)
@@ -1626,15 +1214,17 @@ namespace TestWord
                 var question = generalModel.QuestionCodes[i];
                 wordTable.Cell(current_row, 1).Range.Text = (i + 1).ToString();
                 wordTable.Cell(current_row, 2).Range.Text = question.Question;
-                for (int j = 0; j < discipline.competences.Count; j++)
+                for (int j = 0; j < generalModel.Competencies.Count(); j++)
                 {
-                    var current_competence = discipline.competences[j];
+                    var current_competence = generalModel.Competencies[j];
+
                     for (int k = 0; k < question.Competencies.Count; k++)
                     {
-                        if (question.Competencies[k] == current_competence.kod)
+                        if (question.Competencies[k] == current_competence)
                             wordTable.Cell(current_row, 3 + j).Range.Text = "+";
                     }
                 }
+
                 wordTable.Cell(current_row, 2).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                 current_row++;
             }
@@ -1643,51 +1233,19 @@ namespace TestWord
             wordTable.Range.ParagraphFormat.SpaceAfter = 0;
             wordTable.AutoFitBehavior(WdAutoFitBehavior.wdAutoFitContent);
         }
-        
+
         //образей вариантов тестовых заданий на экзамен
         private void createTable9()
         {
-            List<QuestionModel> test = new List<QuestionModel>()
-            {
-                new QuestionModel(
-                    "Значение любой физической величины Q, представленное в виде Q=q[Q] произведения ее числового значения q на единицу измерения [Q], называется…",
-                    new List<QuestionModel>()
-                    {
-                        new QuestionModel("Математической моделью измерений"),
-                        new QuestionModel("Функцией преобразования средства измерений"),
-                        new QuestionModel("Основным уравнением измерений"),
-                        new QuestionModel("Шкалой физической величины"),
-                    }
-                ),
-                new QuestionModel(
-                    "Уравнение ускорения a=v/t. Размерность ускорения запишется следующим образом",
-                    new List<QuestionModel>()
-                    {
-                        new QuestionModel("LT^(-2)"),
-                        new QuestionModel("MLT^(-1)"),
-                        new QuestionModel("LT^(-1)"),
-                        new QuestionModel("L^(-2) T"),
-                    }
-                ),
-                new QuestionModel(
-                    "Определение искомого значения ФВ на основании результатов прямых измерений других ФВ, функционально связанных с искомой величиной, называется ________ измерением",
-                    new List<QuestionModel>()
-                    {
-                        new QuestionModel("Косвенным"),
-                        new QuestionModel("Совместным"),
-                        new QuestionModel("Совокупным"),
-                        new QuestionModel("Прямым"),
-                    }
-                ),
-            };
-
+            List<GeneralModel.TestTasksClass> test = generalModel.testTasks;
+            
             DataTable dt = new DataTable();
             dt.Columns.Add("Код");
             dt.Columns.Add("Вопрос");
-            int max_answers = test.Max(a => a.answers.Count);
+            int max_answers = test.Max(a => a.Tasks.Max(x => x.Answers.Count()));
             for (int i = 1; i <= max_answers; i++)
                 dt.Columns.Add(i + "");
-            int row_count = 2 + test.Count;
+            int row_count = 2 + test.Sum(x => x.Tasks.Count());
             for (int i = 1; i <= row_count; i++)
                 dt.Rows.Add();
 
@@ -1711,21 +1269,26 @@ namespace TestWord
             int current_row = 3;
 
             //данные
-            wordTable.Cell(current_row, 1).Range.Text = string.Join(", ", discipline.competences.Select(a => a.kod));
-            wordTable.Cell(current_row, 1).Range.Bold = Convert.ToInt32(true);
-            wordTable.Cell(current_row, 1).Merge(wordTable.Cell(current_row + test.Count - 1, 1));
-            foreach (var item in test)
+            foreach (var competencyTasks in test)
             {
-                wordTable.Cell(current_row, 2).Range.Text = item.name;
-                wordTable.Cell(current_row, 2).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
-                for (int i = 0; i < item.answers.Count; i++)
+                wordTable.Cell(current_row, 1).Range.Text = string.Join(", ", competencyTasks.CompetencyCode);
+                wordTable.Cell(current_row, 1).Range.Bold = Convert.ToInt32(true);
+
+                wordTable.Cell(current_row, 1).Merge(wordTable.Cell(current_row + competencyTasks.Tasks.Count - 1, 1));
+
+                foreach (var item in competencyTasks.Tasks)
                 {
-                    wordTable.Cell(current_row, 3 + i).Range.Text = item.answers[i].name;
-                    wordTable.Cell(current_row, 3 + i).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
+                    wordTable.Cell(current_row, 2).Range.Text = item.Question;
+                    wordTable.Cell(current_row, 2).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
+                    for (int i = 0; i < item.Answers.Count; i++)
+                    {
+                        wordTable.Cell(current_row, 3 + i).Range.Text = item.Answers[i];
+                        wordTable.Cell(current_row, 3 + i).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
+                    }
+                    current_row++;
                 }
-                current_row++;
             }
-            
+
             wordTable.Range.ParagraphFormat.SpaceBefore = 0;
             wordTable.Range.ParagraphFormat.SpaceAfter = 0;
             wordTable.AutoFitBehavior(WdAutoFitBehavior.wdAutoFitFixed);
@@ -1742,12 +1305,12 @@ namespace TestWord
             Dictionary<int, List<string>> table_keys = new Dictionary<int, List<string>>();
 
             //вставка тэгов в ворд
-            foreach (var semester in discipline.semesters)
+            foreach (var semester in generalModel.Semesters.Select(x => x.SemesterNumber))
             {
                 List<string> list_key_text = new List<string>()
                 {
-                    $"<TEXT10_{semester}.0>", 
-                    $"<TEXT10_{semester}.1>", 
+                    $"<TEXT10_{semester}.0>",
+                    $"<TEXT10_{semester}.1>",
                     $"<TEXT10_{semester}.2>"
                 };
                 List<string> list_key_table = new List<string>()
@@ -1785,6 +1348,7 @@ namespace TestWord
                     wordRange.Collapse(WdCollapseDirection.wdCollapseEnd);
                 }
             }
+
             //удаление main_key из word
             app.Selection.Find.Wrap = WdFindWrap.wdFindContinue;
             app.Selection.Find.Execute(main_key);
@@ -1797,11 +1361,12 @@ namespace TestWord
             int current_lecture = 1;
             int current_laboratories = 1;
             int current_practical = 1;
+
             //замена тэгов на таблицы семестров
             foreach (var semester in table_keys)
             {
                 List<string> current_keys = semester.Value;
-                
+
                 //ГЛАВНАЯ ТАБЛИЦА
                 var dt_main = new DataTable();
                 for (int i = 0; i < 5; i++)
@@ -1958,28 +1523,35 @@ namespace TestWord
 
         private void createTable11()
         {
+            GeneralModel.LiteratureBooksModel literatureBooks = generalModel.LiteratureBooks;
+
             //основная литература
-            List<LiteratureModel> main = new List<LiteratureModel>()
+            literatureBooks.Main = new List<GeneralModel.LiteratureModel>()
             {
-                new LiteratureModel("Мирный, В. И. Законодательная метрология : учебное пособие / В. И. Мирный", 101, 1),
-                new LiteratureModel("Воробьева, Г. Н. Метрология, стандартизация и сертификация", "http://www.iprbookshop.ru/57097.html", 0),
-                new LiteratureModel("Семенов, И. В. Метрология, стандартизация и сертификация", "https://www.iprbookshop.ru/115857.html", 1),
+                new GeneralModel.LiteratureModel("Мирный, В. И. Законодательная метрология : учебное пособие / В. И. Мирный", 101, 1),
+                new GeneralModel.LiteratureModel("Воробьева, Г. Н. Метрология, стандартизация и сертификация", "http://www.iprbookshop.ru/57097.html", 0),
+                new GeneralModel.LiteratureModel("Семенов, И. В. Метрология, стандартизация и сертификация", "https://www.iprbookshop.ru/115857.html", 1),
             };
             //дополнительная литература
-            List<LiteratureModel> additional = new List<LiteratureModel>()
+            literatureBooks.Additional = new List<GeneralModel.LiteratureModel>()
             {
-                new LiteratureModel("Лепявко, А. П. Измерительные преобразователи давления", "https://www.iprbookshop.ru/118037.html", 1),
-                new LiteratureModel("Мирный, В. И. Прикладная метрология : учебное пособие / В. И. Мирный", "https://www.iprbookshop.ru/118037.html", 1),
-                new LiteratureModel("Многофазные испытательные стенды газожидкостных смесей: метрология, моделирование, подобие : монография", "https://www.iprbookshop.ru/118037.html", 1),
+                new GeneralModel.LiteratureModel("Лепявко, А. П. Измерительные преобразователи давления", "https://www.iprbookshop.ru/118037.html", 1),
+                new GeneralModel.LiteratureModel("Мирный, В. И. Прикладная метрология : учебное пособие / В. И. Мирный", "https://www.iprbookshop.ru/118037.html", 1),
+                new GeneralModel.LiteratureModel("Многофазные испытательные стенды газожидкостных смесей: метрология, моделирование, подобие : монография", "https://www.iprbookshop.ru/118037.html", 1),
             };
             //учебно-методические издания
-            List<LiteratureModel> methodical = new List<LiteratureModel>()
+            literatureBooks.Methodical = new List<GeneralModel.LiteratureModel>()
             {
-                new LiteratureModel("Ситдикова И.П., Ахметзянов Р.Р. Метрология, стандартизация и сертификация: методические указания для выполнения лабораторных работ", "http://elibrary.agni-rt.ru", 1),
-                new LiteratureModel("Ситдикова И.П., Ахметзянов Р.Р. Метрология, стандартизация и сертификация: методические указания по выполнению курсовой работы", "http://elibrary.agni-rt.ru", 1),
-                new LiteratureModel("Ситдикова И.П., Ахметзянов Р.Р. Метрология, стандартизация и сертификация: методические указания для проведения практических занятий", "http://elibrary.agni-rt.ru", 1),
+                new GeneralModel.LiteratureModel("Ситдикова И.П., Ахметзянов Р.Р. Метрология, стандартизация и сертификация: методические указания для выполнения лабораторных работ", "http://elibrary.agni-rt.ru", 1),
+                new GeneralModel.LiteratureModel("Ситдикова И.П., Ахметзянов Р.Р. Метрология, стандартизация и сертификация: методические указания по выполнению курсовой работы", "http://elibrary.agni-rt.ru", 1),
+                new GeneralModel.LiteratureModel("Ситдикова И.П., Ахметзянов Р.Р. Метрология, стандартизация и сертификация: методические указания для проведения практических занятий", "http://elibrary.agni-rt.ru", 1),
             };
-            int row = 2 + main.Count+1+additional.Count+1+methodical.Count;
+
+            List<GeneralModel.LiteratureModel> main = literatureBooks.Main;
+            List<GeneralModel.LiteratureModel> additional = literatureBooks.Additional;
+            List<GeneralModel.LiteratureModel> methodical = literatureBooks.Methodical;
+
+            int row = 2 + main.Count + 1 + additional.Count + 1 + methodical.Count;
             int column = 4;
             app.Selection.Find.Execute("<TABLE11>");
             Word.Range wordTableRange = app.Selection.Range;
@@ -2049,11 +1621,11 @@ namespace TestWord
                 wordTable.Cell(current_row, 3).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                 current_row++;
             }
-            
+
             //wordTable.Range.Rows[1].Height = app.CentimetersToPoints(3.22f);
             //wordTable.Range.Columns[4].Width = app.CentimetersToPoints(1.28f);
 
-            
+
             wordTable.Borders.Enable = Convert.ToInt32(true);
             wordTable.Range.ParagraphFormat.SpaceBefore = 0;
             wordTable.Range.ParagraphFormat.SpaceAfter = 0;
@@ -2061,46 +1633,22 @@ namespace TestWord
             wordTable.Range.ParagraphFormat.LineSpacingRule = WdLineSpacing.wdLineSpaceSingle;
         }
 
-        private class LiteratureModel
-        {
-            //6 и 8
-            public string name { get; set; }
-            public int? count { get; set; }
-            public string? link { get; set; }
-            public float? coefficient { get; set; }
-            //6
-            public LiteratureModel(string name, int count, float coefficient)
-            {
-                this.name = name;
-                this.count = count;
-                this.coefficient = coefficient;
-            }
-            public LiteratureModel(string name, string link, float coefficient)
-            {
-                this.name = name;
-                this.link = link;
-                this.coefficient = coefficient;
-            }
-            //8
-            public LiteratureModel(string name, string link)
-            {
-                this.name = name;
-                this.link = link;
-            }
-        }
 
         private void createTable12()
         {
-            List<LiteratureModel> site_list = new List<LiteratureModel>()
+            generalModel.SiteList = new List<GeneralModel.LiteratureModel>()
             {
-                new LiteratureModel("Учебно-методическая литература для учащихся и студентов, размещенная на сайте «Studmed.ru»", "http://www.studmed.ru "),
-                new LiteratureModel("Единое окно доступа к информационным ресурсам", "http://window.edu.ru/ "),
-                new LiteratureModel("Российская государственная библиотека", "http://www.rsl.ru "),
-                new LiteratureModel("Электронная библиотека Elibrary", "http://elibrary.ru "),
-                new LiteratureModel("Электронно-библиотечная система IPRbooks", "http://elibrary.ru "),
-                new LiteratureModel("Электронная библиотека АГНИ", "http://elibrary.agni-rt.ru "),
-                new LiteratureModel("Энциклопедия России «Библиотекарь»", "http://bibliotekar.ru "),
+                new GeneralModel.LiteratureModel("Учебно-методическая литература для учащихся и студентов, размещенная на сайте «Studmed.ru»", "http://www.studmed.ru "),
+                new GeneralModel.LiteratureModel("Единое окно доступа к информационным ресурсам", "http://window.edu.ru/ "),
+                new GeneralModel.LiteratureModel("Российская государственная библиотека", "http://www.rsl.ru "),
+                new GeneralModel.LiteratureModel("Электронная библиотека Elibrary", "http://elibrary.ru "),
+                new GeneralModel.LiteratureModel("Электронно-библиотечная система IPRbooks", "http://elibrary.ru "),
+                new GeneralModel.LiteratureModel("Электронная библиотека АГНИ", "http://elibrary.agni-rt.ru "),
+                new GeneralModel.LiteratureModel("Энциклопедия России «Библиотекарь»", "http://bibliotekar.ru "),
             };
+
+            List<GeneralModel.LiteratureModel> site_list = generalModel.SiteList;
+
             int row = 1 + site_list.Count;
             int column = 3;
             app.Selection.Find.Execute("<TABLE12>");
@@ -2143,12 +1691,15 @@ namespace TestWord
                 new SoftwareModel("Образовательная платформа для подготовки кадров в цифровой экономике DATALIB.RU", "", "Лицензионный договор №428-2022/22d/B от 09.11.2022г."),
                 new SoftwareModel("ПО «Автоматизированная тестирующая система", "Свидетельство государственной регистрации программ для ЭВМ №2014614238 от 01.04.2014г.", ""),
             };
+
             int row = 1 + software_list.Count;
             int column = 4;
+            
             app.Selection.Find.Execute("<TABLE13>");
             Word.Range wordTableRange = app.Selection.Range;
             Word.Table wordTable = wordDocument.Tables.Add(wordTableRange, row, column);
-            //форматирование
+            
+            // форматирование
             wordTable.Borders.Enable = Convert.ToInt32(true);
             wordTable.Range.ParagraphFormat.SpaceBefore = 0;
             wordTable.Range.ParagraphFormat.SpaceAfter = 0;
@@ -2167,7 +1718,8 @@ namespace TestWord
                 wordTable.Cell(current_row, 2).Range.Text = $"{software_list[i].name}";
                 wordTable.Cell(current_row, 3).Range.Text = $"{software_list[i].license}";
                 wordTable.Cell(current_row, 4).Range.Text = $"{software_list[i].contract}";
-                //форматирование
+
+                // форматирование
                 wordTable.Cell(current_row, 2).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                 wordTable.Cell(current_row, 3).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                 wordTable.Cell(current_row, 4).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
@@ -2217,7 +1769,7 @@ namespace TestWord
                 string equipment = "";
                 for (int j = 0; j < generalModel.PlaceTheirEquipments[i].EquipmentsName.Count; j++)
                 {
-                    if (generalModel.PlaceTheirEquipments[i].EquipmentsName.Count==1)
+                    if (generalModel.PlaceTheirEquipments[i].EquipmentsName.Count == 1)
                         equipment = generalModel.PlaceTheirEquipments[i].EquipmentsName[j];
                     else
                         equipment = equipment + $"{j + 1}. {generalModel.PlaceTheirEquipments[i].EquipmentsName[j]}\n";
@@ -2231,42 +1783,36 @@ namespace TestWord
             wordTable.AutoFitBehavior(WdAutoFitBehavior.wdAutoFitContent);
         }
 
-        private class MaterialBaseModel
-        {
-            public string room { get; set; }
-            public List<string> equipment { get; set; }
-
-            public MaterialBaseModel(string room, List<string> equipment)
-            {
-                this.room = room;
-                this.equipment = equipment;
-            }
-        }
-
         private void createTable16()
         {
+            List<Semester> semesters = generalModel.Semesters;
+
             //Место дисциплины в структуру ОПОП ВО
-            string place = $"Б1.О.23. " +
-                "Дисциплина «Метрология, стандартизация и сертификация» входит в состав " +
-                "Блока 1 «Дисциплины (модули)» и относится к " +
-                "обязательной  части.\nДисциплина изучается на " +
-                "2 курсе в 4 семестре.";
+            string place = 
+                generalModel.Index + ". "
+                + "Дисциплина «" + generalModel.DisciplineName + "» входит в состав "
+                + generalModel.ParentBlock_1 + " и относится к "
+                + generalModel.ParentSubBlock_1 + " части. "
+                + "\nДисциплина изучается на "
+                + string.Join(", ", semesters.Select(semester => ((int)((semester.SemesterNumber - 1) / 2) + 1).ToString() + " курсе в " + semester.SemesterNumber + " семестре")) + ".";
+
             //общая трудоемкость дисциплины (в зачетных единицах в часах)
-            string laboriousness = "Зачетных единиц по учебному плану: 4 ЗЕ.\n" +
-                "Часов по учебному плану: 144 ч.\n";
+            string laboriousness =
+                "Зачетных единиц по учебному плану: " + generalModel.Expert + " ЗЕ.\n"
+                + "Часов по учебному плану: "
+                + (Convert.ToInt32(generalModel.Actual) * Convert.ToInt32(generalModel.HoursPerCreditUnit)).ToString() + " ч.\n";
+
             //виды учебной работы
-            string work = "Контактная работа обучающихся с преподавателем:\r\n" +
-                "- лекции 16 ч.;\r\n" +
-                "- практические занятия 18 ч.;\r\n" +
-                "- лабораторные работы 18 ч.\r\n" +
-                "Самостоятельная работа 20ч.\r\n" +
-                "Контроль (экзамен) 36 ч.\r\n";
+            string work = "Контактная работа обучающихся с преподавателем:\r\n"
+                + "\r\n- лекции " + semesters.Sum(semester => Convert.ToInt32(semester.Lectures)).ToString() + " ч.;"
+                + "\r\n- практические занятия " + semesters.Sum(semester => Convert.ToInt32(semester.PracticeWorks)).ToString() + " ч.;"
+                + "\r\n- лабораторные работы " + semesters.Sum(semester => Convert.ToInt32(semester.LaboratoryWorks)).ToString() + " ч."
+                + "\r\nСамостоятельная работа " + semesters.Sum(semester => Convert.ToInt32(semester.IndependentWork)).ToString() + " ч."
+                + "\r\nКонтроль (экзамен) " + semesters.Sum(semester => Convert.ToInt32(semester.Control)).ToString() + " ч.";
+
             //изучаемые темы (разделы)
-            string theme = "Тема 1. Основы метрологии\r\n" +
-                "Тема 2. Средства и методы измерения \r\n" +
-                "Тема 3. Погрешности измерения\r\n" +
-                "Тема 4. Основы стандартизации\r\n" +
-                "Тема 5. Основы сертификации\r\n";
+            string theme = string.Join("\r\n", generalModel.DisciplineThematicPlan.Select(x => x.ThemeName)) + "\r\n";
+            
             //форма промежуточной аттестации
             string attestation = "экзамен в 4 семестре";
             Dictionary<string, string> tableData = new Dictionary<string, string>()

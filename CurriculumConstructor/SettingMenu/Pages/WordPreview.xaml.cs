@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CurriculumConstructor.SettingMenu.Model;
+using Microsoft.Office.Interop.Word;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,32 +12,34 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.IO;
-using Microsoft.Office.Interop.Word;
-using Microsoft.Win32;
 using System.Windows.Xps.Packaging;
+using TestWord;
 
-namespace CurriculumConstructor
+namespace CurriculumConstructor.SettingMenu.Pages
 {
     /// <summary>
-    /// Логика взаимодействия для WordPreviewViewWindow.xaml
+    /// Логика взаимодействия для WordPreview.xaml
     /// </summary>
-    public partial class WordPreviewViewWindow : System.Windows.Window
+    public partial class WordPreview : System.Windows.Controls.Page
     {
         private string myFilePathName;
+        private GeneralModel generalModel;
 
-        public WordPreviewViewWindow(string filePathName)
+        public WordPreview(string filePathName, ref GeneralModel generalModel)
         {
             InitializeComponent();
 
             myFilePathName = filePathName;
+
+            this.generalModel = generalModel;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             string newXPSDocumentName = String.Concat(
-                System.IO.Path.GetDirectoryName(myFilePathName), "\\", 
+                System.IO.Path.GetDirectoryName(myFilePathName), "\\",
                 System.IO.Path.GetFileNameWithoutExtension(myFilePathName), ".xps");
 
             // Set DocumentViewer.Document to XPS document
@@ -70,6 +74,13 @@ namespace CurriculumConstructor
             }
 
             return null;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var helper = new WordHelper("shablon.docx", generalModel);
+
+            helper.Process(false);
         }
     }
 }

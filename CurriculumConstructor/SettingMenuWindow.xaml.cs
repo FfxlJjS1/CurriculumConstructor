@@ -55,7 +55,7 @@ namespace CurriculumConstructor
             {
                 var helper = new WordHelper("shablon.docx", generalModel);
 
-                helper.Process();
+                helper.Process(true);
             }
             else if (senderName == titleMenuButton.Name)
             {

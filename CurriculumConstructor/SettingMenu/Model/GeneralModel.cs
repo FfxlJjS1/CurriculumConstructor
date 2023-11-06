@@ -88,11 +88,27 @@ namespace CurriculumConstructor.SettingMenu.Model
             public string Code { get; set; } = "";
             public string CodeName { get; set; } = "";
 
-            public string CompetencyAchivmentIndicators { get; set; } = "";
+            public List<CompetencyAchivmentIndicator> CompetencyAchivmentIndicators { get; set; } = new List<CompetencyAchivmentIndicator>();
+
+            public List<CompetencyAchivmentMarkCriteriesClass> CompetencyAchivmentMarkCriteries { get; set; } = new List<CompetencyAchivmentMarkCriteriesClass>();
 
             public string ToKnowResult { get; set; } = "";
             public string ToAbilityResult { get; set; } = "";
             public string ToOwnResult { get; set; } = "";
+
+            public class CompetencyAchivmentIndicator
+            {
+                public string Code { get; set; } = "";
+                public string Text { get; set; } = "";
+            }
+
+            public class CompetencyAchivmentMarkCriteriesClass
+            {
+                public string Excelent { get; set; } = "";
+                public string Good { get; set; } = "";
+                public string Satisfactory { get; set; } = "";
+                public string Unsatisfactory { get; set; } = "";
+            }
         }
 
 
@@ -147,21 +163,27 @@ namespace CurriculumConstructor.SettingMenu.Model
 
 
         // Test tasks. 6.3.1.2
-        class CompetencyTestTasks
-        {
-            public string CompetencyCode { get; set; } = "";
+        public List<TestTasksClass> testTasks { get; set; } = new List<TestTasksClass>();
 
+        public class TestTasksClass
+        {
+            public List<string> CompetencyCode { get; set; } = new List<string>();
             public List<TestTaskLine> Tasks { get; set; } = new List<TestTaskLine>();
 
             public class TestTaskLine
             {
                 public string Question { get; set; } = "";
-                public string Answer1 { get; set; } = "";
-                public string Answer2 { get; set; } = "";
-                public string Answer3 { get; set; } = "";
-                public string Answer4 { get; set; } = "";
 
+                public List<string> Answers { get; set; } = new List<string>();
             }
+        }
+
+        public List<CompetencyTestTasksClass> CompetencyTestTasks { get; set; } = new List<CompetencyTestTasksClass>();
+
+        public class CompetencyTestTasksClass : TestTasksClass
+        {
+            public int SemesterNumber { get; set; }
+            public int moduleNumber { get; set; }
         }
 
         // 6.3.2.2 - 6.3.2.3
@@ -171,7 +193,7 @@ namespace CurriculumConstructor.SettingMenu.Model
         {
             public string CriteriaForExcellent { get; set; } = "";
             public string CriteriaForGood { get; set; } = "";
-            public string CriteriaForЫatisfactory { get; set; } = "";
+            public string CriteriaForsatisfactory { get; set; } = "";
             public string CriteriaForUnsatisfactory { get; set; } = "";
 
             public string TaskAndQuestionExampleForDefenceLabWork { get; set; } = "";
@@ -201,6 +223,46 @@ namespace CurriculumConstructor.SettingMenu.Model
         {
             public string PlaceName { get; set; } = "";
             public List<string> EquipmentsName { get; set; } = new List<string>();
+        }
+
+        // 8.
+        public LiteratureBooksModel LiteratureBooks { get; set; } = new LiteratureBooksModel();
+
+        public class LiteratureBooksModel
+        {
+            public List<LiteratureModel> Main { get; set; } = new List<LiteratureModel>();
+            public List<LiteratureModel> Additional { get; set; } = new List<LiteratureModel>();
+            public List<LiteratureModel> Methodical { get; set; } = new List<LiteratureModel>();
+        }
+
+        public List<LiteratureModel> SiteList { get; set; } = new List<LiteratureModel>();
+
+        public class LiteratureModel
+        {
+            //6 и 8
+            public string name { get; set; }
+            public int? count { get; set; }
+            public string? link { get; set; }
+            public float? coefficient { get; set; }
+            //6
+            public LiteratureModel(string name, int count, float coefficient)
+            {
+                this.name = name;
+                this.count = count;
+                this.coefficient = coefficient;
+            }
+            public LiteratureModel(string name, string link, float coefficient)
+            {
+                this.name = name;
+                this.link = link;
+                this.coefficient = coefficient;
+            }
+            //8
+            public LiteratureModel(string name, string link)
+            {
+                this.name = name;
+                this.link = link;
+            }
         }
     }
 }
