@@ -56,6 +56,8 @@ namespace CurriculumConstructor
                 var helper = new WordHelper("shablon.docx", generalModel);
 
                 helper.Process(true);
+
+                ContentFrame.Navigate(new WordPreview(generalModel.ProfileName + " - " + generalModel.DisciplineName + ".docx", ref generalModel));
             }
             else if (senderName == titleMenuButton.Name)
             {
