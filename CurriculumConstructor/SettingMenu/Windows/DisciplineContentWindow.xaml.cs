@@ -20,40 +20,69 @@ namespace CurriculumConstructor.SettingMenu.Windows
     /// </summary>
     public partial class DisciplineContentWindow : Window
     {
-        public DisciplineContentWindow(ref GeneralModel.DisciplineThematicTheme discThematicTheme)
+        private List<GeneralModel.CompetencyCode_Name> competenciesCode_Name;
+
+        public DisciplineContentWindow(ref GeneralModel.DisciplineThematicTheme discThematicTheme, List<GeneralModel.CompetencyCode_Name> competencies)
         {
             InitializeComponent();
-            this.Title = $"{tD.Theme} ({tD.AllHour} ч.)";
-            _themeDisciplines = tD ;
-            if (tD.disciplinaryModules == null) _themeDisciplines.disciplinaryModules = new List<DisciplinaryModule>();
+            this.Title = $"{discThematicTheme.ThemeName} ({discThematicTheme.AllHour} ч.)";
+
+            this.competenciesCode_Name = competencies;
+            _themeDisciplines = discThematicTheme;
+
+            comboBoxThemeType.ItemsSource = new List<ComboBoxThemeType>() {
+                new ComboBoxThemeType(GeneralModel.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.Lecture, "Лекция"),
+                new ComboBoxThemeType(GeneralModel.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.PracticeWork, "Практическое занятие"),
+                new ComboBoxThemeType(GeneralModel.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.LaboratoryWork, "Лабораторное занятие")
+            };
+
             Reload();
         }
 
-        private ThemeDisciplines _themeDisciplines;
-        private DisciplinaryModule _disciplinaryModule;
+        private class ComboBoxThemeType
+        {
+            public GeneralModel.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum ThemeTypeNumber;
+            public string ThemeTypeName;
+
+            public ComboBoxThemeType(GeneralModel.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum themeTypeNumber, string themeTypeName)
+            {
+                ThemeTypeNumber = themeTypeNumber;
+                ThemeTypeName = themeTypeName;
+            }
+        }
+
+        private GeneralModel.DisciplineThematicTheme _themeDisciplines;
+        private GeneralModel.DisciplineThematicTheme.ThemeContent _discThemeContent;
         private bool IsEdit;
 
         private void Reload()
         {
-            ThemeListBox.ItemsSource = _themeDisciplines.disciplinaryModules;
+            ThemeListBox.ItemsSource = _themeDisciplines.ThemeContents;
             ThemeListBox.Items.Refresh();
+
             ThemeListBox.SelectedItem = null;
-            _disciplinaryModule = new DisciplinaryModule();
+            listBoxAvailableCompetencyForSelect.ItemsSource = competenciesCode_Name.Select(x => x.Code).ToList();
+
+            _discThemeContent = new GeneralModel.DisciplineThematicTheme.ThemeContent();
             IsEdit = false;
-            DataContext = _disciplinaryModule;
+            
+            DataContext = _discThemeContent;
         }
+
         private void SaveClick(object sender, RoutedEventArgs e)
         {
             if (IsEdit == false)
             {
-                _themeDisciplines.disciplinaryModules.Add(_disciplinaryModule);
+                _themeDisciplines.ThemeContents.Add(_discThemeContent);
             }
+
             Reload();
         }
 
         private void DeleteClick(object sender, RoutedEventArgs e)
         {
-            _themeDisciplines.disciplinaryModules.Remove(_disciplinaryModule);
+            _themeDisciplines.ThemeContents.Remove(_discThemeContent);
+
             Reload();
         }
         private void AddClick(object sender, RoutedEventArgs e)
@@ -67,9 +96,29 @@ namespace CurriculumConstructor.SettingMenu.Windows
             {
                 return;
             }
-            _disciplinaryModule = ThemeListBox.SelectedItem as DisciplinaryModule;
-            DataContext = _disciplinaryModule;
+
+            _discThemeContent = ThemeListBox.SelectedItem as GeneralModel.DisciplineThematicTheme.ThemeContent;
+            DataContext = _discThemeContent;
+
+            listBoxAvailableCompetencyForSelect.ItemsSource = competenciesCode_Name.Select(x => x.Code).Where(x => !_discThemeContent?.FormingCompetency.Contains(x) ?? true);
+
             IsEdit = true;
+        }
+
+        private void SelectCompetency_Click(object sender, RoutedEventArgs e)
+        {
+            if(listBoxAvailableCompetencyForSelect.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите компетенцию для добавления");
+
+                return;
+            }
+
+            string selectedCompetency = listBoxAvailableCompetencyForSelect.SelectedItem as string;
+
+            _discThemeContent.FormingCompetency.Add(selectedCompetency);
+
+            listBoxAvailableCompetencyForSelect.ItemsSource = competenciesCode_Name.Select(x => x.Code).Where(x => !_discThemeContent?.FormingCompetency.Contains(x) ?? true);
         }
     }
 }

@@ -23,6 +23,10 @@ namespace CurriculumConstructor.SettingMenu.Pages
     public partial class PlanOfDisciplinesPage : Page
     {
         private GeneralModel generalModel;
+        private List<GeneralModel.DisciplineThematicTheme> _model;
+
+        private GeneralModel.DisciplineThematicTheme _themeDisciplines;
+        private bool IsEdit;
 
         public PlanOfDisciplinesPage(ref GeneralModel generalModel)
         {
@@ -33,10 +37,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
             this._model = generalModel.DisciplineThematicPlan;
         }
 
-        private List<GeneralModel.DisciplineThematicTheme> _model;
-
-        private GeneralModel.DisciplineThematicTheme _themeDisciplines;
-        private bool IsEdit;
+        
         private void SaveClick(object sender, RoutedEventArgs e)
         {
             if (IsEdit == false)
@@ -111,7 +112,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
                 return;
             }
 
-            DisciplineContentWindow disciplineContentWindow = new DisciplineContentWindow(ref _themeDisciplines);
+            DisciplineContentWindow disciplineContentWindow = new DisciplineContentWindow(ref _themeDisciplines, generalModel.competencyCode_Names);
 
             disciplineContentWindow.ShowDialog();
         }

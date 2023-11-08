@@ -26,7 +26,7 @@ namespace CurriculumConstructor
     {
         GeneralModel generalModel;
 
-        public SettingMenuWindow((string, string) Block_Part, TitleData titleData, DisciplineRow disciplineRow)
+        public SettingMenuWindow((string, string) Block_Part, TitleDataClass titleData, DisciplineRow disciplineRow)
         {
             InitializeComponent();
             Nav.SettingMenuFrame = ContentFrame;
@@ -53,6 +53,13 @@ namespace CurriculumConstructor
 
             if (senderName == previewViewMenuButton.Name)
             {
+                if (!generalModel.CheckModelForCorrect())
+                {
+                    previewViewMenuButton.IsChecked = false;
+
+                    return;
+                }
+
                 var helper = new WordHelper("shablon.docx", generalModel);
 
                 helper.Process(true);
@@ -71,33 +78,21 @@ namespace CurriculumConstructor
             {
                 ContentFrame.Navigate(new PlanOfDisciplinesPage(ref generalModel));
             }
-            else if (senderName == intermediateCertificationMenuButton.Name)
+            else if (senderName == educationLiteratureMenuButton.Name)
             {
-                ContentFrame.Navigate(new IntermediateCertificationPage());
+                ContentFrame.Navigate(new EducationLiteraturePage(ref generalModel));
             }
-            else if (senderName == testTasksMenuButton.Name)
+            else if (senderName == proffesionalBaseMenuButton.Name)
             {
-                ContentFrame.Navigate(new TestTaskPage(ТипТеста.модуль));
+                ContentFrame.Navigate(new ProffecionalDatabasePage(ref generalModel));
             }
-            else if (senderName == evaluationCriteriaMenuButton.Name)
+            else if(senderName == programListMenuButton.Name)
             {
-                ContentFrame.Navigate(new CriterionEvaluationPage(КритерийОценивания.Теория));
+                ContentFrame.Navigate(new ProgramListPage(ref generalModel));
             }
-            else if (senderName == "")
+            else if (senderName == materialTechnicalBaseMenuButton.Name)
             {
-                ContentFrame.Navigate(new CriterionEvaluationPage(КритерийОценивания.Практика));
-            }
-            else if (senderName == examMenuButton.Name)
-            {
-                ContentFrame.Navigate(new ExamPage());
-            }
-            else if (senderName == "")
-            {
-                ContentFrame.Navigate(new TestTaskPage(ТипТеста.экзамен));
-            }
-            else if (senderName == additionalPointsMenuButton.Name)
-            {
-                ContentFrame.Navigate(new ExtraPointsPage());
+                ContentFrame.Navigate(new MaterialTechnicalBasePage(ref generalModel));
             }
         }
 

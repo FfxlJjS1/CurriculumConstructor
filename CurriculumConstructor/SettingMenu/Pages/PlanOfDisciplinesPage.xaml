@@ -18,7 +18,7 @@
 
         <Grid Grid.Column="0">
             <StackPanel>
-                <ListBox DisplayMemberPath="Theme" Margin="10" MinHeight="75" SelectionChanged="ThemeDisciplinesListBox_SelectionChanged"  Name="ThemeDisciplinesListBox" />
+                <ListBox Margin="10" MinHeight="75" SelectionChanged="ThemeDisciplinesListBox_SelectionChanged" DisplayMemberPath="ThemeName" Name="ThemeDisciplinesListBox" />
                 <Button Click="AddClick" Content="Новый"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
                 <Button Click="DelClick" Content="Удалить"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
                 <Button Click="ContentClick" Content="Содержание дисциплины" Style="{StaticResource ModernWhiteButton}" Margin="5" />
@@ -35,14 +35,6 @@
                     <TextBlock Text="Модуль (семестра) :"  VerticalAlignment="Center"/>
                     <TextBox Text="{Binding SemesterModule}" Width="105" Margin="5 0" Style="{StaticResource ModernTextBox}"/>
                 </StackPanel>
-                <TextBlock Text="Лекция" />
-                <TextBox Text="{Binding LectureHours}"  Style="{StaticResource ModernTextBox}"/>
-                <TextBlock Text="Практические занятия" />
-                <TextBox Text="{Binding PracticeHours}"  Style="{StaticResource ModernTextBox}"/>
-                <TextBlock Text="Лабораторные занятия" />
-                <TextBox Text="{Binding LaboratoryWorkHours}" Style="{StaticResource ModernTextBox}" />
-                <TextBlock Text="СРС" />
-                <TextBox Text="{Binding IndependentHours}" Style="{StaticResource ModernTextBox}"/>
 
                 <Button Content="Добавить тему" Click="SaveClick" Style="{StaticResource ModernWhiteButton}" Margin="0 10" />
 

@@ -1,0 +1,42 @@
+﻿<Page x:Class="CurriculumConstructor.SettingMenu.Pages.ProgramListPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:CurriculumConstructor.SettingMenu.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Background="#eff2f7"
+      Loaded="Page_Loaded"
+      Title="ProgramListPage">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <StackPanel>
+                <ListBox DisplayMemberPath="Name" Margin="10" x:Name="ProgramListListBox" MinHeight="75" SelectionChanged="ProgramListListBox_SelectionChanged" />
+                <Button Click="AddClick" Content="Новый"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
+                <Button Click="DelClick" Content="Удалить"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Column="1" Margin="5">
+            <StackPanel>
+                <TextBlock Text="Наименование программного обеспечения" />
+                <TextBox Text="{Binding Name}"  Style="{StaticResource ModernTextBox}"/>
+
+                <TextBlock Text="Лицензия" />
+                <TextBox Text="{Binding License}"  Style="{StaticResource ModernTextBox}"/>
+
+                <TextBlock Text="Договор" />
+                <TextBox Text="{Binding Agreement}"  Style="{StaticResource ModernTextBox}"/>
+
+                <Button Content="Добавить ПО" Click="SaveClick" Style="{StaticResource ModernWhiteButton}" Margin="0 10" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>

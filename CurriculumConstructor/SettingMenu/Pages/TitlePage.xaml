@@ -20,19 +20,27 @@
                 <WrapPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock Text="Автор"   FontSize="20" Foreground="#252737" Margin="10" />
-                        <TextBox  x:Name="txtBoxAuthor" Text="{Binding name}" Style="{StaticResource ModernTextBox}" Width="300"  Height="40" HorizontalAlignment="Right"/>
+                        <TextBox  x:Name="txtBoxAuthor" Style="{StaticResource ModernTextBox}" Width="300"  Height="40" HorizontalAlignment="Right"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock Text="Автор (в творительном падеже)"   FontSize="20" Foreground="#252737" Margin="10" />
-                        <TextBox  x:Name="txtBoxAuthorInTheInstrumentalCase" Text="{Binding name}" Style="{StaticResource ModernTextBox}" Width="300"  Height="40" HorizontalAlignment="Right"/>
+                        <TextBox  x:Name="txtBoxAuthorInTheInstrumentalCase" Style="{StaticResource ModernTextBox}" Width="300"  Height="40" HorizontalAlignment="Right"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock Text="Рецензент"   FontSize="20" Foreground="#252737" Margin="10"/>
-                        <TextBox  x:Name="txtBoxReviewer" Text="{Binding lifetime_month}" Style="{StaticResource ModernTextBox}" Height="40" Width="300"/>
+                        <TextBox  x:Name="txtBoxReviewer" Style="{StaticResource ModernTextBox}" Height="40" Width="300"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock Text="Зав. Обеспечивающей (выпускающей) кафедрой" Width="250" TextWrapping="Wrap" FontSize="20" Foreground="#252737" Margin="10"/>
-                        <TextBox  x:Name="txtBoxHead" Text="{Binding count}" Style="{StaticResource ModernTextBox}" Width="300" Height="50"/>
+                        <TextBox  x:Name="txtBoxHead" Style="{StaticResource ModernTextBox}" Width="300" Height="50"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <TextBlock Text="Верхний блок (в родительном падеже)" Width="250" TextWrapping="Wrap" FontSize="20" Foreground="#252737" Margin="10"/>
+                        <TextBox  x:Name="txtBoxParentBlock_1" Style="{StaticResource ModernTextBox}" Width="300" Height="50"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <TextBlock Text="Подблок (какой?)" Width="250" TextWrapping="Wrap" FontSize="20" Foreground="#252737" Margin="10"/>
+                        <TextBox  x:Name="txtBoxParentSubBlock_1" Style="{StaticResource ModernTextBox}" Width="300" Height="50"/>
                     </StackPanel>
 
                     <Button HorizontalAlignment="Right" Click="Button_Click" Width="100" Style="{StaticResource ModernWhiteButton}" Height="40" Content="Сохранить" Margin="0 20 0 0"/>

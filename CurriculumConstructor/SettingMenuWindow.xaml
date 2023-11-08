@@ -19,7 +19,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Padding="20" CornerRadius="20,0,0,20" Width="250" Background="#252737">
+            <Border Padding="20" CornerRadius="20,0,0,20" Width="260" Background="#252737">
                 <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                     <RadioButton x:Name="titleMenuButton" Content="Титульник" 
                                  FontSize="14"
@@ -39,31 +39,25 @@
                                  Foreground="#eff2f7"
                                  Checked="MeuButton_Checked"
                                  Style="{StaticResource MenuButtonTheme}"/>
-                    <RadioButton x:Name="intermediateCertificationMenuButton" Content="Промежуточная аттестация"
+                    <RadioButton x:Name="educationLiteratureMenuButton" Content="Учебная литература"
                                  FontSize="14"
                                  Height="40"
                                  Foreground="#eff2f7"
                                  Checked="MeuButton_Checked"
                                  Style="{StaticResource MenuButtonTheme}"/>
-                    <RadioButton x:Name="testTasksMenuButton" Content="Тестовые задания"
+                    <RadioButton x:Name="proffesionalBaseMenuButton" Content="Профессиональные базы"
                                  FontSize="14"
                                  Height="40"
                                  Foreground="#eff2f7"
                                  Checked="MeuButton_Checked"
                                  Style="{StaticResource MenuButtonTheme}"/>
-                    <RadioButton x:Name="evaluationCriteriaMenuButton" Content="Критерии оценивания"
+                    <RadioButton x:Name="programListMenuButton" Content="Программные обеспечения"
                                  FontSize="14"
                                  Height="40"
                                  Foreground="#eff2f7"
                                  Checked="MeuButton_Checked"
                                  Style="{StaticResource MenuButtonTheme}"/>
-                    <RadioButton x:Name="examMenuButton" Content="Экзамен"
-                                 FontSize="14"
-                                 Height="40"
-                                 Foreground="#eff2f7"
-                                 Checked="MeuButton_Checked"
-                                 Style="{StaticResource MenuButtonTheme}"/>
-                    <RadioButton x:Name="additionalPointsMenuButton" Content="Дополнительные баллы"
+                    <RadioButton x:Name="materialTechnicalBaseMenuButton" Content="Материал-техническая база"
                                  FontSize="14"
                                  Height="40"
                                  Foreground="#eff2f7"

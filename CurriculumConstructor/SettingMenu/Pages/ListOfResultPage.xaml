@@ -16,10 +16,10 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="0" HorizontalAlignment="Center">
             <StackPanel Height="50" Orientation="Horizontal" HorizontalAlignment="Left">
                 <TextBlock Text="ОПК: " VerticalAlignment="Center"/>
-                <ComboBox x:Name="ComboboxOPKs" DisplayMemberPath="Code" Selected="ComboboxOPKs_Selected" FontSize="16" Height="40" Width="760"/>
+                <ComboBox Margin="5 0" Style="{StaticResource ComboBoxTheme}" x:Name="ComboboxOPKs" SelectionChanged="ComboboxOPKs_SelectionChanged" FontSize="16" Height="30" Width="500"/>
             </StackPanel>
         </Grid>
 
@@ -35,32 +35,154 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Vertical" Grid.Row="0">
-                    <TextBlock Text="Оцениваемые компетенциии (код, наименование):" Margin="5 0" VerticalAlignment="Center"/>
-                    <TextBox x:Name="txtboxBlCompetencyName" Margin="5" Text="{Binding CodeName}"  Style="{StaticResource ModernTextBox}" Height="50"/>
-                </StackPanel>
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Vertical" Grid.Row="1">
-                    <TextBlock Text="Код и наименование индикатора (код, наименование) достожения компетенции:" Margin="5 0" VerticalAlignment="Center"/>
-                    <TextBox x:Name="txtboxBlCompetencyAchivments" Margin="5" Text="{Binding CompetencyAchivmentIndicators}" Style="{StaticResource ModernTextBox}" Height="50"/>
-                </StackPanel>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Orientation="Vertical" Grid.Row="2">
-                    <TextBlock Text="Результаты освоения компетенции (знать):" Margin="5 0" VerticalAlignment="Center"/>
-                    <TextBox x:Name="txtboxBlCompetencyToKnow" Margin="5" Text="{Binding ToKnowResult}" Style="{StaticResource ModernTextBox}" Height="50"/>
-                </StackPanel>
+                    <TextBlock Grid.Row="0" FontWeight="Bold" Grid.Column="0" Grid.ColumnSpan="2" Text="Коды индикаторы компетенции:"/>
+                    
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Ввод индикатора компетенции:"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Введенные идникаторы компетенции:" TextAlignment="Right"/>
 
-                <StackPanel Orientation="Vertical" Grid.Row="3">
-                    <TextBlock Text="Результаты освоения компетенции (уметь):" Margin="5 0" VerticalAlignment="Center"/>
-                    <TextBox x:Name="txtboxBlCompetencyToAble" Margin="5" Text="{Binding ToAbilityResult}" Style="{StaticResource ModernTextBox}" Height="50"/>
-                </StackPanel>
+                    <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                <StackPanel Orientation="Vertical" Grid.Row="4">
-                    <TextBlock Text="Результаты освоения компетенции (владеть):" Margin="5 0" VerticalAlignment="Center"/>
-                    <TextBox x:Name="txtboxBlCompetencyToOwn" Margin="5" Text="{Binding ToOwnResult}" Style="{StaticResource ModernTextBox}" Height="50"/>
-                </StackPanel>
+                        <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0">
+                            <TextBlock  Text="Код индикатора"/>
+                        </StackPanel>
 
-                <Button Grid.Row="5" Click="Button_Click" Content="Сохранить ОПК" Style="{StaticResource ModernWhiteButton}" Width="200" HorizontalAlignment="Right"/>
+                        <TextBox x:Name="txtBoxCodeIndicatorText" TextWrapping="Wrap" Height="80" Grid.Column="0" Grid.Row="1"/>
+
+                        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" >
+                            <TextBox x:Name="txtBoxCodeIndicatorCode" Style="{StaticResource ModernTextBox}" Height="30" Width="50"/>
+                            <Button Name="btnAddCodeIndicator" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10 5 10 0" Height="30" Content="Добавить" Click="btnAddCodeIndicator_Click"/>
+                            <Button Name="btnRemoveCodeIndicator" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Удалить" Click="btnRemoveCodeIndicator_Click"/>
+                        </StackPanel>
+
+                        <ListBox x:Name="listBoxEnteredCompetencyIndicator" DisplayMemberPath="FullText" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2"/>
+                    </Grid>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" FontWeight="Bold" Grid.Column="0" Grid.ColumnSpan="2" Text="Результаты обучения (знать):"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Ввод результатов обучения:"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Введенные результаты обучения:" TextAlignment="Right"/>
+
+                    <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox x:Name="txtBoxToKnow" TextWrapping="Wrap" Grid.Column="0"/>
+
+                        <StackPanel Orientation="Vertical" Grid.Column="1" >
+                            <Button Name="btnAddToKnow" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Добавить" Click="btnAddToKnow_Click"/>
+                            <Button Name="btnRemoveToKnow" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Удалить" Click="btnRemoveToKnow_Click"/>
+                        </StackPanel>
+
+                        <ListBox x:Name="listBoxEnteredToKnow" ItemsSource="{Binding ToKnowResult}" Grid.Column="2" />
+                    </Grid>
+                </Grid>
+
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" FontWeight="Bold" Grid.Column="0" Grid.ColumnSpan="2" Text="Результаты обучения (уметь):"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Ввод результатов обучение:"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Введенные результаты обучения:" TextAlignment="Right"/>
+
+                    <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox x:Name="txtBoxToAble" TextWrapping="Wrap" Grid.Column="0"/>
+
+                        <StackPanel Orientation="Vertical" Grid.Column="1">
+                            <Button Name="btnAddToAble" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Добавить" Click="btnAddToAble_Click"/>
+                            <Button Name="btnRemoveToAble" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Удалить" Click="btnRemoveToAble_Click"/>
+                        </StackPanel>
+
+                        <ListBox x:Name="listBoxEnteredToAble" Grid.Column="2" ItemsSource="{Binding ToAbilityResult}"/>
+                    </Grid>
+                </Grid>
+
+                <Grid Grid.Row="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" FontWeight="Bold" Grid.Column="0" Grid.ColumnSpan="2" Text="Результаты обучения (владеть):"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Ввод результатов обучения:"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Введенные результаты обучения:" TextAlignment="Right"/>
+
+                    <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox x:Name="txtBoxToOwn" TextWrapping="Wrap" Grid.Column="0"/>
+
+                        <StackPanel Orientation="Vertical" Grid.Column="1">
+                            <Button Name="btnAddToOwn" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Добавить" Click="btnAddToOwn_Click"/>
+                            <Button Name="btnRemoveToOwn" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Удалить" Click="btnRemoveToOwn_Click"/>
+                        </StackPanel>
+
+                        <ListBox Grid.Column="2" x:Name="listBoxEnteredToOwn" ItemsSource="{Binding ToOwnResult}"/>
+                    </Grid>
+                </Grid>
             </Grid>
         </ScrollViewer>
     </Grid>

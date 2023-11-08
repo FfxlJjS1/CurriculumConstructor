@@ -32,7 +32,10 @@ namespace CurriculumConstructor.SettingMenu.Pages
             txtBoxAuthor.Text = generalModel.Author;
             txtBoxAuthorInTheInstrumentalCase.Text = generalModel.AuthorInTheInstrumentalCase;
             txtBoxReviewer.Text = generalModel.Reviewer;
-            txtBoxHead.Text = generalModel.Head;
+            txtBoxHead.Text = generalModel.DepartmentChair;
+            txtBoxParentBlock_1.Text = generalModel.ParentBlock_1 == "" ? generalModel.ParentBlock : generalModel.ParentBlock_1;
+            txtBoxParentSubBlock_1.Text = generalModel.ParentSubBlock_1 == ""
+                ? generalModel.ParentSubBlock : generalModel.ParentSubBlock_1;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -40,7 +43,9 @@ namespace CurriculumConstructor.SettingMenu.Pages
             generalModel.Author = txtBoxAuthor.Text;
             generalModel.AuthorInTheInstrumentalCase = txtBoxAuthorInTheInstrumentalCase.Text;
             generalModel.Reviewer = txtBoxReviewer.Text;
-            generalModel.Head = txtBoxHead.Text;
+            generalModel.DepartmentChair = txtBoxHead.Text;
+            generalModel.ParentBlock_1 = txtBoxParentBlock_1.Text;
+            generalModel.ParentSubBlock_1 = txtBoxParentSubBlock_1.Text;
         }
     }
 }

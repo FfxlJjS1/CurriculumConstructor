@@ -27,12 +27,21 @@ namespace CurriculumConstructor
     /// </summary>
     public partial class MainWindow : System.Windows.Window
     {
-        TitleData TitleData = new TitleData();
+        TitleDataClass TitleData = new TitleDataClass();
         Dictionary<int, (string, string)> ParentGroupId_Block_Part = new Dictionary<int, (string, string)>();
+        private Excel.Application app;
 
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        ~MainWindow()
+        {
+            if(app != null)
+            {
+                app.Quit();
+            }
         }
 
         private async void FileSelectClick(object sender, RoutedEventArgs e)
@@ -61,7 +70,7 @@ namespace CurriculumConstructor
 
         private List<DisciplineRow> LoadExcelDataGrid(string filePathName)
         {
-            Excel.Application app = new Excel.Application();
+            app = new Excel.Application();
             Excel.Workbook workbook = app.Workbooks.Open(filePathName);
             
             var GetCell = (Worksheet worksheet, int lineNumber, int columnNumber) =>
@@ -86,6 +95,33 @@ namespace CurriculumConstructor
                 TitleData.Qualification = TitleData.Qualification.Substring(TitleData.Qualification.IndexOf(": ") + 2);
             }
 
+            int rowNumber = 3;
+
+            {
+                var competencyWorksheet = workbook.Worksheets.Item["Компетенции"];
+                var competencyCodeNames = TitleData.CompetencyCode_Names;
+
+                string Value = GetCell(competencyWorksheet, rowNumber, 2); ; // B3
+
+                do
+                {
+                    GeneralModel.CompetencyCode_Name code_Name = new GeneralModel.CompetencyCode_Name();
+
+                    code_Name.Code = GetCell(competencyWorksheet, rowNumber, 2);
+                    code_Name.CodeName = GetCell(competencyWorksheet, rowNumber, 4);
+
+                    competencyCodeNames.Add(code_Name);
+
+                    rowNumber++;
+
+                    while (GetCell(competencyWorksheet, rowNumber, 2) == null
+                        && GetCell(competencyWorksheet, rowNumber, 3) != null)
+                        rowNumber++;
+
+                    Value = GetCell(competencyWorksheet, rowNumber, 2);
+                } while (Value != null);
+            }
+
             var worksheet = workbook.Worksheets.Item["План"];
             int semestersCount = Convert.ToInt32(
                 string.Join("", TitleData.EducationPeriod.TakeWhile(x => char.IsDigit(x)))
@@ -93,7 +129,9 @@ namespace CurriculumConstructor
 
             List<DisciplineRow> disciplineRows = new List<DisciplineRow>();
 
-            int rowNumber = 4, parentGroupId = 0;
+            int parentGroupId = 0;
+            rowNumber = 4;
+
             while (true)
             {
                 string AValue = GetCell(worksheet, rowNumber, 1) ?? "";
@@ -170,8 +208,8 @@ namespace CurriculumConstructor
                 rowElement.Control = GetCell(worksheet, rowNumber, 7) ?? "0";
                 rowElement.Expert = GetCell(worksheet, rowNumber, 8) ?? "0";
                 rowElement.Actual = GetCell(worksheet, rowNumber, 9) ?? "0";
-                rowElement.HoursPerCreditUnit = GetCell(worksheet, rowNumber, 10) ?? "0";
-                rowElement.ContansHours = GetCell(worksheet, rowNumber, 13) ?? "0";
+                rowElement.HoursPerCreditUnit = Convert.ToInt32(GetCell(worksheet, rowNumber, 10)) ?? 0;
+                rowElement.ContansHours = Convert.ToInt32(GetCell(worksheet, rowNumber, 13)) ?? 0;
 
                 for (int semesterNumber = 1; semesterNumber <= semestersCount; semesterNumber++)
                 {
@@ -231,7 +269,7 @@ namespace CurriculumConstructor
         }
     }
 
-    public class TitleData
+    public class TitleDataClass
     {
         public string ProfileNumber { get; set; } = "";
         public string ProfileName { get; set; } = "";
@@ -241,6 +279,8 @@ namespace CurriculumConstructor
         public string EducationForm { get; set; } = "";
         public string EducationPeriod { get; set; } = "";
         public string StartYear { get; set; } = "";
+
+        public List<GeneralModel.CompetencyCode_Name> CompetencyCode_Names { get; set; } = new List<GeneralModel.CompetencyCode_Name>();
     }
 
     public class DisciplineRow

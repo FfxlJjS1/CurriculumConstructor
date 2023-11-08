@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:CurriculumConstructor.SettingMenu.Windows"
         mc:Ignorable="d"
         Background="#eff2f7"
-        Title="DisciplineContentWindow"  WindowStartupLocation="CenterScreen" Height="450" Width="800">
+        Title="Настройка содержания темы дисциплины"
+        WindowStartupLocation="CenterScreen" Height="480" Width="810">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.3*"/>
@@ -14,19 +15,58 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
-            <ListBox SelectionChanged="ThemeListBox_SelectionChanged" Name="ThemeListBox"></ListBox>
+            <ListBox SelectionChanged="ThemeListBox_SelectionChanged" Name="ThemeListBox" DisplayMemberPath="ThemeText"/>
         </Grid>
         <Grid Grid.Column="1">
             <ScrollViewer>
                 <StackPanel Margin="5">
+                    <TextBlock Text="Тип темы"/>
+                    <ComboBox x:Name="comboBoxThemeType" Style="{StaticResource ComboBoxTheme}" DisplayMemberPath="ThemeTypeName" SelectedValuePath="ThemeTypeNumber" SelectedValue="{Binding ThemeType}"/>
+
                     <TextBlock Text="Тема" />
-                    <TextBox TextWrapping="Wrap" Text="{Binding Theme}"  Name="ThemeTextBox" SpellCheck.IsEnabled="True" Language="ru-ru" MinHeight="50" AcceptsReturn="True" />
+                    <TextBox TextWrapping="Wrap" Style="{StaticResource ModernTextBox}" Text="{Binding ThemeText}"  Name="ThemeTextBox" SpellCheck.IsEnabled="True" Language="ru-ru" MinHeight="50" AcceptsReturn="True" />
 
                     <TextBlock Text="Используемый метод" />
-                    <TextBox TextWrapping="Wrap" Text="{Binding Method}" Name="MethodTextBox" SpellCheck.IsEnabled="True" Language="ru-ru"  AcceptsReturn="True" />
-                    <Button Click="SaveClick" Content="Добавить"/>
-                    <Button Content="Новый" Click="AddClick" />
-                    <Button Click="DeleteClick" Content="Удалить" />
+                    <TextBox Style="{StaticResource ModernTextBox}" TextWrapping="Wrap" Text="{Binding UsingMethod}" Name="MethodTextBox" SpellCheck.IsEnabled="True" Language="ru-ru"  AcceptsReturn="True" />
+
+                    <TextBlock Text="Максимальный баллл" />
+                    <TextBox Style="{StaticResource ModernTextBox}" TextWrapping="Wrap" Text="{Binding MaxPints}" Name="MaxPointsTextBox" SpellCheck.IsEnabled="True" Language="ru-ru"  AcceptsReturn="True" />
+
+                    <TextBlock Text="Компетенции темы:"/>
+                    <Grid Height="195">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Доступные компетенции:" Grid.Column="0" Grid.Row="0"/>
+
+                        <ListBox x:Name="listBoxAvailableCompetencyForSelect" Grid.Column="0" Grid.Row="1"/>
+
+                        <Button Name="SelectCompetency" Grid.Column="1" Grid.Row="1" Height="30" Style="{StaticResource ModernWhiteButton}" Content="Выбрать" Padding="5" Margin="10 0" Click="SelectCompetency_Click"/>
+
+                        <TextBlock Text="Выбранные компетенции:" Grid.Column="2" Grid.Row="0" TextAlignment="Right"/>
+
+                        <ListBox Grid.Column="2" Grid.Row="1" ItemsSource="{Binding FormingCompetency}"/>
+                    </Grid>
+                    
+                    <Grid Margin="5 10 5 5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0" Style="{StaticResource ModernWhiteButton}" Click="SaveClick" Content="Добавить"/>
+                        <Button Grid.Column="1" Style="{StaticResource ModernWhiteButton}" Content="Новый" Click="AddClick" />
+                        <Button Grid.Column="2" Style="{StaticResource ModernWhiteButton}" Click="DeleteClick" Content="Удалить" />
+                    </Grid>
                 </StackPanel>
             </ScrollViewer>
             
