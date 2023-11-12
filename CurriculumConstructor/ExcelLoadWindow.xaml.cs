@@ -243,6 +243,7 @@ namespace CurriculumConstructor
             }
 
             workbook.Close();
+            app.Quit();
 
             return disciplineRows;
         }
@@ -258,8 +259,6 @@ namespace CurriculumConstructor
             }
 
             DisciplineRow rowElement = dataGrid.Items[selectedIndex] as DisciplineRow;
-
-            DocumentReplaceObject.Discipline = rowElement.DisciplineName;
 
             SettingMenuWindow settingMenuWindow = new SettingMenuWindow(ParentGroupId_Block_Part[rowElement.ParentGroup], TitleData, rowElement);
 

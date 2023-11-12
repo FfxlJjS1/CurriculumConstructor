@@ -50,6 +50,16 @@ namespace CurriculumConstructor.SettingMenu.Model
             NeedTotalPracticeHours = disciplineRow.Semesters.Sum(x => Convert.ToInt32(x.PracticeWorks));
             NeedTotalLaboratoryWorkHours = disciplineRow.Semesters.Sum(x => Convert.ToInt32(x.LaboratoryWorks));
             NeedTotalIndependentHours = disciplineRow.Semesters.Sum(x => Convert.ToInt32(x.IndependentWork));
+
+
+            foreach(var semester in Semesters)
+            {
+                DisciplineThematicPlan.Add((semester.SemesterNumber, 1), new SemesterModuleData());
+                DisciplineThematicPlan.Add((semester.SemesterNumber, 2), new SemesterModuleData());
+
+                TestTasksByDiscipModule.Add((semester.SemesterNumber, 1), new TestTasksClass());
+                TestTasksByDiscipModule.Add((semester.SemesterNumber, 2), new TestTasksClass());
+            }
         }
 
         // Block and sub block of discipline
@@ -98,8 +108,8 @@ namespace CurriculumConstructor.SettingMenu.Model
         public string StartYear { get; set; } = ""; // Excel
 
 
-        // 1
-        public List<CompetencyPlanningResult> competencyPlanningResults { get; set; } = new List<CompetencyPlanningResult>();
+        // 1, 6.2
+        public List<CompetencyPlanningResult> competencyPlanningResults { get; } = new List<CompetencyPlanningResult>();
 
         public class CompetencyPlanningResult
         {
@@ -133,136 +143,102 @@ namespace CurriculumConstructor.SettingMenu.Model
 
 
         // 4. Thematic plan of discipline
-        public List<DisciplineThematicTheme> DisciplineThematicPlan { get; set; } = new List<DisciplineThematicTheme>();
+        public Dictionary<(int semesterNumber, int semesterModuleNumber), SemesterModuleData> DisciplineThematicPlan { get; } = new Dictionary<(int semesterNumber, int semesterModuleNumber), SemesterModuleData>();
 
         public int NeedTotalLectureHours { get; set; } // Excel + Processing
         public int NeedTotalPracticeHours { get; set; } // Excel + Processing
         public int NeedTotalLaboratoryWorkHours { get; set; } // Excel + Processing
         public int NeedTotalIndependentHours { get; set; } // Excel + Processing
 
-        public class DisciplineThematicTheme
+        public class SemesterModuleData
         {
-            public string ThemeName { get; set; } = "";
-            public int Semester { get; set; }  // Excel
-            public int SemesterModule { get; set; } // Excel
+            // 4.
+            public List<DisciplineThematicTheme> DisciplineThematicPlan { get; set; } = new List<DisciplineThematicTheme>();
 
-            public int LectureHours => ThemeContents.Where(x => x.ThemeType == ThemeContent.ThemeTypeEnum.Lecture).Sum(x => x.Hour);
-            public int PracticeHours => ThemeContents.Where(x => x.ThemeType == ThemeContent.ThemeTypeEnum.PracticeWork).Sum(x => x.Hour);
-            public int LaboratoryWorkHours => ThemeContents.Where(x => x.ThemeType == ThemeContent.ThemeTypeEnum.LaboratoryWork).Sum(x => x.Hour);
-            
-            public int IndependentHours { get; set; }
 
-            public int AllHour
+            // 6.4
+            public (int minPoints, int maxPoints) CurrentControl_Laboratory_Practice { get; set; }
+            public (int minPoints, int maxPoints) CurrentControl_Testing { get; set; }
+            public (int minPoints, int maxPoints) TotalPointsCount =>
+                (CurrentControl_Laboratory_Practice.minPoints + CurrentControl_Testing.minPoints,
+                CurrentControl_Laboratory_Practice.maxPoints + CurrentControl_Testing.maxPoints);
+
+
+            public class DisciplineThematicTheme
             {
-                get
-                {
-                    return LectureHours + PracticeHours + LaboratoryWorkHours + IndependentHours;
-                }
-            }
+                public string ThemeName { get; set; } = "";
+                public int LectureHours => ThemeContents.Where(x => x.ThemeType == ThemeContent.ThemeTypeEnum.Lecture).Sum(x => x.Hour);
+                public int PracticeHours => ThemeContents.Where(x => x.ThemeType == ThemeContent.ThemeTypeEnum.PracticeWork).Sum(x => x.Hour);
+                public int LaboratoryWorkHours => ThemeContents.Where(x => x.ThemeType == ThemeContent.ThemeTypeEnum.LaboratoryWork).Sum(x => x.Hour);
 
-            // 4.2
-            public List<ThemeContent> ThemeContents { get; set; } = new List<ThemeContent>();
+                public int IndependentHours { get; set; }
 
-            public class ThemeContent
-            {
-                public enum ThemeTypeEnum
+                public int AllHour
                 {
-                    Lecture = 0,
-                    PracticeWork = 1,
-                    LaboratoryWork = 2,
+                    get
+                    {
+                        return LectureHours + PracticeHours + LaboratoryWorkHours + IndependentHours;
+                    }
                 }
 
-                public int Hour { get; set; } = 2;
+                // 4.2
+                public List<ThemeContent> ThemeContents { get; set; } = new List<ThemeContent>();
 
-                public ThemeTypeEnum ThemeType { get; set; }
-                public string ThemeText { get; set; } = "";
-                public string UsingMethod { get; set; } = "";
-                public List<string> FormingCompetency { get; set; } = new List<string>();
 
-                public int MaxPoints { get; set; }
+                public class ThemeContent
+                {
+                    public enum ThemeTypeEnum
+                    {
+                        Lecture = 0,
+                        PracticeWork = 1,
+                        LaboratoryWork = 2,
+                    }
+
+                    public int Hour { get; set; } = 2;
+
+                    public ThemeTypeEnum ThemeType { get; set; }
+                    public string ThemeText { get; set; } = "";
+                    public string UsingMethod { get; set; } = "";
+                    public List<string> FormingCompetency { get; set; } = new List<string>();
+
+                    public int MaxPoints { get; set; }
+                }
             }
         }
+        
 
 
         // 5.
         public string MethodBook { get; set; } = "Ситдикова И.П., Ахметзянов Р.Р. Метрология, стандартизация и сертификация: методические указания для выполнения лабораторных работ и организации самостоятельной работы по дисциплине «Метрология, стандартизация и сертификация» для бакалавров направления подготовки 15.03.04 «Автоматизация технологических процессов и производств» очной формы обучения. – Альметьевск: АГНИ, 2021г.";
 
 
-        // 6.1.
-        public List<EvaluationToolModel> Controls { get; set; } = new List<EvaluationToolModel>()
-        {
-                new EvaluationToolModel("лабораторная работа",
-                    "Темы, задания для выполнения лабораторных работ; вопросы к их защите",
-                    "Может выполняться в индивидуальном порядке или группой обучающихся. Задания в лабораторных работах должны включать элемент командной работы. Позволяет оценить умения, обучающихся самостоятельно конструировать свои знания в процессе решения практических задач и оценить уровень сформированности аналитических, исследовательских навыков, а также навыков практического мышления. Позволяет оценить способность к профессиональным трудовым действиям"
-                ),
-                new EvaluationToolModel("Практическая задача",
-                    "Комплект задач и заданий",
-                    "Средство оценки умения применять полученные теоретические знания в практической ситуации. Задача должна быть направлена на оценивание тех компетенций, которые подлежат освоению в данной дисциплине, должна содержать четкую инструкцию по выполнению или алгоритм действий"
-                ),
-                new EvaluationToolModel("Тестирование компьютерное",
-                    "Фонд тестовых заданий",
-                    "Система стандартизированных заданий, позволяющая автоматизировать процедуру измерения уровня знаний и умений, обучающегося по соответствующим компетенциям. Обработка результатов тестирования на компьютере обеспечивается специальными программами. Позволяет проводить самоконтроль (репетиционное тестирование), может выступать в роли тренажера при подготовке к зачету или экзамену"
-                ),
-            };
-
-        public List<EvaluationToolModel> Attestations = new List<EvaluationToolModel>()
-            {
-                new EvaluationToolModel("Экзамен",
-                    "Перечень вопросов, фонд тестовых заданий",
-                    "Итоговая форма определения степени достижения запланированных результатов обучения (оценивания уровня освоения компетенций). Экзамен нацелен на комплексную проверку освоения дисциплины. Экзамен проводится в форме тестирования по всем темам дисциплины"
-                ),
-            };
-
-        public class EvaluationToolModel
-        {
-            public string Name { get; set; }
-            public string Description { get; set; }
-            public string Path { get; set; }
-
-            public EvaluationToolModel(string name, string path, string description)
-            {
-                this.Name = name;
-                this.Path = path;
-                this.Description = description;
-            }
-        }
-
         // Test tasks. 6.3.1.2
-        public List<TestTasksClass> testTasks { get; set; } = new List<TestTasksClass>();
+        public Dictionary<(int semesterNumber, int semesterModuleNumber), TestTasksClass> TestTasksByDiscipModule { get; } = new Dictionary<(int semesterNumber, int semesterModuleNumber), TestTasksClass>();
 
         public class TestTasksClass
         {
-            public List<string> CompetencyCode { get; set; } = new List<string>();
-            public List<TestTaskLine> Tasks { get; set; } = new List<TestTaskLine>();
+            // Competency codes - question-answwers tasks
+            public List<(List<string> competencies, List<TestTaskLine> testTaskLines)> competencyFormingTestTasks { get; set; } = new List<(List<string> competencies, List<TestTaskLine> testTaskLines)>();
 
+            // Also using in 6.3.4.3 for exam
             public class TestTaskLine
             {
                 public string Question { get; set; } = "";
 
-                public List<string> Answers { get; set; } = new List<string>();
+                public List<string> Answers { get; } = new List<string>(4); // Default count of rows is four
             }
         }
 
-        public List<CompetencyTestTasksClass> CompetencyTestTasks { get; set; } = new List<CompetencyTestTasksClass>();
 
-        public class CompetencyTestTasksClass : TestTasksClass
-        {
-            public int SemesterNumber { get; set; }
-            public int moduleNumber { get; set; }
-        }
-
-        // 6.3.2.2 - 6.3.2.3
-        public EvaluationCriteriesClass EvaluationCriteries { get; set; } = new EvaluationCriteriesClass();
-
+        // 6.3.2.3, 6.3.3.3
+        public EvaluationCriteriesClass LaboratoryEvaluationCriteries { get; set; } = new EvaluationCriteriesClass();
+        public EvaluationCriteriesClass PracticeEvaluationCriteries { get; set; } = new EvaluationCriteriesClass();
+        
         public class EvaluationCriteriesClass
         {
-            public string CriteriaForExcellent { get; set; } = "";
-            public string CriteriaForGood { get; set; } = "";
-            public string CriteriaForsatisfactory { get; set; } = "";
-            public string CriteriaForUnsatisfactory { get; set; } = "";
-
             public string TaskAndQuestionExampleForDefenceLabWork { get; set; } = "";
             public string TaskTextExampleForDefenceLabWork { get; set; } = "";
+            public List<string> QuestionsCompetencies { get; set; } = new List<string>();
             public List<string> QuestionsExampleForDefenceLabWork { get; set; } = new List<string>();
         }
 
@@ -276,20 +252,30 @@ namespace CurriculumConstructor.SettingMenu.Model
             public List<string> Competencies { get; set; } = new List<string>();
         }
 
+        // Only for exam format
+        // Competency codes - question-answers tasks
+        public Dictionary<List<string>, List<TestTasksClass.TestTaskLine>> examTestTasksVariantTemplate { get; set; } = new Dictionary<List<string>, List<TestTasksClass.TestTaskLine>>();
 
-        // 6.4
-        public List<string> AdditionaPointsForActivity { get; set; } = new List<string>();
+
+        // 6.
+        public EducationLiteratureModelComplex EducationLiteraturesComplex { get; set; } = new EducationLiteratureModelComplex();
 
 
-        // 11
-        public List<PlaceTheirEquipmentsClass> PlaceTheirEquipments = new List<PlaceTheirEquipmentsClass>();
-
-        public class PlaceTheirEquipmentsClass
+        public class EducationLiteratureModelComplex
         {
-            public string PlaceName { get; set; } = "";
-            public List<string> EquipmentsName { get; set; } = new List<string>();
+            public List<EducationLiteratureModel> MainLiteratures { get; set; } = new List<EducationLiteratureModel>();
+            public List<EducationLiteratureModel> AdditionalLiteratures { get; set; } = new List<EducationLiteratureModel>();
+            public List<EducationLiteratureModel> EducationMethodicalLiteratures { get; set; } = new List<EducationLiteratureModel>();
+
+            public class EducationLiteratureModel : LiteratureModel
+            {
+                public int Coefficient { get; set; }
+                public int? Count { get; set; }
+            }
         }
 
+
+        // 8.
         public List<LiteratureModel> SiteList { get; set; } = new List<LiteratureModel>()
             {
                 new LiteratureModel("Учебно-методическая литература для учащихся и студентов, размещенная на сайте «Studmed.ru»", "http://www.studmed.ru "),
@@ -316,34 +302,47 @@ namespace CurriculumConstructor.SettingMenu.Model
         }
 
 
-        // 6.
-        public EducationLiteratureModelComplex EducationLiteraturesComplex { get; set; } = new EducationLiteratureModelComplex();
-
-
-        public class EducationLiteratureModelComplex
-        {
-            public List<EducationLiteratureModel> MainLiteratures { get; set; } = new List<EducationLiteratureModel>();
-            public List<EducationLiteratureModel> AdditionalLiteratures { get; set; } = new List<EducationLiteratureModel>();
-            public List<EducationLiteratureModel> EducationMethodicalLiteratures { get; set; } = new List<EducationLiteratureModel>();
-
-            public class EducationLiteratureModel : LiteratureModel
-            {
-                public int Coefficient { get; set; }
-                public int? Count { get; set; }
-            }
-        }
-
-
         // 10.
-        public List<SoftwareInfo> SoftwareInfos { get; set; } = new List<SoftwareInfo>();
+        public List<SoftwareInfo> SoftwareInfos { get; set; } = new List<SoftwareInfo>()
+        {
+                new SoftwareInfo("Microsoft Office Professional Plus 2016 Rus Academic OLP (Word, Excel, PowerPoint, Access)", "№67892163 от 26.12.2016г.", "№0297/136 от 23.12.2016г."),
+                new SoftwareInfo("Microsoft Office Standard 2016 Rus Academic OLP (Word, Excel, PowerPoint)", "№67892163 от 26.12.2016г.", "№0297/136 от 23.12.2016г."),
+                new SoftwareInfo("Microsoft Windows Professional 10 Rus Upgrade Academic OLP", "№67892163 от 26.12.2016г.", "№0297/136 от 23.12.2016г."),
+                new SoftwareInfo("ABBYY Fine Reader 12 Professional", "№197059 от 26.12.2016г.", "№0297/136 от 23.12.2016г."),
+                new SoftwareInfo("Kaspersky Endpoint Security для бизнеса – Стандартный Russian Edition", "№ 24С4-221222-121357-913-1225", "№691447/581-2022 от 16.12.2022г."), //Доработать текущий год поставить
+                new SoftwareInfo("Электронно-библиотечная система IPRbooks", "", "Лицензионный договор №409-2022 от 03.11.2022г."),
+                new SoftwareInfo("Образовательная платформа для подготовки кадров в цифровой экономике DATALIB.RU", "", "Лицензионный договор №428-2022/22d/B от 09.11.2022г."),
+                new SoftwareInfo("ПО «Автоматизированная тестирующая система", "Свидетельство государственной регистрации программ для ЭВМ №2014614238 от 01.04.2014г.", ""),
+        };
 
         public class SoftwareInfo
         {
+            public SoftwareInfo() { }
+
+            public SoftwareInfo(string name, string agreement, string license)
+            {
+                Name = name;
+                Agreement = agreement;
+                License = license;
+            }
+
             public string Name { get; set; } = "";
-            public string License { get; set; } = "";
             public string Agreement { get; set; } = "";
+            public string License { get; set; } = "";
         }
 
+
+        // 11
+        public List<PlaceTheirEquipmentsClass> PlaceTheirEquipments = new List<PlaceTheirEquipmentsClass>();
+
+        public class PlaceTheirEquipmentsClass
+        {
+            public string PlaceName { get; set; } = "";
+            public List<string> EquipmentsName { get; set; } = new List<string>();
+        }
+
+
+        // Methods
         public bool CheckModelForCorrect()
         {
             return true;

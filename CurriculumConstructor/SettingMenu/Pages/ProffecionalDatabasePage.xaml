@@ -17,8 +17,16 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
-            <StackPanel>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="0">
                 <ListBox DisplayMemberPath="Name" Margin="10" MinHeight="75" SelectionChanged="ProffecionalDatabaseListBox_SelectionChanged" Name="ProffecionalDatabaseListBox" />
+            </ScrollViewer>
+            
+            <StackPanel Grid.Row="1" Margin="0 5">
                 <Button Click="AddClick" Content="Новый"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
                 <Button Click="DelClick" Content="Удалить"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
             </StackPanel>

@@ -60,11 +60,11 @@ namespace CurriculumConstructor
                     return;
                 }
 
-                var helper = new WordHelper("shablon.docx", generalModel);
+                var helper = new WordHelper("shablon.docx", ref generalModel);
 
                 helper.Process(true);
 
-                ContentFrame.Navigate(new WordPreview(generalModel.ProfileName + " - " + generalModel.DisciplineName + ".docx", ref generalModel));
+                ContentFrame.Navigate(new WordPreview("shablon_1.docx", ref generalModel));
             }
             else if (senderName == titleMenuButton.Name)
             {
@@ -77,6 +77,22 @@ namespace CurriculumConstructor
             else if (senderName == thematicPlanMenuButton.Name)
             {
                 ContentFrame.Navigate(new PlanOfDisciplinesPage(ref generalModel));
+            }
+            else if(senderName == assessmentToolsMenuButton.Name)
+            {
+                ContentFrame.Navigate(new AssessmentToolsPage(ref generalModel));
+            }
+            else if(senderName == testTasksForEvaulationCompetenciesMenuButton.Name)
+            {
+                ContentFrame.Navigate(new TestTasksForDetermineTheLevelOfCompetenciesPage(ref generalModel));
+            }
+            else if(senderName == sampleQuestionsForCertificationMenuButton.Name)
+            {
+                ContentFrame.Navigate(new SampleQuestionsForCertificationPage(ref generalModel));
+            }
+            else if(senderName == examTestTasksVariantTemplateMenuButton.Name)
+            {
+                ContentFrame.Navigate(new ExamTestTasksVariantTemplatePage(ref generalModel));
             }
             else if (senderName == educationLiteratureMenuButton.Name)
             {

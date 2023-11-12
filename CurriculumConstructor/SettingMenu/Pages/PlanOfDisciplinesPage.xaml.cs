@@ -23,9 +23,9 @@ namespace CurriculumConstructor.SettingMenu.Pages
     public partial class PlanOfDisciplinesPage : Page
     {
         private GeneralModel generalModel;
-        private List<GeneralModel.DisciplineThematicTheme> _model;
+        private GeneralModel.SemesterModuleData _model;
 
-        private GeneralModel.DisciplineThematicTheme _themeDisciplines;
+        private GeneralModel.SemesterModuleData.DisciplineThematicTheme _themeDisciplines;
         private bool IsEdit;
 
         public PlanOfDisciplinesPage(ref GeneralModel generalModel)
@@ -34,7 +34,10 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
 
             this.generalModel = generalModel;
-            this._model = generalModel.DisciplineThematicPlan;
+
+            comboBoxSemesterModuleNumber.Items.Clear();
+            comboBoxSemesterModuleNumber.ItemsSource = new int[] { 1, 2 };
+            comboBoxSemesterModuleNumber.SelectedIndex = 0;
         }
 
         
@@ -42,7 +45,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
         {
             if (IsEdit == false)
             {
-                _model.Add(_themeDisciplines);
+                _model.DisciplineThematicPlan.Add(_themeDisciplines);
             }
             
             Reload();
@@ -61,7 +64,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
                 return;
             }
 
-            _model.Remove(_themeDisciplines);
+            _model.DisciplineThematicPlan.Remove(_themeDisciplines);
             Reload();
         }
 
@@ -74,7 +77,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             IsEdit = true;
 
-            GeneralModel.DisciplineThematicTheme theme = ThemeDisciplinesListBox.SelectedItem as GeneralModel.DisciplineThematicTheme;
+            GeneralModel.SemesterModuleData.DisciplineThematicTheme theme = ThemeDisciplinesListBox.SelectedItem as GeneralModel.SemesterModuleData.DisciplineThematicTheme;
 
             _themeDisciplines = theme;
             DataContext = _themeDisciplines;
@@ -82,9 +85,9 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
         private void Reload()
         {
-            ThemeDisciplinesListBox.ItemsSource = _model;
+            ThemeDisciplinesListBox.ItemsSource = _model.DisciplineThematicPlan;
 
-            _themeDisciplines = new GeneralModel.DisciplineThematicTheme();
+            _themeDisciplines = new GeneralModel.SemesterModuleData.DisciplineThematicTheme();
 
             IsEdit = false;
             
@@ -93,14 +96,17 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             DataContext = _themeDisciplines;
 
-            txtboxLecture.Text = "Лекций: " + _model.Sum(x => x.LectureHours).ToString() + "/" + generalModel.NeedTotalLectureHours.ToString();
-            txtboxPractice.Text = "Практический занятий: " + _model.Sum(x => x.PracticeHours).ToString() + "/" + generalModel.NeedTotalPracticeHours.ToString();
-            txtboxLaboratory.Text = "Лабораторных занятий: " + _model.Sum(x => x.LaboratoryWorkHours).ToString() + "/" + generalModel.NeedTotalLaboratoryWorkHours.ToString();
-            txtboxIndependent.Text = "СРС: " + _model.Sum(x => x.IndependentHours).ToString() + "/" + generalModel.NeedTotalIndependentHours.ToString();
+            txtboxLecture.Text = "Лекций: " + _model.DisciplineThematicPlan.Sum(x => x.LectureHours).ToString() + "/" + generalModel.NeedTotalLectureHours.ToString();
+            txtboxPractice.Text = "Практический занятий: " + _model.DisciplineThematicPlan.Sum(x => x.PracticeHours).ToString() + "/" + generalModel.NeedTotalPracticeHours.ToString();
+            txtboxLaboratory.Text = "Лабораторных занятий: " + _model.DisciplineThematicPlan.Sum(x => x.LaboratoryWorkHours).ToString() + "/" + generalModel.NeedTotalLaboratoryWorkHours.ToString();
+            txtboxIndependent.Text = "СРС: " + _model.DisciplineThematicPlan.Sum(x => x.IndependentHours).ToString() + "/" + generalModel.NeedTotalIndependentHours.ToString();
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            comboBoxSemesterNumber.ItemsSource = this.generalModel.Semesters.Select(x => x.SemesterNumber).ToList();
+            comboBoxSemesterNumber.SelectedIndex = 0;
+
             Reload();
         }
 
@@ -115,6 +121,25 @@ namespace CurriculumConstructor.SettingMenu.Pages
             DisciplineContentWindow disciplineContentWindow = new DisciplineContentWindow(ref _themeDisciplines, generalModel.competencyCode_Names);
 
             disciplineContentWindow.ShowDialog();
+        }
+
+        private void comboBoxSemesterOrModuleNumber_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(comboBoxSemesterNumber.SelectedItem == null || comboBoxSemesterModuleNumber.SelectedItem == null)
+            {
+                return;
+            }
+
+            _model = generalModel.DisciplineThematicPlan[((int)comboBoxSemesterNumber.SelectedItem, (int)comboBoxSemesterModuleNumber.SelectedItem)];
+
+            txtBoxMinLabPrac.DataContext = _model.CurrentControl_Laboratory_Practice;
+            txtBoxMaxLabPrac.DataContext = _model.CurrentControl_Laboratory_Practice;
+            txtBoxMinTesting.DataContext = _model.CurrentControl_Testing;
+            txtBoxMaxTesting.DataContext = _model.CurrentControl_Testing;
+            txtBoxMinTotal.DataContext = _model.TotalPointsCount;
+            txtBoxMaxTotal.DataContext = _model.TotalPointsCount;
+
+            Reload();
         }
     }
 }

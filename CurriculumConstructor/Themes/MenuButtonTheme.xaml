@@ -10,7 +10,8 @@
                               Background="{TemplateBinding Background}">
                             <TextBlock Text="{TemplateBinding Property=Content}"
                                        VerticalAlignment="Center"
-                                       Margin="20,0,20,0"/>
+                                       Margin="20,0,20,0" TextWrapping="Wrap"
+                                       FontSize="14"/>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>

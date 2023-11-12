@@ -53,29 +53,35 @@
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="Введенные идникаторы компетенции:" TextAlignment="Right"/>
 
                     <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="20"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0">
-                            <TextBlock  Text="Код индикатора"/>
-                        </StackPanel>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Text="Код индикатора"/>
 
-                        <TextBox x:Name="txtBoxCodeIndicatorText" TextWrapping="Wrap" Height="80" Grid.Column="0" Grid.Row="1"/>
-
-                        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" >
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
+                                <TextBox x:Name="txtBoxCodeIndicatorText" TextWrapping="Wrap" Margin="0 1 0 0"/>
+                            </ScrollViewer>
+                        </Grid>
+                    
+                        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.RowSpan="2">
                             <TextBox x:Name="txtBoxCodeIndicatorCode" Style="{StaticResource ModernTextBox}" Height="30" Width="50"/>
-                            <Button Name="btnAddCodeIndicator" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10 5 10 0" Height="30" Content="Добавить" Click="btnAddCodeIndicator_Click"/>
-                            <Button Name="btnRemoveCodeIndicator" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Удалить" Click="btnRemoveCodeIndicator_Click"/>
+                            <Button Name="btnAddCodeIndicator" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10 5 10 5" Height="30" Content="Добавить" Click="btnAddCodeIndicator_Click"/>
+                            <Button Name="btnRemoveCodeIndicator" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="5" Height="30" Content="Удалить" Click="btnRemoveCodeIndicator_Click"/>
                         </StackPanel>
 
-                        <ListBox x:Name="listBoxEnteredCompetencyIndicator" DisplayMemberPath="FullText" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2"/>
+
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Column="2">
+                            <ListBox x:Name="listBoxEnteredCompetencyIndicator" DisplayMemberPath="FullText"/>
+                        </ScrollViewer>
                     </Grid>
                 </Grid>
 
@@ -103,14 +109,19 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBox x:Name="txtBoxToKnow" TextWrapping="Wrap" Grid.Column="0"/>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Column="0">
+                            <TextBox x:Name="txtBoxToKnow" TextWrapping="Wrap"/>
+                        </ScrollViewer>
 
                         <StackPanel Orientation="Vertical" Grid.Column="1" >
                             <Button Name="btnAddToKnow" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Добавить" Click="btnAddToKnow_Click"/>
                             <Button Name="btnRemoveToKnow" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Удалить" Click="btnRemoveToKnow_Click"/>
+                            <Button Name="btnModifyEvaluationCriteriaToKnow" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="5" Height="30" Content="Критерии" Click="btnModifyEvaluationCriteria_Click"/>
                         </StackPanel>
 
-                        <ListBox x:Name="listBoxEnteredToKnow" ItemsSource="{Binding ToKnowResult}" Grid.Column="2" />
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Column="2">
+                            <ListBox x:Name="listBoxEnteredToKnow" ItemsSource="{Binding ToKnowResult}"/>
+                        </ScrollViewer>
                     </Grid>
                 </Grid>
 
@@ -138,14 +149,19 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBox x:Name="txtBoxToAble" TextWrapping="Wrap" Grid.Column="0"/>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Column="0">
+                            <TextBox x:Name="txtBoxToAble" TextWrapping="Wrap"/>
+                        </ScrollViewer>
 
                         <StackPanel Orientation="Vertical" Grid.Column="1">
                             <Button Name="btnAddToAble" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Добавить" Click="btnAddToAble_Click"/>
                             <Button Name="btnRemoveToAble" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Удалить" Click="btnRemoveToAble_Click"/>
+                            <Button Name="btnModifyEvaluationCriteriaToAble" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="5" Height="30" Content="Критерии" Click="btnModifyEvaluationCriteria_Click"/>
                         </StackPanel>
 
-                        <ListBox x:Name="listBoxEnteredToAble" Grid.Column="2" ItemsSource="{Binding ToAbilityResult}"/>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Column="2">
+                            <ListBox x:Name="listBoxEnteredToAble" ItemsSource="{Binding ToAbilityResult}"/>
+                        </ScrollViewer>
                     </Grid>
                 </Grid>
 
@@ -173,14 +189,19 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBox x:Name="txtBoxToOwn" TextWrapping="Wrap" Grid.Column="0"/>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Column="0">
+                            <TextBox x:Name="txtBoxToOwn" TextWrapping="Wrap"/>
+                        </ScrollViewer>
 
                         <StackPanel Orientation="Vertical" Grid.Column="1">
                             <Button Name="btnAddToOwn" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Добавить" Click="btnAddToOwn_Click"/>
                             <Button Name="btnRemoveToOwn" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="10" Height="30" Content="Удалить" Click="btnRemoveToOwn_Click"/>
+                            <Button Name="btnModifyEvaluationCriteriaToOwn" Style="{StaticResource ModernWhiteButton}" Width="80" Margin="5" Height="30" Content="Критерии" Click="btnModifyEvaluationCriteria_Click"/>
                         </StackPanel>
 
-                        <ListBox Grid.Column="2" x:Name="listBoxEnteredToOwn" ItemsSource="{Binding ToOwnResult}"/>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Column="2">
+                            <ListBox x:Name="listBoxEnteredToOwn" ItemsSource="{Binding ToOwnResult}"/>
+                        </ScrollViewer>
                     </Grid>
                 </Grid>
             </Grid>

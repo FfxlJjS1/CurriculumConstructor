@@ -1,0 +1,72 @@
+﻿<Page x:Class="CurriculumConstructor.SettingMenu.Pages.SampleQuestionsForCertificationPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:CurriculumConstructor.SettingMenu.Pages"
+      mc:Ignorable="d" 
+      Loaded="Page_Loaded"
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="SampleQuestionsForCertificationPage">
+
+    <Grid Background="#eff2f7">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.65*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="0">
+                <ListBox DisplayMemberPath="Name" Margin="10" x:Name="listBoxSampleQuestionsToExap" MinHeight="75"/>
+            </ScrollViewer>
+
+            <StackPanel Grid.Row="1" Margin="0 5">
+                <Button Content="Новый" Click="AddClick"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
+                <Button Content="Удалить" Click="DeleteClick" Style="{StaticResource ModernWhiteButton}" Margin="5"/>
+            </StackPanel>
+        </Grid>
+
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Column="1" Margin="5">
+            <StackPanel>
+                <TextBlock Text="Вопрос к экзамену" />
+                <TextBox FontSize="16" Style="{StaticResource ModernTextBox}"/>
+
+                <TextBlock Text="Компетенции вопроса" FontSize="16" />
+                <Grid Height="195">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Доступные компетенции:" Grid.Column="0" Grid.Row="0"/>
+
+                    <ScrollViewer Grid.Column="0" Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <ListBox x:Name="listBoxAvailableCompetencies"/>
+                    </ScrollViewer>
+
+                    <StackPanel VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Width="100">
+                        <Button Name="SelectCompetency" Height="30" Style="{StaticResource ModernWhiteButton}" Content="Выбрать" Padding="5" Margin="10 5" Click="SelectCompetency_Click"/>
+                        <Button Name="UnselectCompetency" Height="30" Style="{StaticResource ModernWhiteButton}" Content="Убрать" Padding="5" Margin="10 5" Click="UnselectCompetency_Click"/>
+                    </StackPanel>
+
+                    <TextBlock Text="Выбранные компетенции:" Grid.Column="2" Grid.Row="0" TextAlignment="Right"/>
+
+                    <ListBox x:Name="listBoxSelectedCompetencies" Grid.Column="2" Grid.Row="1" />
+                </Grid>
+
+                <Button Content="Добавить вопрос" Click="SaveClick" Style="{StaticResource ModernWhiteButton}" Margin="0 10" />
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

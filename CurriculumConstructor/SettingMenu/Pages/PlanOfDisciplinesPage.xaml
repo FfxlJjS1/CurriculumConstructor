@@ -17,8 +17,16 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
-            <StackPanel>
-                <ListBox Margin="10" MinHeight="75" SelectionChanged="ThemeDisciplinesListBox_SelectionChanged" DisplayMemberPath="ThemeName" Name="ThemeDisciplinesListBox" />
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <ListBox Margin="10" MinHeight="75" SelectionChanged="ThemeDisciplinesListBox_SelectionChanged" DisplayMemberPath="ThemeName" Name="ThemeDisciplinesListBox"/>
+            </ScrollViewer>
+            
+            <StackPanel Grid.Row="1" Margin="0 0 0 10">
                 <Button Click="AddClick" Content="Новый"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
                 <Button Click="DelClick" Content="Удалить"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
                 <Button Click="ContentClick" Content="Содержание дисциплины" Style="{StaticResource ModernWhiteButton}" Margin="5" />
@@ -27,14 +35,44 @@
         
         <Grid Grid.Column="1" Margin="5">
             <StackPanel>
-                <TextBlock Text="Тема дисциплины" />
-                <TextBox Text="{Binding ThemeName}"  Style="{StaticResource ModernTextBox}"/>
                 <StackPanel Margin="0 10 0 5" Orientation="Horizontal">
                     <TextBlock Text="Семестр: "  VerticalAlignment="Center"/>
-                    <TextBox Text="{Binding Semester}" Width="105" Margin="5 0" Style="{StaticResource ModernTextBox}"/>
+                    <ComboBox x:Name="comboBoxSemesterNumber" Width="105" Margin="5 0" Style="{StaticResource ComboBoxTheme}" Height="25" SelectionChanged="comboBoxSemesterOrModuleNumber_SelectionChanged"/>
                     <TextBlock Text="Модуль (семестра) :"  VerticalAlignment="Center"/>
-                    <TextBox Text="{Binding SemesterModule}" Width="105" Margin="5 0" Style="{StaticResource ModernTextBox}"/>
+                    <ComboBox x:Name="comboBoxSemesterModuleNumber" Width="105" Margin="5 0" Style="{StaticResource ComboBoxTheme}" Height="25" SelectionChanged="comboBoxSemesterOrModuleNumber_SelectionChanged"/>
                 </StackPanel>
+                <TextBlock Text="Тема дисциплины" />
+                <TextBox Text="{Binding ThemeName}"  Style="{StaticResource ModernTextBox}" Height="70"/>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="70"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Баллы" TextWrapping="Wrap" FontSize="15" Grid.Column="0" Grid.Row="0"/>
+                    
+                    <TextBlock Text="Мин." TextWrapping="Wrap" FontSize="15" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="0"/>
+                    <TextBlock Text="Макс." TextWrapping="Wrap" FontSize="15" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="0"/>
+                    
+                    <TextBlock Text="Текущий контроль (лабораторные работы, практические задачи)" TextWrapping="Wrap" FontSize="15" Grid.Column="0" Grid.Row="1"/>
+                    <TextBlock Text="Текущий контроль (тетстированипе)" TextWrapping="Wrap" FontSize="15" Grid.Column="0" Grid.Row="2"/>
+                    <TextBlock Text="Общее количество баллов" TextWrapping="Wrap" FontSize="15" Grid.Column="0" Grid.Row="3"/>
+
+                    <TextBox Text="{Binding minPoints}" x:Name="txtBoxMinLabPrac" Style="{StaticResource ModernTextBox}" Grid.Column="1" Grid.Row="1" Margin="2"/>
+                    <TextBox Text="{Binding maxPoints}" x:Name="txtBoxMaxLabPrac" Style="{StaticResource ModernTextBox}" Grid.Column="2" Grid.Row="1" Margin="2"/>
+                    <TextBox Text="{Binding minPoints}" x:Name="txtBoxMinTesting" Style="{StaticResource ModernTextBox}" Grid.Column="1" Grid.Row="2" Margin="2"/>
+                    <TextBox Text="{Binding maxPoints}" x:Name="txtBoxMaxTesting" Style="{StaticResource ModernTextBox}" Grid.Column="2" Grid.Row="2" Margin="2"/>
+                    <TextBox Text="{Binding minPoints}" x:Name="txtBoxMinTotal" Style="{StaticResource ModernTextBox}" IsEnabled="False" Grid.Column="1" Grid.Row="3" Margin="2"/>
+                    <TextBox Text="{Binding maxPoints}" x:Name="txtBoxMaxTotal" Style="{StaticResource ModernTextBox}" IsEnabled="False" Grid.Column="2" Grid.Row="3" Margin="2"/>
+                </Grid>
 
                 <Button Content="Добавить тему" Click="SaveClick" Style="{StaticResource ModernWhiteButton}" Margin="0 10" />
 

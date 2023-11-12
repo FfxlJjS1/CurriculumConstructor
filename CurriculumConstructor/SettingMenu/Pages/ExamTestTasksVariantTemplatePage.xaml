@@ -1,0 +1,85 @@
+﻿<Page x:Class="CurriculumConstructor.SettingMenu.Pages.ExamTestTasksVariantTemplatePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:CurriculumConstructor.SettingMenu.Pages"
+      mc:Ignorable="d" 
+      Background="#eff2f7"
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="ExamTestTasksVariantTemplatePage">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.3*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <ListBox SelectionChanged="TestTasksListBox_SelectionChanged" Name="TestTasksListBox" DisplayMemberPath="ThemeText"/>
+            </ScrollViewer>
+
+            <StackPanel Grid.Row="1" Margin="0 5">
+                <Button Click="AddClick" Content="Новый"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
+                <Button Click="DelClick" Content="Удалить"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
+            </StackPanel>
+        </Grid>
+        
+        <Grid Grid.Column="1">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <StackPanel Margin="5">
+                    <Grid VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Margin="5" Text="Коды компетенций:" FontSize="16"/>
+                        <ComboBox DisplayMemberPath="FullCompetenciesString" Grid.Column="1" x:Name="ComboBoxCompetenciesCode" Style="{StaticResource ComboBoxTheme}" Margin="2" SelectionChanged="ComboBoxCompetenciesCode_SelectionChanged"/>
+                        <Button Grid.Column="2" Click="AddCompetenciesList_Click" Content="Добавить" Margin="2" Width="100" Style="{StaticResource ModernWhiteButton}"/>
+                    </Grid>
+
+                    <TextBlock FontSize="16" Text="Тестовый вопрос" />
+                    <TextBox TextWrapping="Wrap" Style="{StaticResource ModernTextBox}" Text="{Binding Question}"  Name="TaskQuestionTextBox" SpellCheck.IsEnabled="True" Language="ru-ru" MinHeight="50" AcceptsReturn="True" />
+
+                    <TextBlock FontSize="16" Text="Варианты ответов"/>
+                    <Grid MinHeight="200">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" FontSize="16" Grid.Column="0" Text="Ответ №1:"/>
+                        <TextBox Text="{Binding Answers[0]}" Grid.Row="1" Grid.Column="0" Style="{StaticResource ModernTextBox}" />
+
+                        <TextBlock Grid.Row="0" FontSize="16" Grid.Column="1" Text="Ответ №2:"/>
+                        <TextBox Text="{Binding Answers[1]}" Grid.Row="1" Grid.Column="1" Style="{StaticResource ModernTextBox}" />
+
+                        <TextBlock Grid.Row="0" FontSize="16" Grid.Column="2" Text="Ответ №3:"/>
+                        <TextBox Text="{Binding Answers[2]}" Grid.Row="1" Grid.Column="2" Style="{StaticResource ModernTextBox}" />
+
+                        <TextBlock FontSize="16" Grid.Row="0" Grid.Column="3" Text="Ответ №4:"/>
+                        <TextBox Text="{Binding Answers[3]}" Grid.Row="1" Grid.Column="3" Style="{StaticResource ModernTextBox}" />
+                    </Grid>
+
+                    <Grid Margin="5 10 5 5">
+                        <Button Grid.Column="0" Style="{StaticResource ModernWhiteButton}" Click="SaveClick" Content="Добавить"/>
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>

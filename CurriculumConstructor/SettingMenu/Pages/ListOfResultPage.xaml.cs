@@ -1,4 +1,5 @@
 ﻿using CurriculumConstructor.SettingMenu.Model;
+using CurriculumConstructor.SettingMenu.Windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -258,6 +259,35 @@ namespace CurriculumConstructor.SettingMenu.Pages
             }
 
             model.ToOwnResult.Remove(selectedItem);
+        }
+
+        private void btnModifyEvaluationCriteria_Click(object sender, RoutedEventArgs e)
+        {
+            var model = this.DataContext as GeneralModel.CompetencyPlanningResult;
+
+            if (model == null)
+            {
+                return;
+            }
+
+            string senderName = (sender as Button).Name;
+            int btnIdentificator = 
+                senderName == btnModifyEvaluationCriteriaToKnow.Name
+                ? 1
+                : senderName == btnModifyEvaluationCriteriaToAble.Name
+                ? 2
+                : senderName == btnModifyEvaluationCriteriaToOwn.Name
+                ? 3
+                : 0;
+
+            if (btnIdentificator == 0)
+            {
+                return;
+            }
+
+            EvaluationCriteriesSetWindow evaluationCriteriesSetWindow = new EvaluationCriteriesSetWindow(ref model, btnIdentificator);
+
+            evaluationCriteriesSetWindow.ShowDialog();
         }
     }
 }

@@ -78,7 +78,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var helper = new WordHelper("shablon.docx", generalModel);
+            var helper = new WordHelper("shablon.docx", ref generalModel);
 
             helper.Process(false);
         }

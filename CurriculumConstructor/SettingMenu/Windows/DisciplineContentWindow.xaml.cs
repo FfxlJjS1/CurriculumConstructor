@@ -22,7 +22,7 @@ namespace CurriculumConstructor.SettingMenu.Windows
     {
         private List<GeneralModel.CompetencyCode_Name> competenciesCode_Name;
 
-        public DisciplineContentWindow(ref GeneralModel.DisciplineThematicTheme discThematicTheme, List<GeneralModel.CompetencyCode_Name> competencies)
+        public DisciplineContentWindow(ref GeneralModel.SemesterModuleData.DisciplineThematicTheme discThematicTheme, List<GeneralModel.CompetencyCode_Name> competencies)
         {
             InitializeComponent();
             this.Title = $"{discThematicTheme.ThemeName} ({discThematicTheme.AllHour} ч.)";
@@ -31,9 +31,9 @@ namespace CurriculumConstructor.SettingMenu.Windows
             _themeDisciplines = discThematicTheme;
 
             comboBoxThemeType.ItemsSource = new List<ComboBoxThemeType>() {
-                new ComboBoxThemeType(GeneralModel.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.Lecture, "Лекция"),
-                new ComboBoxThemeType(GeneralModel.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.PracticeWork, "Практическое занятие"),
-                new ComboBoxThemeType(GeneralModel.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.LaboratoryWork, "Лабораторное занятие")
+                new ComboBoxThemeType(GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.Lecture, "Лекция"),
+                new ComboBoxThemeType(GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.PracticeWork, "Практическое занятие"),
+                new ComboBoxThemeType(GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.LaboratoryWork, "Лабораторное занятие")
             };
 
             Reload();
@@ -41,18 +41,18 @@ namespace CurriculumConstructor.SettingMenu.Windows
 
         private class ComboBoxThemeType
         {
-            public GeneralModel.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum ThemeTypeNumber;
+            public GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum ThemeTypeNumber;
             public string ThemeTypeName;
 
-            public ComboBoxThemeType(GeneralModel.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum themeTypeNumber, string themeTypeName)
+            public ComboBoxThemeType(GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum themeTypeNumber, string themeTypeName)
             {
                 ThemeTypeNumber = themeTypeNumber;
                 ThemeTypeName = themeTypeName;
             }
         }
 
-        private GeneralModel.DisciplineThematicTheme _themeDisciplines;
-        private GeneralModel.DisciplineThematicTheme.ThemeContent _discThemeContent;
+        private GeneralModel.SemesterModuleData.DisciplineThematicTheme _themeDisciplines;
+        private GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent _discThemeContent;
         private bool IsEdit;
 
         private void Reload()
@@ -63,7 +63,7 @@ namespace CurriculumConstructor.SettingMenu.Windows
             ThemeListBox.SelectedItem = null;
             listBoxAvailableCompetencyForSelect.ItemsSource = competenciesCode_Name.Select(x => x.Code).ToList();
 
-            _discThemeContent = new GeneralModel.DisciplineThematicTheme.ThemeContent();
+            _discThemeContent = new GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent();
             IsEdit = false;
             
             DataContext = _discThemeContent;
@@ -97,7 +97,7 @@ namespace CurriculumConstructor.SettingMenu.Windows
                 return;
             }
 
-            _discThemeContent = ThemeListBox.SelectedItem as GeneralModel.DisciplineThematicTheme.ThemeContent;
+            _discThemeContent = ThemeListBox.SelectedItem as GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent;
             DataContext = _discThemeContent;
 
             listBoxAvailableCompetencyForSelect.ItemsSource = competenciesCode_Name.Select(x => x.Code).Where(x => !_discThemeContent?.FormingCompetency.Contains(x) ?? true);
@@ -119,6 +119,20 @@ namespace CurriculumConstructor.SettingMenu.Windows
             _discThemeContent.FormingCompetency.Add(selectedCompetency);
 
             listBoxAvailableCompetencyForSelect.ItemsSource = competenciesCode_Name.Select(x => x.Code).Where(x => !_discThemeContent?.FormingCompetency.Contains(x) ?? true);
+        }
+
+        private void UnselectCompetency_Click(object sender, RoutedEventArgs e)
+        {
+            if(listBoxSelectedCompetencies.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите компетенции для исключения");
+
+                return;
+            }
+
+            string competencyForUnselect = listBoxSelectedCompetencies.SelectedItem as string;
+
+            _discThemeContent.FormingCompetency.Remove(competencyForUnselect);
         }
     }
 }
