@@ -21,23 +21,25 @@ namespace CurriculumConstructor.SettingMenu.Windows
     public partial class EvaluationCriteriesSetWindow : Window
     {
         private GeneralModel.CompetencyPlanningResult.CompetencyAchivmentMarkCriteriesClass model;
-        private int btnIdentificator;
+        private int btnIdentification;
 
         public EvaluationCriteriesSetWindow(ref GeneralModel.CompetencyPlanningResult parent_model, int btnIdentification)
         {
             InitializeComponent();
 
+            this.btnIdentification = btnIdentification;
+
             this.model =
-                btnIdentificator == 1
+                this.btnIdentification == 1
                 ? parent_model.CompAchivMarkCriteriesToKnow
-                : btnIdentificator == 2
+                : this.btnIdentification == 2
                 ? parent_model.CompAchivMarkCriteriesToAble
-                : btnIdentificator == 3
+                : this.btnIdentification == 3
                 ? parent_model.CompAchivMarkCriteriesToOwn : new GeneralModel.CompetencyPlanningResult.CompetencyAchivmentMarkCriteriesClass();
 
-            this.Title += btnIdentificator == 1 ? " (знать)"
-                : btnIdentificator == 2 ? " (уметь)"
-                : btnIdentificator == 3 ? " (владеть)" : "";
+            this.Title += this.btnIdentification == 1 ? " (знать)"
+                : this.btnIdentification == 2 ? " (уметь)"
+                : this.btnIdentification == 3 ? " (владеть)" : "";
 
             txtBoxExcelent.Text = model.Excelent;
             txtBoxGood.Text = model.Good;

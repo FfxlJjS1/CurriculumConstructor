@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:CurriculumConstructor.SettingMenu.Pages"
       mc:Ignorable="d" 
+      Loaded="Page_Loaded"
       d:DesignHeight="450" d:DesignWidth="800"
       Title="TestTasksForDetermineTheLevelOfCompetenciesPage">
 
@@ -21,12 +22,12 @@
             </Grid.RowDefinitions>
 
             <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <ListBox Name="listBoxCompetenciesTestTasks" DisplayMemberPath="ThemeText"/>
+                <ListBox Name="listBoxCompetenciesTestTasks" DisplayMemberPath="Question" SelectionChanged="listBoxCompetenciesTestTasks_SelectionChanged"/>
             </ScrollViewer>
 
             <StackPanel Grid.Row="1" Margin="0 5">
-                <Button Content="Новый"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
-                <Button Content="Удалить"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
+                <Button Content="Новый"  Style="{StaticResource ModernWhiteButton}" Margin="5" Click="AddClick"/>
+                <Button Content="Удалить"  Style="{StaticResource ModernWhiteButton}" Margin="5" Click="DelClick"/>
             </StackPanel>
         </Grid>
         <Grid Grid.Column="1">
@@ -34,9 +35,9 @@
                 <StackPanel Margin="5">
                     <StackPanel Margin="0 10 0 5" Orientation="Horizontal">
                         <TextBlock FontSize="16" Text="Семестр: "  VerticalAlignment="Center"/>
-                        <ComboBox x:Name="ComboBoxSemesterNumber" Width="105" Margin="5 0 20 0" Style="{StaticResource ComboBoxTheme}"/>
+                        <ComboBox x:Name="comboBoxSemesterNumber" Width="105" Margin="5 0 20 0" Style="{StaticResource ComboBoxTheme}" SelectionChanged="comboBoxSemesterOrModuleNumber_SelectionChanged"/>
                         <TextBlock FontSize="16" Text="Модуль (семестра) :"  VerticalAlignment="Center"/>
-                        <ComboBox x:Name="ComboBoxSemesterModuleNumber" Width="105" Margin="5 0" Style="{StaticResource ComboBoxTheme}"/>
+                        <ComboBox x:Name="comboBoxSemesterModuleNumber" Width="105" Margin="5 0" Style="{StaticResource ComboBoxTheme}" SelectionChanged="comboBoxSemesterOrModuleNumber_SelectionChanged"/>
                     </StackPanel>
 
                     <Grid VerticalAlignment="Center">
@@ -47,12 +48,12 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Margin="5" Text="Коды компетенции:" FontSize="16"/>
-                        <ComboBox Grid.Column="1" x:Name="ComboBoxCompetenciesCode" Style="{StaticResource ComboBoxTheme}" Margin="2"/>
-                        <Button Grid.Column="2" Content="Добавить" Margin="2" Width="100" Style="{StaticResource ModernWhiteButton}"/>
+                        <ComboBox Grid.Column="1" x:Name="ComboBoxCompetenciesCode" Style="{StaticResource ComboBoxTheme}" Margin="2" DisplayMemberPath="FullCompetenciesString" SelectionChanged="ComboBoxCompetenciesCode_SelectionChanged"/>
+                        <Button Grid.Column="2" Content="Добавить" Margin="2" Click="AddCompetenciesList_Click" Width="100" Style="{StaticResource ModernWhiteButton}"/>
                     </Grid>
 
                     <TextBlock FontSize="16" Text="Тестовый вопрос" />
-                    <TextBox TextWrapping="Wrap" Style="{StaticResource ModernTextBox}" Text="{Binding ThemeText}"  Name="TaskQuestionTextBox" SpellCheck.IsEnabled="True" Language="ru-ru" MinHeight="50" AcceptsReturn="True" />
+                    <TextBox TextWrapping="Wrap" Style="{StaticResource ModernTextBox}" Text="{Binding Question}"  x:Name="TaskQuestionTextBox" SpellCheck.IsEnabled="True" Language="ru-ru" MinHeight="50" AcceptsReturn="True" />
 
                     <TextBlock FontSize="16" Text="Варианты ответов"/>
                     <Grid MinHeight="200">
@@ -68,20 +69,20 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" FontSize="16" Grid.Column="0" Text="Ответ №1:"/>
-                        <TextBox Grid.Row="1" Grid.Column="0" Style="{StaticResource ModernTextBox}" />
+                        <TextBox Grid.Row="1" Grid.Column="0" Style="{StaticResource ModernTextBox}" Text="{Binding Answers[0]}" />
 
                         <TextBlock Grid.Row="0" FontSize="16" Grid.Column="1" Text="Ответ №2:"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource ModernTextBox}" />
+                        <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource ModernTextBox}" Text="{Binding Answers[1]}"/>
 
                         <TextBlock Grid.Row="0" FontSize="16" Grid.Column="2" Text="Ответ №3:"/>
-                        <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource ModernTextBox}" />
+                        <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource ModernTextBox}" Text="{Binding Answers[2]}"/>
 
                         <TextBlock FontSize="16" Grid.Row="0" Grid.Column="3" Text="Ответ №4:"/>
-                        <TextBox Grid.Row="1" Grid.Column="3" Style="{StaticResource ModernTextBox}" />
+                        <TextBox Grid.Row="1" Grid.Column="3" Style="{StaticResource ModernTextBox}" Text="{Binding Answers[3]}"/>
                     </Grid>
 
                     <Grid Margin="5 10 5 5">
-                        <Button Grid.Column="0" Style="{StaticResource ModernWhiteButton}" Content="Добавить"/>
+                        <Button Grid.Column="0" Style="{StaticResource ModernWhiteButton}" Content="Добавить" Click="SaveClick"/>
                     </Grid>
                 </StackPanel>
             </ScrollViewer>

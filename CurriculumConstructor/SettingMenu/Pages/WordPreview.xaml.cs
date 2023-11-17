@@ -38,9 +38,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            string newXPSDocumentName = String.Concat(
-                System.IO.Path.GetDirectoryName(myFilePathName), "\\",
-                System.IO.Path.GetFileNameWithoutExtension(myFilePathName), ".xps");
+            string newXPSDocumentName = myFilePathName + ".xps";
 
             // Set DocumentViewer.Document to XPS document
             documentViewer.Document = ConvertWordDocToXPSDoc(myFilePathName, newXPSDocumentName).GetFixedDocumentSequence();
@@ -49,9 +47,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
         private XpsDocument ConvertWordDocToXPSDoc(string wordDocName, string xpsDocName)
         {
             // Create a WordApplication and add Document to it
-            Microsoft.Office.Interop.Word.Application
-
-                wordApplication = new Microsoft.Office.Interop.Word.Application();
+            Microsoft.Office.Interop.Word.Application wordApplication = new Microsoft.Office.Interop.Word.Application();
 
             wordApplication.Documents.Add(wordDocName);
 

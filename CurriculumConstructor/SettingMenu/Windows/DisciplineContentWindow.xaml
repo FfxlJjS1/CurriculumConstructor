@@ -15,7 +15,17 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
-            <ListBox SelectionChanged="ThemeListBox_SelectionChanged" Name="ThemeListBox" DisplayMemberPath="ThemeText"/>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <ListBox Grid.Row="0" SelectionChanged="ThemeListBox_SelectionChanged" Name="ThemeListBox" DisplayMemberPath="ThemeText"/>
+
+            <StackPanel Orientation="Vertical" Grid.Row="1" Margin="2 5">
+                <Button Grid.Column="1" Style="{StaticResource ModernWhiteButton}" Margin="0 3" Content="Новый" Click="AddClick" />
+                <Button Grid.Column="2" Style="{StaticResource ModernWhiteButton}" Margin="0 3" Click="DeleteClick" Content="Удалить" />
+            </StackPanel>
         </Grid>
         <Grid Grid.Column="1">
             <ScrollViewer>
@@ -58,17 +68,9 @@
 
                         <ListBox x:Name="listBoxSelectedCompetencies" Grid.Column="2" Grid.Row="1" ItemsSource="{Binding FormingCompetency}"/>
                     </Grid>
-                    
-                    <Grid Margin="5 10 5 5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
 
+                    <Grid Margin="5 10 5 5">
                         <Button Grid.Column="0" Style="{StaticResource ModernWhiteButton}" Click="SaveClick" Content="Добавить"/>
-                        <Button Grid.Column="1" Style="{StaticResource ModernWhiteButton}" Content="Новый" Click="AddClick" />
-                        <Button Grid.Column="2" Style="{StaticResource ModernWhiteButton}" Click="DeleteClick" Content="Удалить" />
                     </Grid>
                 </StackPanel>
             </ScrollViewer>

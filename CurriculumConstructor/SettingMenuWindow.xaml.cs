@@ -60,11 +60,13 @@ namespace CurriculumConstructor
                     return;
                 }
 
+                string filePath = System.Windows.Forms.Application.StartupPath + "//" + "shablon_1.docx";
+
                 var helper = new WordHelper("shablon.docx", ref generalModel);
 
-                helper.Process(true);
+                helper.Process(true, filePath);
 
-                ContentFrame.Navigate(new WordPreview("shablon_1.docx", ref generalModel));
+                ContentFrame.Navigate(new WordPreview(filePath, ref generalModel));
             }
             else if (senderName == titleMenuButton.Name)
             {

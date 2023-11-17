@@ -46,11 +46,16 @@ namespace CurriculumConstructor.SettingMenu.Pages
                 { CompetenciesCode = x.Key })
             );
 
-            ComboBoxCompetenciesCode.DataContext = _competenciesComboBoxItems;
+            ComboBoxCompetenciesCode.ItemsSource = _competenciesComboBoxItems;
         }
 
         private void SaveClick(object sender, RoutedEventArgs e)
         {
+            if(_model == null)
+            {
+                return;
+            }
+
             if (IsEdit == false)
             {
                 _model.Add(_testTaskLine);
@@ -141,10 +146,11 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             generalModel.examTestTasksVariantTemplate.Add(selectedCompetenciesCodeAsItem, new List<GeneralModel.TestTasksClass.TestTaskLine>());
 
-            ComboBoxCompetenciesCode.Items.Clear();
             _competenciesComboBoxItems.Add(new CompetenciesComboBoxItem() { CompetenciesCode = selectedCompetenciesCodeAsItem });
 
             ComboBoxCompetenciesCode.SelectedItem = selectedCompetenciesCodeAsItem;
+
+            ComboBoxCompetenciesCode.Items.Refresh();
 
             Reload();
         }

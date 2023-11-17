@@ -123,6 +123,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             disciplineContentWindow.ShowDialog();
         }
 
+        private bool isOnTxtBoxChanged = true;
+
         private void comboBoxSemesterOrModuleNumber_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if(comboBoxSemesterNumber.SelectedItem == null || comboBoxSemesterModuleNumber.SelectedItem == null)
@@ -132,14 +134,56 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             _model = generalModel.DisciplineThematicPlan[((int)comboBoxSemesterNumber.SelectedItem, (int)comboBoxSemesterModuleNumber.SelectedItem)];
 
+            isOnTxtBoxChanged = false;
+
             txtBoxMinLabPrac.DataContext = _model.CurrentControl_Laboratory_Practice;
             txtBoxMaxLabPrac.DataContext = _model.CurrentControl_Laboratory_Practice;
             txtBoxMinTesting.DataContext = _model.CurrentControl_Testing;
             txtBoxMaxTesting.DataContext = _model.CurrentControl_Testing;
-            txtBoxMinTotal.DataContext = _model.TotalPointsCount;
-            txtBoxMaxTotal.DataContext = _model.TotalPointsCount;
+
+            txtBoxMinTotal.Text = _model.TotalPointsCount.Item1.ToString();
+            txtBoxMaxTotal.Text = _model.TotalPointsCount.Item2.ToString();
+
+            isOnTxtBoxChanged = true;
 
             Reload();
+        }
+
+        private void txtBoxMinMaxLabPrac_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!isOnTxtBoxChanged)
+            {
+                return;
+            }
+
+            int forTryParse = 0;
+
+            if(int.TryParse(txtBoxMinLabPrac.Text, out forTryParse))
+            {
+                _model.CurrentControl_Laboratory_Practice.Item1 = forTryParse;
+            }
+            if (int.TryParse(txtBoxMaxLabPrac.Text, out forTryParse))
+            {
+                _model.CurrentControl_Laboratory_Practice.Item2 = forTryParse;
+            }
+            if (int.TryParse(txtBoxMinTesting.Text, out forTryParse))
+            {
+                _model.CurrentControl_Testing.Item1 = forTryParse;
+            }
+            if (int.TryParse(txtBoxMaxTesting.Text, out forTryParse))
+            {
+                _model.CurrentControl_Testing.Item2 = forTryParse;
+            }
+
+            _model.TotalPointsCount.Item1 = _model.CurrentControl_Laboratory_Practice.Item1
+                + _model.CurrentControl_Testing.Item1;
+
+            txtBoxMinTotal.Text = _model.TotalPointsCount.Item1.ToString();
+
+            _model.TotalPointsCount.Item2 = _model.CurrentControl_Laboratory_Practice.Item2
+                + _model.CurrentControl_Testing.Item2;
+
+            txtBoxMaxTotal.Text = _model.TotalPointsCount.Item2.ToString();
         }
     }
 }

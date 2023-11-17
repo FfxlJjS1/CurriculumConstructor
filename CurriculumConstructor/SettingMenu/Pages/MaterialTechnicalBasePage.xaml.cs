@@ -73,6 +73,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             }
 
             placeTheirEquipments.EquipmentsName.Add(txtBoxNewEquipment.Text);
+
+            listBoxEquipments.Items.Refresh();
         }
         
         private void DelEquipmentClick(object sender, RoutedEventArgs e)
@@ -84,6 +86,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             }
 
             placeTheirEquipments.EquipmentsName.Remove(listBoxEquipments.SelectedItem as string);
+
+            listBoxEquipments.Items.Refresh();
         }
 
         private void PlaceEquipmentsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

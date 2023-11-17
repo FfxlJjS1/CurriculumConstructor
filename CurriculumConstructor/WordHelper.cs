@@ -1,22 +1,16 @@
 ﻿using CurriculumConstructor;
 using CurriculumConstructor.SettingMenu.Model;
-using Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Interop.Word;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
-using System.Diagnostics.Metrics;
 using System.IO;
 using System.Linq;
+using System.Printing;
 using System.Reflection;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
-using System.Windows.Ink;
 using static CurriculumConstructor.SettingMenu.Model.GeneralModel;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Word = Microsoft.Office.Interop.Word;
 
 namespace TestWord
@@ -53,13 +47,17 @@ namespace TestWord
             }
             catch (Exception ex) { }
 
-            if (app is not null)
+            try
             {
-                app.Quit();
+                if (app is not null)
+                {
+                    app.Quit();
+                }
             }
+            catch(Exception ex) { }
         }
 
-        internal bool Process(bool forPreview, string nameForSave = "shablon_1.docx")
+        internal bool Process(bool forPreview, string filePathForSave = "")
         {
             try
             {
@@ -70,8 +68,8 @@ namespace TestWord
 
                 replaceText(new Dictionary<string, string>());
 
-                CreateDisciplineThematicPlanTable(); // 4.1.
                 CreateAcquiredCompetenciesAsDisciplineMasteringResultTable(); // 1.; Annotation
+                CreateDisciplineThematicPlanTable(); // 4.1.
                 CreateDisciplineContentTable(); // 4.2.
                 // createTable5(); // Have questions
                 CreateAcquiredCompetenciesWithEvaluationCriteriesTable(); // 6.2.
@@ -86,10 +84,11 @@ namespace TestWord
                 CreateProffectionalBasesTable(); // 8.
                 CreateSoftwareInfoTable(); // 10.
                 CreateMaterialTechnicalBaseTable(); // 11.
-                CreateAcquiredCompetenciesAsDisciplineMasteringResultTable();
+
+                CreateAcquiredCompetenciesAsDisciplineMasteringResultTable(); // Annotation again
 
                 if (forPreview)
-                    PreviewView(nameForSave);
+                    PreviewView(filePathForSave);
                 else
                     saveWord();
 
@@ -105,7 +104,7 @@ namespace TestWord
                     ex.HelpLink);
                 Console.WriteLine(ex.Message);
 
-                app.ActiveDocument.Close(Word.WdSaveOptions.wdDoNotSaveChanges);
+                //app.ActiveDocument.Close(Word.WdSaveOptions.wdDoNotSaveChanges);
                 app.Quit();
             }
             finally
@@ -119,16 +118,16 @@ namespace TestWord
             return false;
         }
 
-        internal void PreviewView(string nameForTempSave)
-        {
+        internal void PreviewView(string filePathForTempSave)
+        {/*
             //Если нужно, через FileInfo можно получить другие данные
             FileInfo targetDir = new FileInfo("./" + nameForTempSave);
 
             string pathToFolder = targetDir.FullName + "";
             string name_folder = targetDir.Name;
 
-            Object newFileName = System.IO.Path.Combine(@pathToFolder.ToString(), nameForTempSave);
-            app.ActiveDocument.SaveAs2(newFileName);
+            Object newFileName = System.IO.Path.Combine(@pathToFolder.ToString(), nameForTempSave);*/
+            app.ActiveDocument.SaveAs2(filePathForTempSave);
         }
 
         private void saveWord()
@@ -224,6 +223,21 @@ namespace TestWord
             }
         }
 
+        private Word.Range FindByTag(string tag)
+        {
+            Object missing = Type.Missing;
+
+            app.Selection.Find.Execute(tag,
+                    MatchCase: false,
+                    MatchWholeWord: false,
+                    MatchWildcards: false,
+                    MatchSoundsLike: missing,
+                    MatchAllWordForms: false,
+                    Forward: true);
+
+            return app.Selection.Range;
+        }
+
         private void ReplaceTextToTag(string tag, string text)
         {
             Object missing = Type.Missing;
@@ -288,25 +302,19 @@ namespace TestWord
                 }
             }
 
-            app.Selection.Find.Execute("<DISCIPLINE_THEMATIC_PLAN_TABLE>");
+            Word.Range tableRange = FindByTag("<DISCIPLINE_THEMATIC_PLAN_TABLE>");
 
-            Word.Range tableRange = app.Selection.Range;
             var wordTable = wordDocument.Tables.Add(tableRange,
                 2 + themes.Count + 1, 7);
+
+            wordTable.Range.Font.Size = 12;
+            wordTable.Borders.Enable = 1;
 
             // Entering and formating columns rows
             wordTable.Rows[1].Range.Bold = 1;
             wordTable.Rows[2].Range.Bold = 1;
             wordTable.Rows[2 + themes.Count + 1].Range.Bold = 1;
 
-            wordTable.Cell(1, 1).Merge(wordTable.Cell(2, 1));
-            wordTable.Cell(1, 2).Merge(wordTable.Cell(2, 2));
-            wordTable.Cell(1, 3).Merge(wordTable.Cell(3, 3));
-
-            wordTable.Cell(1, 4).Merge(wordTable.Cell(1, 5));
-            wordTable.Cell(1, 4).Merge(wordTable.Cell(1, 6));
-
-            wordTable.Cell(1, 7).Merge(wordTable.Cell(2, 7));
 
             // Text orienting
             wordTable.Cell(1, 1).VerticalAlignment = WdCellVerticalAlignment.wdCellAlignVerticalCenter;
@@ -323,7 +331,7 @@ namespace TestWord
             wordTable.Cell(1, 7).Range.Orientation = WdTextOrientation.wdTextOrientationUpward;
 
 
-            wordTable.Cell(1, 1).Range.Text = "№ п/п";
+            wordTable.Cell(1, 1).Range.Text = "№\nп/п";
             wordTable.Cell(1, 2).Range.Text = "Темы дисциплины";
             wordTable.Cell(1, 3).Range.Text = "семестр";
             wordTable.Cell(1, 4).Range.Text = "Виды и часы "
@@ -334,14 +342,13 @@ namespace TestWord
             wordTable.Cell(1, 7).Range.Text = "СРС";
 
             // Columns widthing
-            wordTable.Columns[1].Width = 1.17f;
-            wordTable.Columns[2].Width = 8.07f;
-            wordTable.Columns[3].Width = 1.86f;
-            wordTable.Columns[4].Width = 1.56f;
-            wordTable.Columns[5].Width = 1.72f;
-            wordTable.Columns[6].Width = 1.71f;
-            wordTable.Columns[7].Width = 1.22f;
-
+            wordTable.Columns[1].PreferredWidth = app.CentimetersToPoints(1.17f);
+            wordTable.Columns[2].PreferredWidth = app.CentimetersToPoints(8.07f);
+            wordTable.Columns[3].PreferredWidth = app.CentimetersToPoints(1.86f);
+            wordTable.Columns[4].PreferredWidth = app.CentimetersToPoints(1.56f);
+            wordTable.Columns[5].PreferredWidth = app.CentimetersToPoints(1.72f);
+            wordTable.Columns[6].PreferredWidth = app.CentimetersToPoints(1.71f);
+            wordTable.Columns[7].PreferredWidth = app.CentimetersToPoints(1.22f);
 
             int countItems = themes.Count;
 
@@ -376,7 +383,15 @@ namespace TestWord
             wordTable.Range.ParagraphFormat.LineSpacingRule = WdLineSpacing.wdLineSpaceSingle;
             wordTable.Range.ParagraphFormat.SpaceBefore = 0;
             wordTable.Range.ParagraphFormat.SpaceAfter = 0;
-            wordTable.Borders.Enable = 1;
+
+            // Merging
+            wordTable.Cell(1, 7).Merge(wordTable.Cell(2, 7));
+
+            wordTable.Cell(1, 4).Merge(wordTable.Cell(1, 6));
+
+            wordTable.Cell(1, 3).Merge(wordTable.Cell(2, 3));
+            wordTable.Cell(1, 2).Merge(wordTable.Cell(2, 2));
+            wordTable.Cell(1, 1).Merge(wordTable.Cell(2, 1));
         }
 
 
@@ -385,12 +400,20 @@ namespace TestWord
             //данные - код, имя, знать, уметь, владеть, индикаторы
             List<CompetencyPlanningResult> competences = generalModel.competencyPlanningResults;
 
-            app.Selection.Find.Execute("<ACQUITED_COMPETENCIES_TABLE>");
-            Word.Range wordRange = app.Selection.Range;
+            Word.Range wordRange = FindByTag("<ACQUIRED_COMPETENCIES_AS_DISCIPLINE_MASTERING_RESULT_TABLE>");
 
             var wordTable = wordDocument.Tables.Add(wordRange,
                 competences.Count + 1, 4); // Rows: Competencies count + row for attribute names
 
+            wordTable.Range.Font.Size = 12;
+            wordTable.Borders.Enable = 1;
+
+            /*
+            wordTable.Columns[1].PreferredWidth = app.CentimetersToPoints(4.17f);
+            wordTable.Columns[2].PreferredWidth = app.CentimetersToPoints(3.97f);
+            wordTable.Columns[3].PreferredWidth = app.CentimetersToPoints(3.98f);
+            wordTable.Columns[4].PreferredWidth = app.CentimetersToPoints(5.36f);
+            */
             // Entering data from model
             wordTable.Cell(1, 1).Range.Text = "Оцениваемые компетенции (код, наименование)";
             wordTable.Cell(1, 2).Range.Text = "Код и наименование индикатора (индикаторов) достижения компетенции";
@@ -407,12 +430,12 @@ namespace TestWord
                 Word.Range range = wordTable.Cell(currentTableRow, 1).Range;
                 range.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                 range.InsertAfter(row.Code);
-                range.Font.Bold = Convert.ToInt32(true);
+                range.Font.Bold = 1;
                 range.InsertParagraphAfter();
                 range.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
                 range.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                 range.InsertAfter(generalModel.competencyCode_Names.First(x => x.Code == row.Code).CodeName);
-                range.Font.Bold = Convert.ToInt32(false);
+                range.Font.Bold = 0;
                 range.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
                 // Column 2
@@ -425,8 +448,8 @@ namespace TestWord
                     string childName = keyValuePair.Value;
 
                     range2.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                    range2.InsertAfter(childCode + ".");
-                    range2.Font.Bold = Convert.ToInt32(true);
+                    range2.InsertAfter(childCode);
+                    range2.Font.Bold = 1;
                     range2.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
                     range2.Collapse(Word.WdCollapseDirection.wdCollapseStart);
 
@@ -440,7 +463,7 @@ namespace TestWord
                         range2.InsertParagraphAfter();
                     }
 
-                    range2.Font.Bold = Convert.ToInt32(false);
+                    range2.Font.Bold = 0;
                     range2.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
                     childIndex++;
@@ -452,7 +475,7 @@ namespace TestWord
                 // To know
                 range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                 range3.InsertAfter("Знать:");
-                range3.Font.Bold = Convert.ToInt32(true);
+                range3.Font.Bold = 1;
                 range3.InsertParagraphAfter();
                 range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
@@ -461,8 +484,8 @@ namespace TestWord
                     string know = row.ToKnowResult[toKnowIndex];
 
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                    range3.InsertAfter(know.ToLower() + (toKnowIndex < row.ToKnowResult.Count - 1 ? ";" : "."));
-                    range3.Font.Bold = Convert.ToInt32(false);
+                    range3.InsertAfter("- " + know.ToLower() + (toKnowIndex < row.ToKnowResult.Count - 1 ? ";" : "."));
+                    range3.Font.Bold = 0;
                     range3.InsertParagraphAfter();
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
                 }
@@ -470,7 +493,7 @@ namespace TestWord
                 // To able
                 range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                 range3.InsertAfter("Уметь:");
-                range3.Font.Bold = Convert.ToInt32(true);
+                range3.Font.Bold = 1;
                 range3.InsertParagraphAfter();
                 range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
@@ -479,8 +502,8 @@ namespace TestWord
                     string able = row.ToAbilityResult[toAbleIndex];
 
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                    range3.InsertAfter(able.ToLower() + (toAbleIndex < row.ToAbilityResult.Count - 1 ? ";" : "."));
-                    range3.Font.Bold = Convert.ToInt32(false);
+                    range3.InsertAfter("- " + able.ToLower() + (toAbleIndex < row.ToAbilityResult.Count - 1 ? ";" : "."));
+                    range3.Font.Bold = 0;
                     range3.InsertParagraphAfter();
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
                 }
@@ -488,7 +511,7 @@ namespace TestWord
                 // To own
                 range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                 range3.InsertAfter("Владеть:");
-                range3.Font.Bold = Convert.ToInt32(true);
+                range3.Font.Bold = 1;
                 range3.InsertParagraphAfter();
                 range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
@@ -497,8 +520,8 @@ namespace TestWord
                     string own = row.ToOwnResult[toOwnIndex];
 
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                    range3.InsertAfter(own.ToLower() + (toOwnIndex < row.ToOwnResult.Count - 1 ? ";" : "."));
-                    range3.Font.Bold = Convert.ToInt32(false);
+                    range3.InsertAfter("- " + own.ToLower() + (toOwnIndex < row.ToOwnResult.Count - 1 ? ";" : "."));
+                    range3.Font.Bold = 0;
                     range3.InsertParagraphAfter();
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
                 }
@@ -514,7 +537,7 @@ namespace TestWord
             // Текущий контроль
             range4.Collapse(Word.WdCollapseDirection.wdCollapseStart);
             range4.InsertAfter("Текущий контроль:");
-            range4.Font.Bold = Convert.ToInt32(true);
+            range4.Font.Bold = 1;
             range4.InsertParagraphAfter();
             range4.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
@@ -523,9 +546,9 @@ namespace TestWord
             // TODO: If exists
             range4.InsertAfter("Компьютерное тестирование по теме 1-5\n");
             range4.InsertAfter("Практические задачи по темам 1-5\n");
-            range4.InsertAfter("Лабораторные работыпо темам 1-3");
+            range4.InsertAfter("Лабораторные работы по темам 1-3");
 
-            range4.Font.Bold = Convert.ToInt32(false);
+            range4.Font.Bold = 0;
             range4.InsertParagraphAfter();
             range4.InsertParagraphAfter();
             range4.InsertParagraphAfter();
@@ -534,13 +557,13 @@ namespace TestWord
             // Промежуточная аттестация
             range4.Collapse(Word.WdCollapseDirection.wdCollapseStart);
             range4.InsertAfter("Промежуточная аттестация:");
-            range4.Font.Bold = Convert.ToInt32(true);
+            range4.Font.Bold = 1;
             range4.InsertParagraphAfter();
             range4.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
             range4.Collapse(Word.WdCollapseDirection.wdCollapseStart);
             range4.InsertAfter("Экзамен"); //!!!!!
-            range4.Font.Bold = Convert.ToInt32(false);
+            range4.Font.Bold = 0;
             range4.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
             // Formating table columns and rows
@@ -555,15 +578,10 @@ namespace TestWord
             wordTable.Cell(1, 3).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
             wordTable.Cell(1, 4).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
 
-            wordTable.Cell(1, 1).Range.Bold = Convert.ToInt32(true);
-            wordTable.Cell(1, 2).Range.Bold = Convert.ToInt32(true);
-            wordTable.Cell(1, 3).Range.Bold = Convert.ToInt32(true);
-            wordTable.Cell(1, 4).Range.Bold = Convert.ToInt32(true);
-
-            wordTable.Columns[1].Width = 4.17f;
-            wordTable.Columns[2].Width = 3.97f;
-            wordTable.Columns[3].Width = 3.98f;
-            wordTable.Columns[4].Width = 5.36f;
+            wordTable.Cell(1, 1).Range.Bold = 1;
+            wordTable.Cell(1, 2).Range.Bold = 1;
+            wordTable.Cell(1, 3).Range.Bold = 1;
+            wordTable.Cell(1, 4).Range.Bold = 1;
         }
 
         // 4.2.
@@ -584,15 +602,18 @@ namespace TestWord
             var wordTable = wordDocument.Tables.Add(app.Selection.Range,
                     rowsCount, 4);
 
+            wordTable.Range.Font.Size = 12;
+            wordTable.Borders.Enable = 1;
+
             wordTable.Cell(1, 1).Range.Text = "Тема";
             wordTable.Cell(1, 2).Range.Text = "Кол-во часов";
             wordTable.Cell(1, 3).Range.Text = "Используемый метод";
             wordTable.Cell(1, 4).Range.Text = "Формируемые компетенции";
 
-            wordTable.Columns[1].Width = 9.54f;
-            wordTable.Columns[2].Width = 1.69f;
-            wordTable.Columns[3].Width = 3.24f;
-            wordTable.Columns[4].Width = 3.01f;
+            wordTable.Columns[1].PreferredWidth = app.CentimetersToPoints(9.54f);
+            wordTable.Columns[2].PreferredWidth = app.CentimetersToPoints(1.69f);
+            wordTable.Columns[3].PreferredWidth = app.CentimetersToPoints(3.24f);
+            wordTable.Columns[4].PreferredWidth = app.CentimetersToPoints(3.01f);
 
             wordTable.Rows[1].Range.Bold = 1;
 
@@ -606,8 +627,6 @@ namespace TestWord
             {
                 var themes = disciplineModule.Value.DisciplineThematicPlan;
 
-                wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber, 2));
-                wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber, 3));
                 wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber, 4));
 
                 wordTable.Rows[rowNumber].Range.Bold = 1;
@@ -627,8 +646,6 @@ namespace TestWord
                     var laboratories = theme.ThemeContents.Where(x => x.ThemeType == SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.LaboratoryWork).ToList();
                     var practices = theme.ThemeContents.Where(x => x.ThemeType == SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.PracticeWork).ToList();
 
-                    wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber, 2));
-                    wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber, 3));
                     wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber, 4));
 
                     wordTable.Rows[rowNumber].Range.Bold = 1;
@@ -665,7 +682,7 @@ namespace TestWord
 
                         rangeColumn1.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                         rangeColumn1.InsertAfter(tagForReplace);
-                        rangeColumn1.Font.Italic = Convert.ToInt32(false);
+                        rangeColumn1.Font.Italic = 0;
                         rangeColumn1.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
                         ReplaceTextToTag(tagForReplace, lecture.ThemeText);
@@ -703,7 +720,7 @@ namespace TestWord
 
                         rangeColumn1.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                         rangeColumn1.InsertAfter(tagForReplace);
-                        rangeColumn1.Font.Italic = Convert.ToInt32(false);
+                        rangeColumn1.Font.Italic = 0;
                         rangeColumn1.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
                         ReplaceTextToTag(tagForReplace, laboratory.ThemeText);
@@ -741,7 +758,7 @@ namespace TestWord
 
                         rangeColumn1.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                         rangeColumn1.InsertAfter(tagForReplace);
-                        rangeColumn1.Font.Italic = Convert.ToInt32(false);
+                        rangeColumn1.Font.Italic = 0;
                         rangeColumn1.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
                         ReplaceTextToTag(tagForReplace, practice.ThemeText);
@@ -775,17 +792,19 @@ namespace TestWord
             //данные - код, имя, знать, уметь, владеть, индикаторы
             List<CompetencyPlanningResult> competences = generalModel.competencyPlanningResults;
 
-            app.Selection.Find.Execute("<>");
+            app.Selection.Find.Execute("<ACQUIRED_COMPETENCIES_WITH_EVALUATION_CRITERIES_TABLE>");
             Word.Range wordRange = app.Selection.Range;
 
             var wordTable = wordDocument.Tables.Add(wordRange,
-                competences.Count * 3 + 1 + 3, 7); // Rows: Competencies count + row for attribute names
+                competences.Count * 3 + 1 + 3, 8); // Rows: Competencies count + row for attribute names
+
+            wordTable.Range.Font.Size = 12;
 
             // Entering data from model
             wordTable.Cell(1, 1).Range.Text = "№ п/п";
             wordTable.Cell(1, 2).Range.Text = "Оцениваемые компетенции (код, наименование)";
             wordTable.Cell(1, 3).Range.Text = "Код и наименование индикатора (индикаторов) достижения компетенции";
-            wordTable.Cell(1, 4).Range.Text = "планируемые\nрезультаты\nобучения";
+            wordTable.Cell(1, 4).Range.Text = "Планируемые\nрезультаты\nобучения";
             wordTable.Cell(1, 5).Range.Text = "Уроверь компетенций";
 
             wordTable.Cell(2, 5).Range.Text = "Продвинутый уровень";
@@ -818,16 +837,6 @@ namespace TestWord
             wordTable.Rows[3].Range.Bold = 1;
             wordTable.Rows[4].Range.Bold = 1;
 
-            wordTable.Columns[1].Width = 0.98f;
-            wordTable.Columns[2].Width = 3.27f;
-            wordTable.Columns[3].Width = 3.7f;
-            wordTable.Columns[4].Width = 3.7f;
-            wordTable.Columns[5].Width = 3.82f;
-            wordTable.Columns[6].Width = 3.62f;
-            wordTable.Columns[7].Width = 3.51f;
-            wordTable.Columns[8].Width = 3.58f;
-
-
             // Entering data
             for (int i = 0; i < competences.Count; i++)
             {
@@ -839,7 +848,7 @@ namespace TestWord
                 Word.Range range1 = wordTable.Cell(rowNumber, 1).Range;
                 range1.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                 range1.InsertAfter((i + 1).ToString());
-                range1.Font.Bold = 1;
+                range1.Font.Bold = 0;
                 range1.InsertParagraphAfter();
                 range1.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
@@ -876,7 +885,7 @@ namespace TestWord
 
                     if (childIndex == childs.Count - 1)
                     {
-                        range3.InsertAfter(" " + childName + ".");
+                        range3.InsertAfter(" " + childName);
                     }
                     else
                     {
@@ -884,7 +893,7 @@ namespace TestWord
                         range3.InsertParagraphAfter();
                     }
 
-                    range3.Font.Bold = Convert.ToInt32(false);
+                    range3.Font.Bold = 0;
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
                     childIndex++;
@@ -907,7 +916,7 @@ namespace TestWord
                     string know = row.ToKnowResult[toKnowIndex];
 
                     range4_1.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                    range4_1.InsertAfter(know.ToLower() + (toKnowIndex < row.ToKnowResult.Count - 1 ? ";" : "."));
+                    range4_1.InsertAfter("- " + know.ToLower() + (toKnowIndex < row.ToKnowResult.Count - 1 ? ";" : "."));
                     range4_1.Font.Bold = 0;
                     range4_1.InsertParagraphAfter();
                     range4_1.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
@@ -927,7 +936,7 @@ namespace TestWord
                     string able = row.ToAbilityResult[toAbleIndex];
 
                     range4_2.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                    range4_2.InsertAfter(able.ToLower() + (toAbleIndex < row.ToAbilityResult.Count - 1 ? ";" : "."));
+                    range4_2.InsertAfter("- " + able.ToLower() + (toAbleIndex < row.ToAbilityResult.Count - 1 ? ";" : "."));
                     range4_2.Font.Bold = 0;
                     range4_2.InsertParagraphAfter();
                     range4_2.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
@@ -947,7 +956,7 @@ namespace TestWord
                     string own = row.ToOwnResult[toOwnIndex];
 
                     range4_3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                    range4_3.InsertAfter(own.ToLower() + (toOwnIndex < row.ToOwnResult.Count - 1 ? ";" : "."));
+                    range4_3.InsertAfter("- " + own.ToLower() + (toOwnIndex < row.ToOwnResult.Count - 1 ? ";" : "."));
                     range4_3.Font.Bold = 0;
                     range4_3.InsertParagraphAfter();
                     range4_3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
@@ -955,16 +964,127 @@ namespace TestWord
 
                 // Column 5
                 //Word.Range range5 
+                Word.Range range5_1 = wordTable.Cell(rowNumber, 5).Range;
+
+                range5_1.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                range5_1.InsertAfter(row.CompAchivMarkCriteriesToKnow.Excelent);
+                range5_1.Font.Bold = 0;
+                range5_1.InsertParagraphAfter();
+                range5_1.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+                Word.Range range5_2 = wordTable.Cell(rowNumber + 1, 5).Range;
+
+                range5_2.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                range5_2.InsertAfter(row.CompAchivMarkCriteriesToAble.Excelent);
+                range5_2.Font.Bold = 0;
+                range5_2.InsertParagraphAfter();
+                range5_2.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+                Word.Range range5_3 = wordTable.Cell(rowNumber + 2, 5).Range;
+
+                range5_3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                range5_3.InsertAfter(row.CompAchivMarkCriteriesToOwn.Excelent);
+                range5_3.Font.Bold = 0;
+                range5_3.InsertParagraphAfter();
+                range5_3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
 
                 // Column 6
-                
-                
-                // Column 7
-                
-                
-                // Column 8
+                Word.Range range6_1 = wordTable.Cell(rowNumber, 6).Range;
 
+                range6_1.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                range6_1.InsertAfter(row.CompAchivMarkCriteriesToKnow.Good);
+                range6_1.Font.Bold = 0;
+                range6_1.InsertParagraphAfter();
+                range6_1.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+                Word.Range range6_2 = wordTable.Cell(rowNumber + 1, 6).Range;
+
+                range6_2.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                range6_2.InsertAfter(row.CompAchivMarkCriteriesToAble.Good);
+                range6_2.Font.Bold = 0;
+                range6_2.InsertParagraphAfter();
+                range6_2.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+                Word.Range range6_3 = wordTable.Cell(rowNumber + 2, 6).Range;
+
+                range6_3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                range6_3.InsertAfter(row.CompAchivMarkCriteriesToOwn.Good);
+                range6_3.Font.Bold = 0;
+                range6_3.InsertParagraphAfter();
+                range6_3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+
+                // Column 7
+                Word.Range range7_1 = wordTable.Cell(rowNumber, 7).Range;
+
+                range7_1.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                range7_1.InsertAfter(row.CompAchivMarkCriteriesToKnow.Satisfactory);
+                range7_1.Font.Bold = 0;
+                range7_1.InsertParagraphAfter();
+                range7_1.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+                Word.Range range7_2 = wordTable.Cell(rowNumber + 1, 7).Range;
+
+                range7_2.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                range7_2.InsertAfter(row.CompAchivMarkCriteriesToAble.Satisfactory);
+                range7_2.Font.Bold = 0;
+                range7_2.InsertParagraphAfter();
+                range7_2.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+                Word.Range range7_3 = wordTable.Cell(rowNumber + 2, 7).Range;
+
+                range7_3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                range7_3.InsertAfter(row.CompAchivMarkCriteriesToOwn.Satisfactory);
+                range7_3.Font.Bold = 0;
+                range7_3.InsertParagraphAfter();
+                range7_3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+
+                // Column 8
+                Word.Range range8_1 = wordTable.Cell(rowNumber, 8).Range;
+
+                range8_1.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                range8_1.InsertAfter(row.CompAchivMarkCriteriesToKnow.Unsatisfactory);
+                range8_1.Font.Bold = 0;
+                range8_1.InsertParagraphAfter();
+                range8_1.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+                Word.Range range8_2 = wordTable.Cell(rowNumber + 1, 8).Range;
+
+                range8_2.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                range8_2.InsertAfter(row.CompAchivMarkCriteriesToAble.Unsatisfactory);
+                range8_2.Font.Bold = 0;
+                range8_2.InsertParagraphAfter();
+                range8_2.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+                Word.Range range8_3 = wordTable.Cell(rowNumber + 2, 8).Range;
+
+                range8_3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                range8_3.InsertAfter(row.CompAchivMarkCriteriesToOwn.Unsatisfactory);
+                range8_3.Font.Bold = 0;
+                range8_3.InsertParagraphAfter();
+                range8_3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
             }
+
+
+            wordTable.Columns[1].PreferredWidth = app.CentimetersToPoints(0.98f);
+            wordTable.Columns[2].PreferredWidth = app.CentimetersToPoints(3.27f);
+            wordTable.Columns[3].PreferredWidth = app.CentimetersToPoints(3.7f);
+            wordTable.Columns[4].PreferredWidth = app.CentimetersToPoints(3.7f);
+            wordTable.Columns[5].PreferredWidth = app.CentimetersToPoints(3.82f);
+            wordTable.Columns[6].PreferredWidth = app.CentimetersToPoints(3.62f);
+            wordTable.Columns[7].PreferredWidth = app.CentimetersToPoints(3.51f);
+            wordTable.Columns[8].PreferredWidth = app.CentimetersToPoints(3.58f);
+
+            wordTable.Cell(1, 1).Merge(wordTable.Cell(4,1));
+            wordTable.Cell(1, 2).Merge(wordTable.Cell(4,2));
+            wordTable.Cell(1, 3).Merge(wordTable.Cell(4,3));
+            wordTable.Cell(1, 4).Merge(wordTable.Cell(4,4));
+
+            wordTable.Cell(1, 5).Merge(wordTable.Cell(1,8));
+
+            wordTable.Cell(3, 5).Merge(wordTable.Cell(3,8));
         }
 
         // 6.4
@@ -973,7 +1093,7 @@ namespace TestWord
             var disciplineThematicPlan = generalModel.DisciplineThematicPlan;
             var semestersNumber = generalModel.Semesters.Select(x => x.SemesterNumber).ToList();
 
-            app.Selection.Find.Execute("<ACQUIRED_COMPETENCIES_WITH_EVALUATION_CRITERIES_TABLE>");
+            app.Selection.Find.Execute("<RATING_POINTS_DISCTRIBUTION_BY_DISCIPLINE_TABLES>");
             Word.Range wordRange = app.Selection.Range;
 
             Dictionary<int, string> semesterNumberTableTags = new Dictionary<int, string>();
@@ -987,7 +1107,7 @@ namespace TestWord
                 semesterNumberTableTags.Add(semesterNumber, tagForNewTable);
 
                 wordRange.Collapse(WdCollapseDirection.wdCollapseStart);
-                wordRange.InsertAfter(tagForNewTable);
+                wordRange.InsertAfter(tagForNewTable + "\n");
                 wordRange.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                 wordRange.Font.Size = 12;
                 wordRange.InsertParagraphAfter();
@@ -1009,6 +1129,8 @@ namespace TestWord
                 wordRange.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                 wordRange.Font.Size = 14;
                 wordRange.Bold = 1;
+                wordRange.Underline = WdUnderline.wdUnderlineWords;
+                wordRange.Paragraphs.First.FirstLineIndent = 1f;
                 wordRange.InsertParagraphAfter();
                 wordRange.Collapse(WdCollapseDirection.wdCollapseEnd);
 
@@ -1019,7 +1141,7 @@ namespace TestWord
                 wordRange.InsertParagraphAfter();
                 wordRange.Collapse(WdCollapseDirection.wdCollapseEnd);
             }
-
+            
             //
             int current_lecture = 1;
             int current_laboratories = 1;
@@ -1040,12 +1162,13 @@ namespace TestWord
                 };
 
                 //ГЛАВНАЯ ТАБЛИЦА
-                app.Selection.Find.Wrap = WdFindWrap.wdFindContinue;
                 app.Selection.Find.Execute(semesterDisciplineTableTag);
 
                 Word.Range wordRangeTable = app.Selection.Range;
 
                 var wordTable = wordDocument.Tables.Add(wordRangeTable, 5, 3);
+
+                wordTable.Range.Font.Size = 12;
 
                 wordTable.Cell(1, 1).Range.Text = "Дисциплинарный модуль";
                 
@@ -1057,22 +1180,22 @@ namespace TestWord
                 wordTable.Cell(1, 3).Range.Text = $"ДМ {semesterNumber}.2";
                 
                 //баллы за практические, лабы, устные
-                wordTable.Cell(2, 2).Range.Text = semesterModules[0].CurrentControl_Laboratory_Practice.minPoints 
-                    + "-" + semesterModules[0].CurrentControl_Laboratory_Practice.maxPoints;
-                wordTable.Cell(2, 3).Range.Text = semesterModules[1].CurrentControl_Laboratory_Practice.minPoints
-                    + "-" + semesterModules[1].CurrentControl_Laboratory_Practice.maxPoints;
+                wordTable.Cell(2, 2).Range.Text = semesterModules[0].CurrentControl_Laboratory_Practice.Item1 
+                    + "-" + semesterModules[0].CurrentControl_Laboratory_Practice.Item2;
+                wordTable.Cell(2, 3).Range.Text = semesterModules[1].CurrentControl_Laboratory_Practice.Item1
+                    + "-" + semesterModules[1].CurrentControl_Laboratory_Practice.Item2;
 
                 //баллы за тестирование
-                wordTable.Cell(3, 2).Range.Text = semesterModules[0].CurrentControl_Testing.minPoints
-                    + "-" + semesterModules[0].CurrentControl_Testing.maxPoints;
-                wordTable.Cell(3, 3).Range.Text = semesterModules[1].CurrentControl_Testing.minPoints
-                    + "-" + semesterModules[1].CurrentControl_Testing.maxPoints;
+                wordTable.Cell(3, 2).Range.Text = semesterModules[0].CurrentControl_Testing.Item1
+                    + "-" + semesterModules[0].CurrentControl_Testing.Item2;
+                wordTable.Cell(3, 3).Range.Text = semesterModules[1].CurrentControl_Testing.Item1
+                    + "-" + semesterModules[1].CurrentControl_Testing.Item2;
 
                 //общее кол-во баллов
-                wordTable.Cell(3, 2).Range.Text = semesterModules[0].TotalPointsCount.minPoints
-                    + "-" + semesterModules[0].TotalPointsCount.maxPoints;
-                wordTable.Cell(3, 3).Range.Text = semesterModules[1].TotalPointsCount.minPoints
-                    + "-" + semesterModules[1].TotalPointsCount.maxPoints;
+                wordTable.Cell(3, 2).Range.Text = semesterModules[0].TotalPointsCount.Item1
+                    + "-" + semesterModules[0].TotalPointsCount.Item2;
+                wordTable.Cell(3, 3).Range.Text = semesterModules[1].TotalPointsCount.Item1
+                    + "-" + semesterModules[1].TotalPointsCount.Item2;
 
                 //итоговый балл
                 wordTable.Cell(5, 2).Range.Text = "35-60";
@@ -1110,10 +1233,11 @@ namespace TestWord
                     int row = 2 + lecture_list.Count + laboratory_list.Count + practical_list.Count + 4;
                     int column = 3;
 
-                    app.Selection.Find.Wrap = WdFindWrap.wdFindContinue;
                     app.Selection.Find.Execute(semesterModuleTableTag);
                     wordRangeTable = app.Selection.Range;
                     wordTable = wordDocument.Tables.Add(wordRangeTable, row, column);
+
+                    wordTable.Range.Font.Size = 12;
 
                     wordTable.Cell(1, 1).Range.Text = "№п/п";
                     wordTable.Cell(1, 2).Range.Text = "Виды работ";
@@ -1121,6 +1245,10 @@ namespace TestWord
                     wordTable.Cell(2, 1).Range.Text = "Текущий контроль";
 
                     // Форматирование
+                    wordTable.Columns[1].PreferredWidth = app.CentimetersToPoints(1.15f);
+                    wordTable.Columns[2].PreferredWidth = app.CentimetersToPoints(12.62f);
+                    wordTable.Columns[3].PreferredWidth = app.CentimetersToPoints(3.71f);
+
                     wordTable.Borders.Enable = 1;
                     wordTable.Range.ParagraphFormat.SpaceBefore = 0;
                     wordTable.Range.ParagraphFormat.SpaceAfter = 0;
@@ -1131,7 +1259,6 @@ namespace TestWord
                     wordTable.Cell(1, 2).Range.Bold = 1;
                     wordTable.Cell(1, 3).Range.Bold = 1;
                     wordTable.Cell(2, 1).Range.Bold = 1;
-                    wordTable.Cell(2, 1).Merge(wordTable.Cell(2, 3));
 
                     int current_row = 3;
                     if (lecture_list is not null)
@@ -1209,10 +1336,8 @@ namespace TestWord
                     wordTable.Cell(current_row, 1).Merge(wordTable.Cell(current_row, 2));
                     wordTable.Cell(current_row, 1).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
 
-                    //финальное форматирование
-                    wordTable.Columns[1].Width = 1.15f;
-                    wordTable.Columns[2].Width = 12.62f;
-                    wordTable.Columns[3].Width = 3.71f;
+                    // Final merging
+                    wordTable.Cell(2, 1).Merge(wordTable.Cell(2, 3));
                 }
             }
         }
@@ -1224,11 +1349,13 @@ namespace TestWord
 
             int rowCount = 2
                 + testsByDisciplineModuleAndCompetencies.Count
-                + testsByDisciplineModuleAndCompetencies.Sum(x => x.Value.competencyFormingTestTasks.Sum(x => x.testTaskLines.Count));
+                + testsByDisciplineModuleAndCompetencies.Sum(x => x.Value.competencyFormingTestTasks.Sum(x => x.Value.Count));
 
             app.Selection.Find.Execute("<TEST_TASKS_TABLE>");
             Word.Range wordRange = app.Selection.Range;
             Word.Table wordTable = wordDocument.Tables.Add(wordRange, rowCount, 6);
+
+            wordTable.Range.Font.Size = 12;
 
             // Шапка
             wordTable.Cell(1, 1).Range.Text = "Код компетенции";
@@ -1242,16 +1369,13 @@ namespace TestWord
             // Formating
             wordTable.Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
             wordTable.Borders.Enable = 1;
-            wordTable.Cell(1, 1).Merge(wordTable.Cell(2, 1));
-            wordTable.Cell(1, 2).Merge(wordTable.Cell(2, 2));
-            wordTable.Cell(1, 3).Merge(wordTable.Cell(1, 6));
 
-            wordTable.Columns[1].Width = 1.97f;
-            wordTable.Columns[2].Width = 2.9f;
-            wordTable.Columns[3].Width = 3.23f;
-            wordTable.Columns[4].Width = 3.1f;
-            wordTable.Columns[5].Width = 3.05f;
-            wordTable.Columns[6].Width = 3.24f;
+            wordTable.Columns[1].PreferredWidth = app.CentimetersToPoints(1.97f);
+            wordTable.Columns[2].PreferredWidth = app.CentimetersToPoints(2.9f);
+            wordTable.Columns[3].PreferredWidth = app.CentimetersToPoints(3.23f);
+            wordTable.Columns[4].PreferredWidth = app.CentimetersToPoints(3.1f);
+            wordTable.Columns[5].PreferredWidth = app.CentimetersToPoints(3.05f);
+            wordTable.Columns[6].PreferredWidth = app.CentimetersToPoints(3.24f);
 
             int rowNumber = 3;
 
@@ -1271,8 +1395,8 @@ namespace TestWord
 
                 foreach (var keyValuePair in testsByCompetencies)
                 {
-                    string competencies = string.Join(", ", keyValuePair.competencies);
-                    var tests = keyValuePair.testTaskLines;
+                    string competencies = string.Join(", ", keyValuePair.Key);
+                    var tests = keyValuePair.Value;
 
                     wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber + tests.Count - 1, 1));
 
@@ -1298,9 +1422,10 @@ namespace TestWord
                 rowNumber++;
             }
 
-            wordTable.Range.ParagraphFormat.SpaceBefore = 0;
-            wordTable.Range.ParagraphFormat.SpaceAfter = 0;
-            wordTable.AutoFitBehavior(WdAutoFitBehavior.wdAutoFitFixed);
+            // Merging
+            wordTable.Cell(1, 1).Merge(wordTable.Cell(2, 1));
+            wordTable.Cell(1, 2).Merge(wordTable.Cell(2, 2));
+            wordTable.Cell(1, 3).Merge(wordTable.Cell(1, 6));
         }
 
         //Экзамен 6.3.4.3. Содержание оценочного средства
@@ -1313,11 +1438,15 @@ namespace TestWord
             int row_count = 1 + generalModel.QuestionCodes.Count;
 
             Word.Table wordTable = wordDocument.Tables.Add(wordRange, row_count, colomn_count);
-            wordTable.Borders.Enable = Convert.ToInt32(true);
+
+            wordTable.Range.Font.Size = 12;
+            wordTable.Borders.Enable = 1;
 
             wordTable.Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
 
-            wordTable.Columns[1].Width = 1.15f;
+            wordTable.Columns[1].PreferredWidth = app.CentimetersToPoints(1.15f);
+            wordTable.Columns[2].PreferredWidth = app.CentimetersToPoints(13.02f);
+            wordTable.Columns[3].PreferredWidth = app.CentimetersToPoints(2.25f);
 
             //заполнение
             wordTable.Cell(1, 1).Range.Text = "№ п/п";
@@ -1348,7 +1477,6 @@ namespace TestWord
 
             wordTable.Range.ParagraphFormat.SpaceBefore = 0;
             wordTable.Range.ParagraphFormat.SpaceAfter = 0;
-            wordTable.AutoFitBehavior(WdAutoFitBehavior.wdAutoFitContent);
         }
 
         //образей вариантов тестовых заданий на экзамен
@@ -1363,6 +1491,9 @@ namespace TestWord
             Word.Range wordRange = app.Selection.Range;
             Word.Table wordTable = wordDocument.Tables.Add(wordRange, rowsCount, 6);
 
+            wordTable.Range.Font.Size = 12;
+            wordTable.Borders.Enable = 1;
+
             //шапка
             wordTable.Cell(1, 1).Range.Text = "Код компетенции";
             wordTable.Cell(1, 2).Range.Text = "Тестовые вопросы";
@@ -1375,7 +1506,7 @@ namespace TestWord
 
             //форматирование
             wordTable.Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
-            wordTable.Borders.Enable = Convert.ToInt32(true);
+            wordTable.Borders.Enable = 1;
             wordTable.Cell(1, 1).Merge(wordTable.Cell(2, 1));
             wordTable.Cell(1, 2).Merge(wordTable.Cell(2, 2));
             wordTable.Cell(1, 3).Merge(wordTable.Cell(1, 6));
@@ -1424,6 +1555,10 @@ namespace TestWord
             app.Selection.Find.Execute("<TABLE11>");
             Word.Range wordTableRange = app.Selection.Range;
             Word.Table wordTable = app.ActiveDocument.Tables.Add(wordTableRange, row, column);
+
+            wordTable.Range.Font.Size = 12;
+            wordTable.Borders.Enable = 1;
+
             wordTable.Cell(1, 1).Range.Text = "№ п/п";
             wordTable.Cell(1, 2).Range.Text = "Библиографическое описание";
             wordTable.Cell(1, 3).Range.Text = "Количество печатных экземпляров или адрес электронного ресурса";
@@ -1436,17 +1571,19 @@ namespace TestWord
             wordTable.Cell(1, 2).VerticalAlignment = WdCellVerticalAlignment.wdCellAlignVerticalCenter;
             wordTable.Cell(1, 3).VerticalAlignment = WdCellVerticalAlignment.wdCellAlignVerticalCenter;
             wordTable.Cell(1, 4).VerticalAlignment = WdCellVerticalAlignment.wdCellAlignVerticalCenter;
+
             wordTable.Rows[1].Height = app.CentimetersToPoints(4f);
-            wordTable.Range.Columns[1].Width = app.CentimetersToPoints(0.99f);
-            wordTable.Range.Columns[2].Width = app.CentimetersToPoints(7.84f);
-            wordTable.Range.Columns[3].Width = app.CentimetersToPoints(7.30f);
-            wordTable.Range.Columns[4].Width = app.CentimetersToPoints(1.22f);
+
+            wordTable.Range.Columns[1].PreferredWidth = app.CentimetersToPoints(0.99f);
+            wordTable.Range.Columns[2].PreferredWidth = app.CentimetersToPoints(7.84f);
+            wordTable.Range.Columns[3].PreferredWidth = app.CentimetersToPoints(7.30f);
+            wordTable.Range.Columns[4].PreferredWidth = app.CentimetersToPoints(1.22f);
 
             int rowNumber = 2;
 
             //основная литература
             wordTable.Cell(rowNumber, 1).Range.Text = "Основная литература";
-            wordTable.Cell(rowNumber, 1).Range.Bold = Convert.ToInt32(true);
+            wordTable.Cell(rowNumber, 1).Range.Bold = 1;
             wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber, 4));
             rowNumber++;
             for (int i = 0; i < main.Count; i++)
@@ -1463,7 +1600,7 @@ namespace TestWord
 
             //дополнительная литература
             wordTable.Cell(rowNumber, 1).Range.Text = "Дополнительная литература";
-            wordTable.Cell(rowNumber, 1).Range.Bold = Convert.ToInt32(true);
+            wordTable.Cell(rowNumber, 1).Range.Bold = 1;
             wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber, 4));
             rowNumber++;
             for (int i = 0; i < additional.Count; i++)
@@ -1480,7 +1617,7 @@ namespace TestWord
 
             //Учебно-методические издания
             wordTable.Cell(rowNumber, 1).Range.Text = "Учебно-методические издания";
-            wordTable.Cell(rowNumber, 1).Range.Bold = Convert.ToInt32(true);
+            wordTable.Cell(rowNumber, 1).Range.Bold = 1;
             wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber, 4));
             rowNumber++;
             for (int i = 0; i < methodical.Count; i++)
@@ -1495,10 +1632,8 @@ namespace TestWord
                 rowNumber++;
             }
 
-            wordTable.Borders.Enable = Convert.ToInt32(true);
             wordTable.Range.ParagraphFormat.SpaceBefore = 0;
             wordTable.Range.ParagraphFormat.SpaceAfter = 0;
-            wordTable.Range.Font.Size = 12;
             wordTable.Range.ParagraphFormat.LineSpacingRule = WdLineSpacing.wdLineSpaceSingle;
         }
 
@@ -1514,21 +1649,23 @@ namespace TestWord
             Word.Range wordTableRange = app.Selection.Range;
             Word.Table wordTable = wordDocument.Tables.Add(wordTableRange, row, column);
 
+            wordTable.Range.Font.Size = 12;
+            wordTable.Borders.Enable = 1;
+
             // Форматирование
-            wordTable.Borders.Enable = Convert.ToInt32(true);
             wordTable.Range.ParagraphFormat.SpaceBefore = 0;
             wordTable.Range.ParagraphFormat.SpaceAfter = 0;
             wordTable.Range.ParagraphFormat.LineSpacingRule = WdLineSpacing.wdLineSpaceSingle;
-            wordTable.Rows[1].Range.Bold = Convert.ToInt32(true);
+            wordTable.Rows[1].Range.Bold = 1;
             wordTable.Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
 
             wordTable.Cell(1, 1).Range.Text = "№ п/п";
             wordTable.Cell(1, 2).Range.Text = "Наименование";
-            wordTable.Cell(1, 3).Range.Text = "Алрес в Интернете";
+            wordTable.Cell(1, 3).Range.Text = "Адрес в Интернете";
 
-            wordTable.Columns[1].Width = 1.19f;
-            wordTable.Columns[2].Width = 9.68f;
-            wordTable.Columns[3].Width = 6.61f;
+            wordTable.Columns[1].PreferredWidth = app.CentimetersToPoints(1.19f);
+            wordTable.Columns[2].PreferredWidth = app.CentimetersToPoints(9.68f);
+            wordTable.Columns[3].PreferredWidth = app.CentimetersToPoints(6.61f);
 
             int rowNumber = 2;
             for (int i = 0; i < site_list.Count; i++)
@@ -1541,7 +1678,6 @@ namespace TestWord
                 wordTable.Cell(rowNumber, 3).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                 rowNumber++;
             }
-            wordTable.AutoFitBehavior(WdAutoFitBehavior.wdAutoFitContent);
         }
 
         private void CreateSoftwareInfoTable() //10
@@ -1555,23 +1691,25 @@ namespace TestWord
             Word.Range wordTableRange = app.Selection.Range;
             Word.Table wordTable = wordDocument.Tables.Add(wordTableRange, row, column);
 
+            wordTable.Range.Font.Size = 12;
+            wordTable.Borders.Enable = 1;
+
             // форматирование
-            wordTable.Borders.Enable = Convert.ToInt32(true);
             wordTable.Range.ParagraphFormat.SpaceBefore = 0;
             wordTable.Range.ParagraphFormat.SpaceAfter = 0;
             wordTable.Range.ParagraphFormat.LineSpacingRule = WdLineSpacing.wdLineSpaceSingle;
             wordTable.Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
-            wordTable.Rows[1].Range.Bold = Convert.ToInt32(true);
+            wordTable.Rows[1].Range.Bold = 1;
             wordTable.Range.Font.Size = 12;
             wordTable.Cell(1, 1).Range.Text = "№ п/п";
             wordTable.Cell(1, 2).Range.Text = "Наименование программного обеспечения";
             wordTable.Cell(1, 3).Range.Text = "Лицензия";
             wordTable.Cell(1, 4).Range.Text = "Договор";
 
-            wordTable.Columns[1].Width = 1.19f;
-            wordTable.Columns[2].Width = 6.84f;
-            wordTable.Columns[3].Width = 5.37f;
-            wordTable.Columns[4].Width = 4.09f;
+            wordTable.Columns[1].PreferredWidth = app.CentimetersToPoints(1.19f);
+            wordTable.Columns[2].PreferredWidth = app.CentimetersToPoints(6.84f);
+            wordTable.Columns[3].PreferredWidth = app.CentimetersToPoints(5.37f);
+            wordTable.Columns[4].PreferredWidth = app.CentimetersToPoints(4.09f);
 
             int current_row = 2;
             for (int i = 0; i < software_list.Count; i++)
@@ -1587,7 +1725,6 @@ namespace TestWord
                 wordTable.Cell(current_row, 4).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                 current_row++;
             }
-            wordTable.AutoFitBehavior(WdAutoFitBehavior.wdAutoFitContent);
         }
 
 
@@ -1599,21 +1736,24 @@ namespace TestWord
             app.Selection.Find.Execute("<TABLE14>");
             Word.Range wordTableRange = app.Selection.Range;
             Word.Table wordTable = wordDocument.Tables.Add(wordTableRange, row, column);
+
+            wordTable.Range.Font.Size = 12;
+            wordTable.Borders.Enable = 1;
+
             //форматирование
-            wordTable.Borders.Enable = Convert.ToInt32(true);
             wordTable.Range.ParagraphFormat.SpaceBefore = 0;
             wordTable.Range.ParagraphFormat.SpaceAfter = 0;
             wordTable.Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
             wordTable.Range.ParagraphFormat.LineSpacingRule = WdLineSpacing.wdLineSpaceSingle;
             wordTable.Range.Font.Size = 12;
-            wordTable.Rows[1].Range.Bold = Convert.ToInt32(true);
+            wordTable.Rows[1].Range.Bold = 1;
             wordTable.Cell(1, 1).Range.Text = "№ п/п";
             wordTable.Cell(1, 2).Range.Text = "Наименование специальных* помещений и помещений для самостоятельной работы";
             wordTable.Cell(1, 3).Range.Text = "Оснащенность специальных помещений и помещений для самостоятельной работы";
 
-            wordTable.Columns[1].Width = 1.19f;
-            wordTable.Columns[2].Width = 7.15f;
-            wordTable.Columns[3].Width = 9.15f;
+            wordTable.Columns[1].PreferredWidth = app.CentimetersToPoints(1.19f);
+            wordTable.Columns[2].PreferredWidth = app.CentimetersToPoints(7.15f);
+            wordTable.Columns[3].PreferredWidth = app.CentimetersToPoints(9.15f);
 
             int rowNumber = 2;
             for (int i = 0; i < generalModel.PlaceTheirEquipments.Count; i++)
@@ -1634,7 +1774,6 @@ namespace TestWord
                 wordTable.Cell(rowNumber, 3).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                 rowNumber++;
             }
-            wordTable.AutoFitBehavior(WdAutoFitBehavior.wdAutoFitContent);
         }
     }
 }

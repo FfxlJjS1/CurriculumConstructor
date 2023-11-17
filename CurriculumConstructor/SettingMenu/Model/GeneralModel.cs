@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Policy;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using static CurriculumConstructor.SettingMenu.Model.GeneralModel;
 
 namespace CurriculumConstructor.SettingMenu.Model
 {
@@ -19,17 +15,16 @@ namespace CurriculumConstructor.SettingMenu.Model
             ProfileNumber = titleData.ProfileNumber;
             ProfileName = titleData.ProfileName;
             Qualification = titleData.Qualification;
-            DepartmentName = titleData.DepartmentName;
+            //DepartmentChair = titleData.DepartmentName;
             EducationForm = titleData.EducationForm;
             EducationPeriod = titleData.EducationPeriod;
             StartYear = titleData.StartYear;
 
-            competencyCode_Names = titleData.CompetencyCode_Names;
+            competencyCode_Names = titleData.CompetencyCode_Names.Where(x => disciplineRow.Competencies.Contains(x.Code)).ToList();
 
 
             Index = disciplineRow.Index;
             DisciplineName = disciplineRow.DisciplineName;
-            DepartmentName = disciplineRow.DisciplineName;
             DisciplineCompetencies = disciplineRow.Competencies;
 
             competencyPlanningResults.AddRange(DisciplineCompetencies.Select(x => new CompetencyPlanningResult(x)));
@@ -96,13 +91,12 @@ namespace CurriculumConstructor.SettingMenu.Model
         public string Author { get; set; } = "";
         public string AuthorInTheInstrumentalCase { get; set; } = "";
         public string Reviewer { get; set; } = "";
-        public string DepartmentChair { get; set; } = "";
+        public string DepartmentChair { get; set; } = ""; // Excel
         public string ProfileNumber { get; set; } = ""; // Excel
         public string ProfileName { get; set; } = ""; // Excel
         public string DisciplineName { get; set; } = ""; // Excel
 
         public string Qualification { get; set; } = ""; // Excel
-        public string DepartmentName { get; set; } = ""; // Excel
         public string EducationForm { get; set; } = ""; // Excel
         public string EducationPeriod { get; set; } = ""; // Excel
         public string StartYear { get; set; } = ""; // Excel
@@ -157,12 +151,16 @@ namespace CurriculumConstructor.SettingMenu.Model
 
 
             // 6.4
-            public (int minPoints, int maxPoints) CurrentControl_Laboratory_Practice { get; set; }
-            public (int minPoints, int maxPoints) CurrentControl_Testing { get; set; }
-            public (int minPoints, int maxPoints) TotalPointsCount =>
-                (CurrentControl_Laboratory_Practice.minPoints + CurrentControl_Testing.minPoints,
-                CurrentControl_Laboratory_Practice.maxPoints + CurrentControl_Testing.maxPoints);
+            public TurpleIntInt CurrentControl_Laboratory_Practice { get; set; } = new TurpleIntInt();
+            public TurpleIntInt CurrentControl_Testing { get; set; } = new TurpleIntInt();
+            public TurpleIntInt TotalPointsCount { get; set; } = new TurpleIntInt();
 
+
+            public class TurpleIntInt
+            {
+                public int Item1 { get; set; }
+                public int Item2 { get; set; }
+            }
 
             public class DisciplineThematicTheme
             {
@@ -218,28 +216,47 @@ namespace CurriculumConstructor.SettingMenu.Model
         public class TestTasksClass
         {
             // Competency codes - question-answwers tasks
-            public List<(List<string> competencies, List<TestTaskLine> testTaskLines)> competencyFormingTestTasks { get; set; } = new List<(List<string> competencies, List<TestTaskLine> testTaskLines)>();
+            public Dictionary<List<string>, List<TestTaskLine>> competencyFormingTestTasks { get; set; } = new Dictionary<List<string>, List<TestTaskLine>>();
 
             // Also using in 6.3.4.3 for exam
             public class TestTaskLine
             {
+                public TestTaskLine()
+                {
+                    Answers = new List<string>()
+                    {
+                        "", "", "", ""
+                    };
+                }
                 public string Question { get; set; } = "";
 
-                public List<string> Answers { get; } = new List<string>(4); // Default count of rows is four
+                public List<string> Answers { get; set; } // Default count of rows is four
             }
         }
 
 
         // 6.3.2.3, 6.3.3.3
-        public EvaluationCriteriesClass LaboratoryEvaluationCriteries { get; set; } = new EvaluationCriteriesClass();
-        public EvaluationCriteriesClass PracticeEvaluationCriteries { get; set; } = new EvaluationCriteriesClass();
+        public EvaluationCriteriesClass EvaluationCriteries { get; set; } = new EvaluationCriteriesClass();
         
         public class EvaluationCriteriesClass
         {
-            public string TaskAndQuestionExampleForDefenceLabWork { get; set; } = "";
-            public string TaskTextExampleForDefenceLabWork { get; set; } = "";
-            public List<string> QuestionsCompetencies { get; set; } = new List<string>();
-            public List<string> QuestionsExampleForDefenceLabWork { get; set; } = new List<string>();
+            public LaboratoryEvaluationClass laboratory { get; set; } = new LaboratoryEvaluationClass();
+            public PracticeEvaluationClass practice { get; set; } = new PracticeEvaluationClass();
+
+            public class LaboratoryEvaluationClass
+            {
+                public string TaskAndQuestionExampleForDefenceLabWork { get; set; } = "";
+                public string TaskTextExampleForDefenceLabWork { get; set; } = "";
+                public List<string> QuestionsCompetencies { get; set; } = new List<string>();
+                public List<string> QuestionsExampleForDefenceLabWork { get; set; } = new List<string>();
+            }
+            
+            public class PracticeEvaluationClass
+            {
+                public string CompetencyCode { get; set; } = "";
+                public string PracticeTask { get; set; } = "";
+                public string PracticeTaskDiscription { get; set; } = "";
+            }
         }
 
 
@@ -319,11 +336,11 @@ namespace CurriculumConstructor.SettingMenu.Model
         {
             public SoftwareInfo() { }
 
-            public SoftwareInfo(string name, string agreement, string license)
+            public SoftwareInfo(string name, string license, string agreement)
             {
                 Name = name;
-                Agreement = agreement;
                 License = license;
+                Agreement = agreement;
             }
 
             public string Name { get; set; } = "";

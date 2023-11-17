@@ -33,11 +33,6 @@ namespace CurriculumConstructor.SettingMenu.Pages
             ComboboxOPKs.ItemsSource = generalModel.competencyPlanningResults.Select(x => x.Code).ToList();
         }
 
-        private void SaveClick(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void ComboboxOPKs_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var competencyPlanning = generalModel.competencyPlanningResults[(sender as ComboBox).SelectedIndex];
@@ -85,6 +80,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             listBoxEnteredCompetencyIndicator.ItemsSource = model.CompetencyAchivmentIndicators
                 .Select(x => new CodeIndicatorViewData { Code = x.Key, FullText = model.Code + "." + x.Key.ToString() + ". " + x.Value });
+
+            listBoxEnteredCompetencyIndicator.Items.Refresh();
         }
 
         private class CodeIndicatorViewData {
@@ -114,6 +111,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             listBoxEnteredCompetencyIndicator.ItemsSource = model.CompetencyAchivmentIndicators
                 .Select(x => new CodeIndicatorViewData { Code = x.Key, FullText = model.Code + "." + x.Key.ToString() + ". " + x.Value });
+
+            listBoxEnteredCompetencyIndicator.Items.Refresh();
         }
 
         private void btnAddToKnow_Click(object sender, RoutedEventArgs e)
@@ -142,6 +141,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             }
 
             model.ToKnowResult.Add(text);
+
+            listBoxEnteredToKnow.Items.Refresh();
         }
 
         private void btnRemoveToKnow_Click(object sender, RoutedEventArgs e)
@@ -163,6 +164,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             }
 
             model.ToKnowResult.Remove(selectedItem);
+
+            listBoxEnteredToKnow.Items.Refresh();
         }
 
         private void btnAddToAble_Click(object sender, RoutedEventArgs e)
@@ -190,6 +193,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             }
 
             model.ToAbilityResult.Add(text);
+
+            listBoxEnteredToAble.Items.Refresh();
         }
 
         private void btnRemoveToAble_Click(object sender, RoutedEventArgs e)
@@ -211,6 +216,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             }
 
             model.ToAbilityResult.Remove(selectedItem);
+
+            listBoxEnteredToAble.Items.Refresh();
         }
 
         private void btnAddToOwn_Click(object sender, RoutedEventArgs e)
@@ -238,6 +245,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             }
 
             model.ToOwnResult.Add(text);
+
+            listBoxEnteredToOwn.Items.Refresh();
         }
 
         private void btnRemoveToOwn_Click(object sender, RoutedEventArgs e)
@@ -259,6 +268,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             }
 
             model.ToOwnResult.Remove(selectedItem);
+
+            listBoxEnteredToOwn.Items.Refresh();
         }
 
         private void btnModifyEvaluationCriteria_Click(object sender, RoutedEventArgs e)

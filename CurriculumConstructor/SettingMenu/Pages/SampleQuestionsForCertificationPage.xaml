@@ -4,7 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:CurriculumConstructor.SettingMenu.Pages"
-      mc:Ignorable="d" 
+      mc:Ignorable="d"
       Loaded="Page_Loaded"
       d:DesignHeight="450" d:DesignWidth="800"
       Title="SampleQuestionsForCertificationPage">
@@ -22,19 +22,19 @@
             </Grid.RowDefinitions>
 
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="0">
-                <ListBox DisplayMemberPath="Name" Margin="10" x:Name="listBoxSampleQuestionsToExap" MinHeight="75"/>
+                <ListBox SelectionChanged="listBoxSampleQuestionsToExap_SelectionChanged" Margin="10" x:Name="listBoxSampleQuestionsToExap" DisplayMemberPath="Question" MinHeight="75"/>
             </ScrollViewer>
 
             <StackPanel Grid.Row="1" Margin="0 5">
                 <Button Content="Новый" Click="AddClick"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
-                <Button Content="Удалить" Click="DeleteClick" Style="{StaticResource ModernWhiteButton}" Margin="5"/>
+                <Button Content="Удалить" Click="DelClick" Style="{StaticResource ModernWhiteButton}" Margin="5"/>
             </StackPanel>
         </Grid>
 
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Column="1" Margin="5">
             <StackPanel>
                 <TextBlock Text="Вопрос к экзамену" />
-                <TextBox FontSize="16" Style="{StaticResource ModernTextBox}"/>
+                <TextBox FontSize="16" Text="{Binding Question}" Style="{StaticResource ModernTextBox}"/>
 
                 <TextBlock Text="Компетенции вопроса" FontSize="16" />
                 <Grid Height="195">
@@ -62,7 +62,7 @@
 
                     <TextBlock Text="Выбранные компетенции:" Grid.Column="2" Grid.Row="0" TextAlignment="Right"/>
 
-                    <ListBox x:Name="listBoxSelectedCompetencies" Grid.Column="2" Grid.Row="1" />
+                    <ListBox x:Name="listBoxSelectedCompetencies" ItemsSource="{Binding Competencies}" Grid.Column="2" Grid.Row="1" />
                 </Grid>
 
                 <Button Content="Добавить вопрос" Click="SaveClick" Style="{StaticResource ModernWhiteButton}" Margin="0 10" />

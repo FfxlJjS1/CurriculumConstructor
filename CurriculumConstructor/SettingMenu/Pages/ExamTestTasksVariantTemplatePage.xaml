@@ -22,7 +22,7 @@
             </Grid.RowDefinitions>
             
             <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <ListBox SelectionChanged="TestTasksListBox_SelectionChanged" Name="TestTasksListBox" DisplayMemberPath="ThemeText"/>
+                <ListBox SelectionChanged="TestTasksListBox_SelectionChanged" Name="TestTasksListBox" DisplayMemberPath="Question"/>
             </ScrollViewer>
 
             <StackPanel Grid.Row="1" Margin="0 5">

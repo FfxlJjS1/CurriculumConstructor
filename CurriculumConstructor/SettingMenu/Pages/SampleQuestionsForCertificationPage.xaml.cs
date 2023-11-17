@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static CurriculumConstructor.SettingMenu.Model.GeneralModel.TestTasksClass;
 
 namespace CurriculumConstructor.SettingMenu.Pages
 {
@@ -56,7 +57,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
         {
             if (listBoxSampleQuestionsToExap.SelectedItem == null)
             {
-                MessageBox.Show("Нужно выбрать ПО!");
+                MessageBox.Show("Нужно выбрать вопрос");
                 return;
             }
 
@@ -96,7 +97,10 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             _model.Competencies.Add(selectedCompetency);
 
-            listBoxAvailableCompetencies.ItemsSource = generalModel.DisciplineCompetencies.Where(x => !_model.Competencies.Contains(x));
+            listBoxAvailableCompetencies.ItemsSource = generalModel.DisciplineCompetencies.Where(x => !_model.Competencies.Contains(x)).ToList();
+
+            listBoxAvailableCompetencies.Items.Refresh();
+            listBoxSelectedCompetencies.Items.Refresh();
         }
 
         private void UnselectCompetency_Click(object sender, RoutedEventArgs e)
@@ -111,6 +115,26 @@ namespace CurriculumConstructor.SettingMenu.Pages
             string competencyForUnselect = listBoxSelectedCompetencies.SelectedItem as string;
 
             _model.Competencies.Remove(competencyForUnselect);
+
+            listBoxAvailableCompetencies.ItemsSource = generalModel.DisciplineCompetencies.Where(x => !_model.Competencies.Contains(x)).ToList();
+
+            listBoxAvailableCompetencies.Items.Refresh();
+            listBoxSelectedCompetencies.Items.Refresh();
+        }
+
+        private void listBoxSampleQuestionsToExap_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (listBoxSampleQuestionsToExap.SelectedItem == null)
+            {
+                return;
+            }
+
+            IsEdit = true;
+
+            GeneralModel.QuestionCodesClass questionCodes = listBoxSampleQuestionsToExap.SelectedItem as GeneralModel.QuestionCodesClass;
+
+            _model = questionCodes;
+            DataContext = _model;
         }
     }
 }
