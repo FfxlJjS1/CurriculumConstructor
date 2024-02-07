@@ -30,9 +30,12 @@ namespace CurriculumConstructor.SettingMenu.Model
             competencyPlanningResults.AddRange(DisciplineCompetencies.Select(x => new CompetencyPlanningResult(x)));
 
 
-            Exam = disciplineRow.Exam;
-            Offset = disciplineRow.Offset;
-            OffsetWithMark = disciplineRow.OffsetWithMark;
+            ExamSemesterNumbers = disciplineRow.Exam.ToCharArray().Select(x => x - '0').ToArray();
+            OffsetSemesterNumbers = disciplineRow.Offset.ToCharArray().Select(x => x - '0').ToArray(); 
+            OffsetWithMarkSemesterNumbers = disciplineRow.OffsetWithMark.ToCharArray().Select(x => x - '0').ToArray();
+
+            CourseworkSemesters = disciplineRow.CourseworkSemesters;
+
             Control = disciplineRow.Control;
             Expert = disciplineRow.Expert;
             Actual = disciplineRow.Actual;
@@ -54,6 +57,9 @@ namespace CurriculumConstructor.SettingMenu.Model
 
                 TestTasksByDiscipModule.Add((semester.SemesterNumber, 1), new TestTasksClass());
                 TestTasksByDiscipModule.Add((semester.SemesterNumber, 2), new TestTasksClass());
+
+                SemesterQuestionCodes.Add(semester.SemesterNumber, new List<QuestionCodesClass>());
+                ExamTestTasksVariantTemplate.Add(semester.SemesterNumber, new Dictionary<List<string>, List<TestTasksClass.TestTaskLine>>());
             }
         }
 
@@ -66,9 +72,17 @@ namespace CurriculumConstructor.SettingMenu.Model
 
 
         // Undefined but need
-        public string Exam { get; set; } = ""; // Excel
-        public string Offset { get; set; } = ""; // Excel
-        public string OffsetWithMark { get; set; } = ""; // Excel
+        public int[] ExamSemesterNumbers { get; set; } // Excel
+        public bool IsExam => ExamSemesterNumbers.Count() > 0; // Excel
+
+        public int[] OffsetSemesterNumbers { get; set; } // Excel
+        public bool IsOffset => OffsetSemesterNumbers.Count() > 0; // Excel 
+
+        public int[] OffsetWithMarkSemesterNumbers { get; set; } // Excel
+        public bool IsOffsetWithMark => OffsetWithMarkSemesterNumbers.Count() > 0; // Excel
+
+        public int[] CourseworkSemesters { get; set; } // Excel
+
         public string Control{ get; set; } = ""; // Excel
         public string Expert{ get; set; } = ""; // Excel
         public string Actual { get; set; } = ""; // Excel
@@ -245,23 +259,28 @@ namespace CurriculumConstructor.SettingMenu.Model
 
             public class LaboratoryEvaluationClass
             {
-                public string TaskAndQuestionExampleForDefenceLabWork { get; set; } = "";
+                public string LaboratoryTaskWithNumber { get; set; } = "";
                 public string TaskTextExampleForDefenceLabWork { get; set; } = "";
-                public List<string> QuestionsCompetencies { get; set; } = new List<string>();
-                public List<string> QuestionsExampleForDefenceLabWork { get; set; } = new List<string>();
+                public List<QuestionCodeClass> QuestionsCodeExampleForDefenceLabWork { get; set; } = new List<QuestionCodeClass>();
+
+                public class QuestionCodeClass
+                {
+                    public string Question { get; set; } = "";
+                    public string CompetencyCode { get; set; } = "";
+                }
             }
-            
+
             public class PracticeEvaluationClass
             {
                 public string CompetencyCode { get; set; } = "";
                 public string PracticeTask { get; set; } = "";
-                public string PracticeTaskDiscription { get; set; } = "";
+                public string PracticeTaskDescription { get; set; } = "";
             }
         }
 
 
-        // 6.3.4.3
-        public List<QuestionCodesClass> QuestionCodes { get; set; } = new List<QuestionCodesClass>();
+        // 6.3.4(5)(6).3
+        public Dictionary<int, List<QuestionCodesClass>> SemesterQuestionCodes { get; set; } = new Dictionary<int, List<QuestionCodesClass>>();
 
         public class QuestionCodesClass
         {
@@ -271,10 +290,10 @@ namespace CurriculumConstructor.SettingMenu.Model
 
         // Only for exam format
         // Competency codes - question-answers tasks
-        public Dictionary<List<string>, List<TestTasksClass.TestTaskLine>> examTestTasksVariantTemplate { get; set; } = new Dictionary<List<string>, List<TestTasksClass.TestTaskLine>>();
+        public Dictionary<int, Dictionary<List<string>, List<TestTasksClass.TestTaskLine>>> ExamTestTasksVariantTemplate { get; set; } = new Dictionary<int, Dictionary<List<string>, List<TestTasksClass.TestTaskLine>>>();
 
 
-        // 6.
+        // 7.
         public EducationLiteratureModelComplex EducationLiteraturesComplex { get; set; } = new EducationLiteratureModelComplex();
 
 
@@ -336,16 +355,18 @@ namespace CurriculumConstructor.SettingMenu.Model
         {
             public SoftwareInfo() { }
 
-            public SoftwareInfo(string name, string license, string agreement)
+            public SoftwareInfo(string name, string license, string agreement, bool agreementIsExist = true)
             {
                 Name = name;
                 License = license;
                 Agreement = agreement;
+                AgreementIsExist = agreementIsExist;
             }
 
             public string Name { get; set; } = "";
             public string Agreement { get; set; } = "";
             public string License { get; set; } = "";
+            public bool AgreementIsExist { get; set; } = true;
         }
 
 

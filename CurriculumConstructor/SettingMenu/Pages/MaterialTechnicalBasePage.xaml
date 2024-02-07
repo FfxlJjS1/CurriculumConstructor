@@ -53,7 +53,7 @@
                     </Grid.ColumnDefinitions>
                     
                     <Button Grid.Column="0" Content="Добавить оснащение" Click="AddEquipmentClick" Style="{StaticResource ModernWhiteButton}" Margin="0 5 0 0" />
-                    <Button Grid.Column="1" Content="Удалиить оснащение" Click="DelEquipmentClick" Style="{StaticResource ModernWhiteButton}" Margin="0 5 0 0" />
+                    <Button Grid.Column="1" Content="Удалить оснащение" Click="DelEquipmentClick" Style="{StaticResource ModernWhiteButton}" Margin="0 5 0 0" />
                 </Grid>
 
                 <Button Content="Добавить помещение" Click="SaveClick" Style="{StaticResource ModernWhiteButton}" Margin="0 20 0 10" />

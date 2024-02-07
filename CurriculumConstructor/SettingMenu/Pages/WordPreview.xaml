@@ -7,7 +7,8 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Background="#eff2f7"
-      Title="WordPreview">
+      Title="WordPreview"
+      Loaded="Window_Loaded">
 
     <Grid>
         <Grid.RowDefinitions>

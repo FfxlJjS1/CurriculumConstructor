@@ -27,7 +27,7 @@
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Text="Выберите лабораторную работу:" FontSize="16" Grid.Column="0"/>
-                            <ComboBox Style="{StaticResource ComboBoxTheme}" SelectedItem="{Binding laboratory.TaskAndQuestionExampleForDefenceLabWork}" Grid.Column="1" Margin="5 0 0 0" x:Name="comboBoxLaboratoryThemeText"/>
+                            <ComboBox Style="{StaticResource ComboBoxTheme}" SelectedItem="{Binding laboratory.TaskAndQuestionExampleForDefenceLabWork}" DisplayMemberPath="ThemeText" Grid.Column="1" Margin="5 0 0 0" x:Name="comboBoxLaboratoryThemeText"/>
                         </Grid>
 
                         <Grid Grid.Row="1" Margin="2">
@@ -45,63 +45,46 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
 
-                            <Grid Grid.Row="0" Grid.Column="0">
+                            <Grid Grid.Column="0">
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Text="Компетенции к вопросам" FontSize="16"/>
-
-                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
-                                    <ListBox x:Name="listBoxCompetenciesCode" ItemsSource="{Binding laboratory.QuestionsCompetencies}" Margin="2"/>
+                                <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                    <ListBox Margin="10" MinHeight="75" SelectionChanged="QuestionCodeListBox_SelectionChanged" DisplayMemberPath="Question" Name="QuestionCodeListBox" ItemsSource="{Binding laboratory.QuestionsCodeExampleForDefenceLabWork}"/>
                                 </ScrollViewer>
 
-                                <ComboBox Style="{StaticResource ComboBoxTheme}" Grid.Row="2" Margin="4" Height="30" x:Name="comboBoxCompetencies"/>
+                                <StackPanel Grid.Row="1" Margin="0 0 0 10">
+                                    <Button Click="AddQuestionToLab" Content="Новый"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
+                                    <Button Click="DelQuestionToLab" Content="Удалить"  Style="{StaticResource ModernWhiteButton}" Margin="5"/>
+                                </StackPanel>
                             </Grid>
+                            <Grid Grid.Column="1">
+                                <StackPanel>
+                                    <Grid Margin="0 10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
 
-                            <Grid Grid.Row="0" Grid.Column="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Вопрос к защите: " FontSize="15" VerticalAlignment="Center"/>
+                                        <TextBox x:Name="textBoxLabQuestionText" Grid.Column="1" Style="{StaticResource ComboBoxTextBoxStyle}" Text="{Binding Question}" FontSize="15" TextWrapping="Wrap" Height="80"/>
+                                    </Grid>
 
-                                <TextBlock Text="Вопросы к защите" FontSize="16" HorizontalAlignment="Right" Grid.Column="0"/>
+                                    <Grid Margin="0 10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
 
-                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
-                                    <ListBox x:Name="listBoxQuestionsToLaboratory" SelectionChanged="listBoxQuestionsToLaboratory_SelectionChanged" ItemsSource="{Binding laboratory.QuestionsExampleForDefenceLabWork}"/>
-                                </ScrollViewer>
+                                        <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Код компетенции вопроса: " FontSize="15"/>
+                                        <ComboBox Grid.Column="1" FontSize="15" Style="{StaticResource ComboBoxTheme}" x:Name="comboBoxLabCompetencyCode"/>
+                                    </Grid>
 
-                                <ScrollViewer HorizontalScrollBarVisibility="Auto" Margin="5" VerticalScrollBarVisibility="Auto" Grid.Row="2">
-                                    <TextBox Style="{StaticResource ModernTextBox}" Height="60" x:Name="textBoxQuestionForLab"/>
-                                </ScrollViewer>
-                            </Grid>
-
-                            <Grid Grid.Row="1" Grid.Column="0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-
-                                <Button Style="{StaticResource ModernWhiteButton}" Click="AddCompetency_Click" Content="Добавить" Margin="5" Grid.Column="0"/>
-                                <Button Style="{StaticResource ModernWhiteButton}" Click="DelCompetency_Click" Content="Удалить" Margin="5" Grid.Column="1"/>
-                            </Grid>
-
-                            <Grid Grid.Row="1" Grid.Column="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-
-                                <Button Style="{StaticResource ModernWhiteButton}" Click="AddQuestionToLab" Content="Добавить" Margin="5" Grid.Column="0"/>
-                                <Button Style="{StaticResource ModernWhiteButton}" Click="DelQuestionToLab" Content="Удалить" Margin="5" Grid.Column="1"/>
+                                    <Button Style="{StaticResource ModernWhiteButton}" Content="Добавить вопрос" Click="SaveQuestionToLab"/>
+                                </StackPanel>
                             </Grid>
                         </Grid>
                     </Grid>
@@ -110,7 +93,7 @@
             <TabItem>
                 <TabItem.Header>Пример практической задачи для оценки компетенции</TabItem.Header>
                 <TabItem.Content>
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <Grid Background="#eff2f7">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -126,7 +109,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Grid.Column="0" Text="Выберите компетенцию" FontSize="16" VerticalAlignment="Center" Margin="5 0"/>
-                                <ComboBox x:Name="comboBoxCompetencyCode" Grid.Column="1" SelectedItem="{Binding practice.CompetencyCode}" Style="{StaticResource ComboBoxTheme}" Height="30" Margin="5"/>
+                                <ComboBox x:Name="comboBoxPracCompetencyCode" Grid.Column="1" SelectedItem="{Binding practice.CompetencyCode}" Style="{StaticResource ComboBoxTheme}" Height="30" Margin="5"/>
                             </Grid>
 
                             <Grid Grid.Row="1">

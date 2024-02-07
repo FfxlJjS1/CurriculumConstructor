@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -23,6 +24,9 @@ namespace CurriculumConstructor.SettingMenu.Pages
     {
         private GeneralModel generalModel;
         private GeneralModel.EvaluationCriteriesClass criteries;
+        private GeneralModel.EvaluationCriteriesClass.LaboratoryEvaluationClass.QuestionCodeClass questionCode = new GeneralModel.EvaluationCriteriesClass.LaboratoryEvaluationClass.QuestionCodeClass();
+
+        private bool IsEdit;
 
         public AssessmentToolsPage(ref GeneralModel generalModel)
         {
@@ -31,105 +35,69 @@ namespace CurriculumConstructor.SettingMenu.Pages
             this.generalModel = generalModel;
             criteries = generalModel.EvaluationCriteries;
 
-            comboBoxLaboratoryThemeText.ItemsSource = generalModel.DisciplineThematicPlan.SelectMany(semesterModuleDisciplinePlan => 
-                semesterModuleDisciplinePlan.Value.DisciplineThematicPlan.SelectMany(disciplineTheme => 
+            comboBoxLaboratoryThemeText.ItemsSource = generalModel.DisciplineThematicPlan.SelectMany(semesterModuleDisciplinePlan =>
+                semesterModuleDisciplinePlan.Value.DisciplineThematicPlan.SelectMany(disciplineTheme =>
                     disciplineTheme.ThemeContents
                         .Where(theme => theme.ThemeType == GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.LaboratoryWork)
-                            .Select(theme => 
-                                theme.ThemeText
-                            )
                 )
             ).ToList();
 
-            comboBoxCompetencies.ItemsSource = generalModel.DisciplineCompetencies.Where(x => !criteries.laboratory.QuestionsCompetencies.Contains(x));
+            comboBoxLabCompetencyCode.ItemsSource = generalModel.DisciplineCompetencies;
+            comboBoxPracCompetencyCode.ItemsSource = generalModel.DisciplineCompetencies;
 
             DataContext = generalModel.EvaluationCriteries;
         }
 
-        private void AddCompetency_Click(object sender, RoutedEventArgs e)
+        private void QuestionCodeListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(comboBoxCompetencies.SelectedItem == null)
-            {
-                MessageBox.Show("Выберите компетенцию для добавления");
-
+            if (QuestionCodeListBox.SelectedItem == null)
                 return;
-            }
 
+            questionCode = QuestionCodeListBox.SelectedItem as GeneralModel.EvaluationCriteriesClass.LaboratoryEvaluationClass.QuestionCodeClass;
 
-            string competencyForSelect = comboBoxCompetencies.SelectedItem.ToString();
+            textBoxLabQuestionText.DataContext = questionCode;
 
-            criteries.laboratory.QuestionsCompetencies.Add(competencyForSelect);
-
-            comboBoxCompetencies.ItemsSource = generalModel.DisciplineCompetencies.Where(x => !criteries.laboratory.QuestionsCompetencies.Contains(x));
-
-            listBoxCompetenciesCode.Items.Refresh();
+            IsEdit = true;
         }
 
-        private void DelCompetency_Click(object sender, RoutedEventArgs e)
+        private void SaveQuestionToLab(object sender, RoutedEventArgs e)
         {
-            if(listBoxCompetenciesCode.SelectedItem == null)
-            {
-                MessageBox.Show("Выберите компетенцию для исключения");
-
+            if (IsEdit)
                 return;
-            }
 
-            string competencyCodeForRemove = listBoxCompetenciesCode.SelectedItem.ToString();
-
-            criteries.laboratory.QuestionsCompetencies.Remove(competencyCodeForRemove);
-
-            comboBoxCompetencies.ItemsSource = generalModel.DisciplineCompetencies.Where(x => !criteries.laboratory.QuestionsCompetencies.Contains(x));
-
-            listBoxCompetenciesCode.Items.Refresh();
-        }
-
-        private void listBoxQuestionsToLaboratory_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if(listBoxQuestionsToLaboratory.SelectedItem == null)
-            {
-                return;
-            }
-
-            textBoxQuestionForLab.Text = listBoxQuestionsToLaboratory.SelectedItem.ToString();
-        }
-
-        private void AddQuestionToLab(object sender, RoutedEventArgs e)
-        {
-            if (textBoxQuestionForLab.Text.Length <= 0)
+            if (questionCode.Question.Length <= 0)
             {
                 MessageBox.Show("Введите вопрос к защите");
 
                 return;
             }
 
-            string questionForLabText = textBoxQuestionForLab.Text;
+            criteries.laboratory.QuestionsCodeExampleForDefenceLabWork.Add(questionCode);
 
-            if(criteries.laboratory.QuestionsExampleForDefenceLabWork.Contains(questionForLabText))
-            {
-                MessageBox.Show("Данные вопрос уже имеется в списке");
-
-                return;
-            }
-
-            criteries.laboratory.QuestionsExampleForDefenceLabWork.Add(questionForLabText);
-
-            listBoxQuestionsToLaboratory.Items.Refresh();
+            QuestionCodeListBox.Items.Refresh();
         }
 
         private void DelQuestionToLab(object sender, RoutedEventArgs e)
         {
-            if (listBoxQuestionsToLaboratory.SelectedItem == null)
+            if (QuestionCodeListBox.SelectedItem == null)
             {
-                MessageBox.Show("Выберите компетенцию для исключения");
+                MessageBox.Show("Выберите вопрос для исключения");
 
                 return;
             }
 
-            string questionForLaboratoryToDel = listBoxQuestionsToLaboratory.SelectedItem.ToString();
+            var questionForLaboratoryToDel = QuestionCodeListBox.SelectedItem as GeneralModel.EvaluationCriteriesClass.LaboratoryEvaluationClass.QuestionCodeClass;
 
-            criteries.laboratory.QuestionsExampleForDefenceLabWork.Remove(questionForLaboratoryToDel);
+            criteries.laboratory.QuestionsCodeExampleForDefenceLabWork.Remove(questionForLaboratoryToDel);
 
-            listBoxQuestionsToLaboratory.Items.Refresh();
+            QuestionCodeListBox.Items.Refresh();
+        }
+
+        private void AddQuestionToLab(object sender, RoutedEventArgs e)
+        {
+            questionCode = new GeneralModel.EvaluationCriteriesClass.LaboratoryEvaluationClass.QuestionCodeClass();
+
+            IsEdit = false;
         }
     }
 }

@@ -5,17 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using TestWord;
 using CurriculumConstructor.SettingMenu.Model;
+using System.Text.Json;
+using System.IO;
+using System.Windows.Forms;
 
 namespace CurriculumConstructor
 {
@@ -32,8 +29,24 @@ namespace CurriculumConstructor
             Nav.SettingMenuFrame = ContentFrame;
 
             generalModel = new GeneralModel(Block_Part, titleData, disciplineRow);
+        }
 
+        public SettingMenuWindow(GeneralModel _generalModel)
+        {
+            generalModel = _generalModel;
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
             this.Title = generalModel.ProfileNumber + " - " + generalModel.DisciplineName;
+
+            if (!generalModel.IsExam)
+            {
+                sampleQuestionsForCertificationMenuButton.Visibility = Visibility.Collapsed;
+                sampleQuestionsForCertificationMenuButton.IsEnabled = false;
+                examTestTasksVariantTemplateMenuButton.Visibility = Visibility.Collapsed;
+                examTestTasksVariantTemplateMenuButton.IsEnabled = false;
+            }
         }
 
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)
@@ -44,7 +57,12 @@ namespace CurriculumConstructor
 
         private void MeuButton_Checked(object sender, RoutedEventArgs e)
         {
-            RadioButton? radioButton = sender as RadioButton;
+            if(ContentFrame.Content is WordPreview)
+            {
+                (ContentFrame.Content as WordPreview).RemoveState();
+            }
+
+            System.Windows.Controls.RadioButton? radioButton = sender as System.Windows.Controls.RadioButton;
 
             if(radioButton == null)
                 return;
@@ -62,9 +80,11 @@ namespace CurriculumConstructor
 
                 string filePath = System.Windows.Forms.Application.StartupPath + "//" + "shablon_1.docx";
 
-                var helper = new WordHelper("shablon.docx", ref generalModel);
+                {
+                    var helper = new WordHelper("shablon.docx", ref generalModel);
 
-                helper.Process(true, filePath);
+                    helper.Process(true, filePath);
+                }
 
                 ContentFrame.Navigate(new WordPreview(filePath, ref generalModel));
             }
@@ -117,6 +137,31 @@ namespace CurriculumConstructor
         private void btnSignOut_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private async void btnSaveArgs_Click(object sender, RoutedEventArgs e)
+        {
+            // Выбор пути и сохранение
+            using (var path_dialog = new SaveFileDialog())
+                if (path_dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    // Путь к директории
+                    string path = path_dialog.FileName;
+
+                    var options = new JsonSerializerOptions
+                    {
+                        IncludeFields = true,
+                    };
+
+                    string jsonString = JsonSerializer.Serialize(generalModel, options);
+
+                    using (StreamWriter writer = new StreamWriter(path, false))
+                    {
+                        await writer.WriteLineAsync(jsonString);
+                    }
+
+                    System.Windows.MessageBox.Show("Успешное сохранение!");
+                };
         }
     }
 }

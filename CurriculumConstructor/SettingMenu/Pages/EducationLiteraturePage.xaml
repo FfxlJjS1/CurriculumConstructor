@@ -84,6 +84,17 @@
                     </StackPanel>
                 </TabItem.Content>
             </TabItem>
+            <TabItem>
+                <TabItem.Header>Методическое пособие</TabItem.Header>
+                <TabItem.Content>
+                    <StackPanel Background="#eff2f7">
+                        <TextBlock Text="Полное название методического пособия:" Margin="10 5"/>
+                        <TextBox Style="{StaticResource ModernTextBox}" x:Name="MethodicalBookTextBox" VerticalScrollBarVisibility="Auto" Height="150"/>
+
+                        <Button Content="Сохранить" Style="{StaticResource ModernWhiteButton}" Margin="20 10" Click="MethodicalBookButton_Click"/>
+                    </StackPanel>
+                </TabItem.Content>
+            </TabItem>
         </TabControl>
     </Grid>
 </Page>

@@ -3,6 +3,7 @@ using CurriculumConstructor.SettingMenu.Windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,6 +26,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
         private GeneralModel generalModel;
         private List<GeneralModel.TestTasksClass.TestTaskLine> _model;
 
+        private int selesterSemesterNumber = -1;
+
         private List<CompetenciesComboBoxItem> _competenciesComboBoxItems = new List<CompetenciesComboBoxItem>();
         private GeneralModel.TestTasksClass.TestTaskLine _testTaskLine;
         private bool IsEdit;
@@ -40,13 +43,6 @@ namespace CurriculumConstructor.SettingMenu.Pages
             InitializeComponent();
 
             this.generalModel = generalModel;
-
-            _competenciesComboBoxItems.AddRange(generalModel.examTestTasksVariantTemplate.Select(
-                x => new CompetenciesComboBoxItem()
-                { CompetenciesCode = x.Key })
-            );
-
-            ComboBoxCompetenciesCode.ItemsSource = _competenciesComboBoxItems;
         }
 
         private void SaveClick(object sender, RoutedEventArgs e)
@@ -112,6 +108,9 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            comboBoxCompetensiesVariantTestsSemester.ItemsSource = generalModel.Semesters.Select(x => x.SemesterNumber).ToList();
+            comboBoxCompetensiesVariantTestsSemester.SelectedIndex = 0;
+
             Reload();
         }
 
@@ -124,7 +123,10 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             var competenciesComboboxItem = ComboBoxCompetenciesCode.SelectedItem as CompetenciesComboBoxItem;
 
-            _model = generalModel.examTestTasksVariantTemplate[competenciesComboboxItem.CompetenciesCode];
+            if (competenciesComboboxItem == null)
+                return;
+
+            _model = generalModel.ExamTestTasksVariantTemplate[selesterSemesterNumber][competenciesComboboxItem.CompetenciesCode];
 
             Reload();
         }
@@ -139,12 +141,12 @@ namespace CurriculumConstructor.SettingMenu.Pages
             competenciesCodeItemSelect.ShowDialog();
 
             if(selectedCompetenciesCodeAsItem.Count <= 0 
-                || generalModel.examTestTasksVariantTemplate.Keys.ToList().Contains(selectedCompetenciesCodeAsItem))
+                || generalModel.ExamTestTasksVariantTemplate[selesterSemesterNumber].Keys.ToList().Contains(selectedCompetenciesCodeAsItem))
             {
                 return;
             }
 
-            generalModel.examTestTasksVariantTemplate.Add(selectedCompetenciesCodeAsItem, new List<GeneralModel.TestTasksClass.TestTaskLine>());
+            generalModel.ExamTestTasksVariantTemplate[selesterSemesterNumber].Add(selectedCompetenciesCodeAsItem, new List<GeneralModel.TestTasksClass.TestTaskLine>());
 
             _competenciesComboBoxItems.Add(new CompetenciesComboBoxItem() { CompetenciesCode = selectedCompetenciesCodeAsItem });
 
@@ -153,6 +155,21 @@ namespace CurriculumConstructor.SettingMenu.Pages
             ComboBoxCompetenciesCode.Items.Refresh();
 
             Reload();
+        }
+
+        private void comboBoxCompetensiesVariantTestsSemester_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (comboBoxCompetensiesVariantTestsSemester.SelectedValue == null)
+                return;
+
+            selesterSemesterNumber = (int)comboBoxCompetensiesVariantTestsSemester.SelectedValue;
+
+            _competenciesComboBoxItems.AddRange(generalModel.ExamTestTasksVariantTemplate[selesterSemesterNumber].Select(
+                x => new CompetenciesComboBoxItem()
+                { CompetenciesCode = x.Key })
+            );
+
+            ComboBoxCompetenciesCode.ItemsSource = _competenciesComboBoxItems;
         }
     }
 }

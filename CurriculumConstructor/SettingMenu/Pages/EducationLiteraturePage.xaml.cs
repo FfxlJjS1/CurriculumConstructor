@@ -127,6 +127,9 @@ namespace CurriculumConstructor.SettingMenu.Pages
                 case 2:
                     EducationLiteratureListBox.ItemsSource = generalModel.EducationLiteraturesComplex.EducationMethodicalLiteratures;
                     break;
+                case 3:
+                    MethodicalBookTextBox.Text = generalModel.MethodBook;
+                    break;
                 default:
                     return;
                     break;
@@ -145,6 +148,20 @@ namespace CurriculumConstructor.SettingMenu.Pages
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             Reload();
+        }
+
+        private void MethodicalBookButton_Click(object sender, RoutedEventArgs e)
+        {
+            string newMethodicalBook = MethodicalBookTextBox.Text;
+
+            if(newMethodicalBook == "")
+            {
+                MessageBox.Show("Пожалуйста, заполните полное название методического пособия.");
+
+                return;
+            }
+
+            generalModel.MethodBook = newMethodicalBook;
         }
     }
 }

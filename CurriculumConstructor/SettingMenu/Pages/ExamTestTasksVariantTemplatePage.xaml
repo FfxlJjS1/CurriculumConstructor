@@ -32,8 +32,18 @@
         </Grid>
         
         <Grid Grid.Column="1">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Семестр: " Grid.Column="0" FontSize="16"/>
+                        <ComboBox Style="{StaticResource ComboBoxTheme}" Grid.Column="1" Margin="2" x:Name="comboBoxCompetensiesVariantTestsSemester" SelectionChanged="comboBoxCompetensiesVariantTestsSemester_SelectionChanged"/>
+                    </Grid>
+                    
                     <Grid VerticalAlignment="Center">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>

@@ -96,10 +96,15 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             DataContext = _themeDisciplines;
 
-            txtboxLecture.Text = "Лекций: " + _model.DisciplineThematicPlan.Sum(x => x.LectureHours).ToString() + "/" + generalModel.NeedTotalLectureHours.ToString();
-            txtboxPractice.Text = "Практический занятий: " + _model.DisciplineThematicPlan.Sum(x => x.PracticeHours).ToString() + "/" + generalModel.NeedTotalPracticeHours.ToString();
-            txtboxLaboratory.Text = "Лабораторных занятий: " + _model.DisciplineThematicPlan.Sum(x => x.LaboratoryWorkHours).ToString() + "/" + generalModel.NeedTotalLaboratoryWorkHours.ToString();
-            txtboxIndependent.Text = "СРС: " + _model.DisciplineThematicPlan.Sum(x => x.IndependentHours).ToString() + "/" + generalModel.NeedTotalIndependentHours.ToString();
+            ReloadHoursValues();
+        }
+
+        private void ReloadHoursValues()
+        {
+            txtboxLecture.Text = "Лекций: " + generalModel.DisciplineThematicPlan.Sum(x => x.Value.DisciplineThematicPlan.Sum(x => x.LectureHours)).ToString() + "/" + generalModel.NeedTotalLectureHours.ToString();
+            txtboxPractice.Text = "Практический занятий: " + generalModel.DisciplineThematicPlan.Sum(x => x.Value.DisciplineThematicPlan.Sum(x => x.PracticeHours)).ToString() + "/" + generalModel.NeedTotalPracticeHours.ToString();
+            txtboxLaboratory.Text = "Лабораторных занятий: " + generalModel.DisciplineThematicPlan.Sum(x => x.Value.DisciplineThematicPlan.Sum(x => x.LaboratoryWorkHours)).ToString() + "/" + generalModel.NeedTotalLaboratoryWorkHours.ToString();
+            txtboxIndependent.Text = "СРС: " + generalModel.DisciplineThematicPlan.Sum(x => x.Value.DisciplineThematicPlan.Sum(x => x.IndependentHours)).ToString() + "/" + generalModel.NeedTotalIndependentHours.ToString();
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
@@ -121,6 +126,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             DisciplineContentWindow disciplineContentWindow = new DisciplineContentWindow(ref _themeDisciplines, generalModel.competencyCode_Names);
 
             disciplineContentWindow.ShowDialog();
+
+            ReloadHoursValues();
         }
 
         private bool isOnTxtBoxChanged = true;

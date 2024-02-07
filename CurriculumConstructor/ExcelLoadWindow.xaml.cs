@@ -19,6 +19,8 @@ using System.Drawing;
 using Microsoft.Office.Interop.Excel;
 using Button = System.Windows.Controls.Button;
 using System.Runtime.ConstrainedExecution;
+using System.Text.Json;
+using System.IO;
 
 namespace CurriculumConstructor
 {
@@ -44,7 +46,7 @@ namespace CurriculumConstructor
             }
         }
 
-        private async void FileSelectClick(object sender, RoutedEventArgs e)
+        private async void FileSelectClickAsync(object sender, RoutedEventArgs e)
         {
             (sender as Button).IsEnabled = false;
             (sender as Button).Content = "Загружется";
@@ -72,10 +74,11 @@ namespace CurriculumConstructor
         {
             app = new Excel.Application();
             Excel.Workbook workbook = app.Workbooks.Open(filePathName);
-            
+            Dictionary<string, List<int>> discipline_courseworkSemesters = new Dictionary<string, List<int>>();
+
             var GetCell = (Worksheet worksheet, int lineNumber, int columnNumber) =>
             {
-                return (string)(worksheet.Cells[lineNumber, columnNumber] as Excel.Range).Value2;
+                return Convert.ToString((worksheet.Cells[lineNumber, columnNumber] as Excel.Range).Value2);
             };
             
             {
@@ -95,7 +98,38 @@ namespace CurriculumConstructor
                 TitleData.Qualification = TitleData.Qualification.Substring(TitleData.Qualification.IndexOf(": ") + 2);
             }
 
-            int rowNumber = 3;
+            int rowNumber = 2;
+
+            {
+                var courseworkWorksheet = workbook.Worksheets.Item["Курсовые"];
+
+                string Value = GetCell(courseworkWorksheet, rowNumber, 1); // A2
+
+                while (Value != null)
+                {
+                    string disciplineName = Value;
+
+                    List<int> courseworkSemesters = new List<int>();
+                    rowNumber++;
+
+                    while (GetCell(courseworkWorksheet, rowNumber, 1) == null
+                        && GetCell(courseworkWorksheet, rowNumber, 2) != null)
+                    {
+                        int courseNumber = Convert.ToInt32(GetCell(courseworkWorksheet, rowNumber, 3)),
+                            courseSemesterNumber = Convert.ToInt32(GetCell(courseworkWorksheet, rowNumber, 4));
+
+                        courseworkSemesters.Add((courseNumber - 1) * 2 + courseSemesterNumber);
+
+                        rowNumber++;
+                    }
+
+                    discipline_courseworkSemesters.Add(disciplineName, courseworkSemesters);
+
+                    Value = GetCell(courseworkWorksheet, rowNumber, 1);
+                }
+            }
+
+            rowNumber = 3;
 
             {
                 var competencyWorksheet = workbook.Worksheets.Item["Компетенции"];
@@ -103,7 +137,7 @@ namespace CurriculumConstructor
 
                 string Value = GetCell(competencyWorksheet, rowNumber, 2); ; // B3
 
-                do
+                while(Value != null)
                 {
                     GeneralModel.CompetencyCode_Name code_Name = new GeneralModel.CompetencyCode_Name();
 
@@ -119,7 +153,7 @@ namespace CurriculumConstructor
                         rowNumber++;
 
                     Value = GetCell(competencyWorksheet, rowNumber, 2);
-                } while (Value != null);
+                };
             }
 
             var worksheet = workbook.Worksheets.Item["План"];
@@ -202,9 +236,9 @@ namespace CurriculumConstructor
 
                 rowElement.Index = GetCell(worksheet, rowNumber, 2);
                 rowElement.DisciplineName = GetCell(worksheet, rowNumber, 3);
-                rowElement.Exam = GetCell(worksheet, rowNumber, 4) ?? "0";
-                rowElement.Offset = GetCell(worksheet, rowNumber, 5) ?? "0";
-                rowElement.OffsetWithMark = GetCell(worksheet, rowNumber, 6) ?? "0";
+                rowElement.Exam = GetCell(worksheet, rowNumber, 4) ?? "";
+                rowElement.Offset = GetCell(worksheet, rowNumber, 5) ?? "";
+                rowElement.OffsetWithMark = GetCell(worksheet, rowNumber, 6) ?? "";
                 rowElement.Control = GetCell(worksheet, rowNumber, 7) ?? "0";
                 rowElement.Expert = GetCell(worksheet, rowNumber, 8) ?? "0";
                 rowElement.Actual = GetCell(worksheet, rowNumber, 9) ?? "0";
@@ -237,6 +271,15 @@ namespace CurriculumConstructor
                 rowElement.DepartmentName = GetCell(worksheet, rowNumber, 16 + 7 * semestersCount + 1);
                 rowElement.Competencies = GetCell(worksheet, rowNumber, 16 + 7 * semestersCount + 2).Split("; ");
 
+                if (discipline_courseworkSemesters.ContainsKey(rowElement.DisciplineName))
+                {
+                    rowElement.CourseworkSemesters = discipline_courseworkSemesters[rowElement.DisciplineName].ToArray();
+                }
+                else
+                {
+                    rowElement.CourseworkSemesters = new int[0];
+                }
+
                 disciplineRows.Add(rowElement);
 
                 rowNumber++;
@@ -265,6 +308,42 @@ namespace CurriculumConstructor
             Hide();
             settingMenuWindow.ShowDialog();
             Show();
+        }
+
+        private async void FileParamsSelectClickAsync(object sender, RoutedEventArgs e)
+        {
+            var openFileDiallog = new OpenFileDialog();
+
+            if (openFileDiallog.ShowDialog() != true)
+                return;
+
+            string path = openFileDiallog.FileName;
+
+            string? jsonString = "";
+
+            using (StreamReader reader = new StreamReader(path))
+            {
+                jsonString = await reader.ReadLineAsync();
+            }
+
+            if(jsonString != null)
+            {
+                var options = new JsonSerializerOptions
+                {
+                    IncludeFields = true,
+                };
+
+                GeneralModel? generalModel = JsonSerializer.Deserialize<GeneralModel>(jsonString, options);
+
+                if (generalModel == null)
+                    return;
+
+                SettingMenuWindow settingMenuWindow = new SettingMenuWindow(generalModel);
+
+                Hide();
+                settingMenuWindow.ShowDialog();
+                Show();
+            }
         }
     }
 
@@ -302,6 +381,7 @@ namespace CurriculumConstructor
         public int Code { get; set; }
         public string DepartmentName { get; set; }
         public string[] Competencies { get; set; }
+        public int[] CourseworkSemesters { get; set; }
     }
 
     public class Semester

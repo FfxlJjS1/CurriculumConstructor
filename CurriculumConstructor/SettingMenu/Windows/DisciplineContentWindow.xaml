@@ -40,7 +40,7 @@
                     <TextBox Style="{StaticResource ModernTextBox}" TextWrapping="Wrap" Text="{Binding UsingMethod}" Name="MethodTextBox" SpellCheck.IsEnabled="True" Language="ru-ru"  AcceptsReturn="True" />
 
                     <TextBlock Text="Максимальный баллл" />
-                    <TextBox Style="{StaticResource ModernTextBox}" TextWrapping="Wrap" Text="{Binding MaxPints}" Name="MaxPointsTextBox" SpellCheck.IsEnabled="True" Language="ru-ru"  AcceptsReturn="True" />
+                    <TextBox Style="{StaticResource ModernTextBox}" TextWrapping="Wrap" Text="{Binding MaxPoints}" Name="MaxPointsTextBox" SpellCheck.IsEnabled="True" Language="ru-ru"  AcceptsReturn="True" />
 
                     <TextBlock Text="Компетенции темы:"/>
                     <Grid Height="195">

@@ -75,6 +75,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             placeTheirEquipments.EquipmentsName.Add(txtBoxNewEquipment.Text);
 
             listBoxEquipments.Items.Refresh();
+
+            txtBoxNewEquipment.Text = string.Empty;
         }
         
         private void DelEquipmentClick(object sender, RoutedEventArgs e)
@@ -117,6 +119,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             PlaceEquipmentsListBox.Items.Refresh();
 
             DataContext = placeTheirEquipments;
+
+            txtBoxNewEquipment.Text = string.Empty;
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)

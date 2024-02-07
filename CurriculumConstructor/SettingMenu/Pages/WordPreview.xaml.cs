@@ -2,6 +2,7 @@
 using Microsoft.Office.Interop.Word;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,8 +25,11 @@ namespace CurriculumConstructor.SettingMenu.Pages
     /// </summary>
     public partial class WordPreview : System.Windows.Controls.Page
     {
-        private string myFilePathName;
         private GeneralModel generalModel;
+
+        private string myFilePathName;
+        private string newXPSDocumentName;
+        private XpsDocument xpsDoc;
 
         public WordPreview(string filePathName, ref GeneralModel generalModel)
         {
@@ -38,7 +42,14 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            string newXPSDocumentName = myFilePathName + ".xps";
+            newXPSDocumentName = myFilePathName + ".xps";
+
+            {
+                FileInfo fileInf = new FileInfo(newXPSDocumentName);
+
+                if (fileInf.Exists)
+                    fileInf.Delete();
+            }
 
             // Set DocumentViewer.Document to XPS document
             documentViewer.Document = ConvertWordDocToXPSDoc(myFilePathName, newXPSDocumentName).GetFixedDocumentSequence();
@@ -49,6 +60,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
             // Create a WordApplication and add Document to it
             Microsoft.Office.Interop.Word.Application wordApplication = new Microsoft.Office.Interop.Word.Application();
 
+            // wordApplication.Documents.Open(wordDocName, ReadOnly: true);
             wordApplication.Documents.Add(wordDocName);
 
             Document doc = wordApplication.ActiveDocument;
@@ -60,7 +72,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
                 doc.SaveAs(xpsDocName, WdSaveFormat.wdFormatXPS);
                 wordApplication.Quit();
 
-                XpsDocument xpsDoc = new XpsDocument(xpsDocName, System.IO.FileAccess.Read);
+                xpsDoc = new XpsDocument(xpsDocName, System.IO.FileAccess.Read);
 
                 return xpsDoc;
             }
@@ -77,6 +89,21 @@ namespace CurriculumConstructor.SettingMenu.Pages
             var helper = new WordHelper("shablon.docx", ref generalModel);
 
             helper.Process(false);
+        }
+
+        public void RemoveState()
+        {
+            xpsDoc.Close();
+
+            FileInfo fileInf = new FileInfo(newXPSDocumentName);
+
+            if (fileInf.Exists)
+                fileInf.Delete();
+
+            fileInf = new FileInfo(myFilePathName);
+
+            if (fileInf.Exists)
+                fileInf.Delete();
         }
     }
 }

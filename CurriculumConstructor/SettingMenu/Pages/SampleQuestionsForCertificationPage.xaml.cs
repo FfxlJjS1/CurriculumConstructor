@@ -33,7 +33,6 @@ namespace CurriculumConstructor.SettingMenu.Pages
             InitializeComponent();
 
             this.generalModel = generalModel;
-            questions = generalModel.QuestionCodes;
 
             listBoxAvailableCompetencies.ItemsSource = generalModel.DisciplineCompetencies;
         }
@@ -77,10 +76,16 @@ namespace CurriculumConstructor.SettingMenu.Pages
             listBoxSampleQuestionsToExap.Items.Refresh();
 
             DataContext = _model;
+
+
+            listBoxAvailableCompetencies.ItemsSource = generalModel.DisciplineCompetencies.Where(x => !_model.Competencies.Contains(x)).ToList();
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            comboBoxSampleQuestionsSemester.ItemsSource = generalModel.Semesters.Select(x => x.SemesterNumber).ToList();
+            comboBoxSampleQuestionsSemester.SelectedIndex = 0;
+
             Reload();
         }
 
@@ -135,6 +140,20 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             _model = questionCodes;
             DataContext = _model;
+
+            listBoxAvailableCompetencies.ItemsSource = generalModel.DisciplineCompetencies.Where(x => !_model.Competencies.Contains(x)).ToList();
+        }
+
+        private void comboBoxSampleQuestionsSemester_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (comboBoxSampleQuestionsSemester.SelectedItem == null)
+                return;
+
+            int semesterNumber = (int)comboBoxSampleQuestionsSemester.SelectedItem;
+
+            questions = generalModel.SemesterQuestionCodes[semesterNumber];
+
+            Reload();
         }
     }
 }

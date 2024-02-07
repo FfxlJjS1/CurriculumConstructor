@@ -136,7 +136,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
             competenciesCodeItemSelect.ShowDialog();
 
             if (selectedCompetenciesCodeAsItem.Count <= 0
-                || generalModel.examTestTasksVariantTemplate.Keys.ToList().Contains(selectedCompetenciesCodeAsItem))
+                || generalModel.TestTasksByDiscipModule.Values.SelectMany(x => x.competencyFormingTestTasks.Keys).ToList().Contains(selectedCompetenciesCodeAsItem))
             {
                 return;
             }

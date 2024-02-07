@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:CurriculumConstructor.SettingMenu.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="480" d:DesignWidth="800"
       Loaded="Page_Loaded"
       Background="#eff2f7"
       Title="PlanOfDisciplinesPage">
@@ -42,8 +42,18 @@
                     <ComboBox x:Name="comboBoxSemesterModuleNumber" Width="105" Margin="5 0" Style="{StaticResource ComboBoxTheme}" Height="25" SelectionChanged="comboBoxSemesterOrModuleNumber_SelectionChanged"/>
                 </StackPanel>
                 <TextBlock Text="Тема дисциплины" />
-                <TextBox Text="{Binding ThemeName}"  Style="{StaticResource ModernTextBox}" Height="70"/>
+                <TextBox VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" Text="{Binding ThemeName}"  Style="{StaticResource ModernTextBox}" Height="70"/>
 
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" FontSize="15" Margin="10 0" VerticalAlignment="Center" Text="СРС: "/>
+                    <TextBox Grid.Column="1" Margin="2" Style="{StaticResource ModernTextBox}" Text="{Binding IndependentHours}"/>
+                </Grid>
+                
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

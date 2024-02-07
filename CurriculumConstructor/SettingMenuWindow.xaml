@@ -6,12 +6,14 @@
         xmlns:local="clr-namespace:CurriculumConstructor"
         mc:Ignorable="d"
         WindowStyle="None"
+        ResizeMode="CanResize"
         WindowStartupLocation="CenterScreen"
         Background="Transparent"
         AllowsTransparency="True"
         Title="SettingMenuWindow"
-        MinHeight="500" MinWidth="600"
-        Height="600" Width="1100">
+        MinHeight="510" MinWidth="600"
+        Height="650" Width="1300"
+        Loaded="Window_Loaded">
     <Border Background="#eff2f7" CornerRadius="20"  MouseDown="Border_MouseDown">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -53,7 +55,7 @@
                                  Foreground="#eff2f7"
                                  Checked="MeuButton_Checked"
                                  Style="{StaticResource MenuButtonTheme}"/>
-                            <RadioButton x:Name="sampleQuestionsForCertificationMenuButton" Content="Примерные вопросы к аттестации"
+                            <RadioButton x:Name="sampleQuestionsForCertificationMenuButton" Content="Примерные вопросы к экзамену"
                                  Height="50"
                                  Foreground="#eff2f7"
                                  Checked="MeuButton_Checked"
@@ -91,11 +93,10 @@
                         </StackPanel>
                     </ScrollViewer>
 
-                    <Button Grid.Row="1" x:Name="btnSignOut" Margin="20 10" VerticalAlignment="Bottom" Click="btnSignOut_Click" Style="{StaticResource ModernWhiteButton}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Выйти"  Padding="2"/>
-                        </StackPanel>
-                    </Button>
+                    <StackPanel Grid.Row="1">
+                        <Button IsEnabled="False" Content="Сохранить параметры"  FontSize="17" Padding="2" x:Name="btnSaveArgs" Margin="20 10" VerticalAlignment="Bottom" Click="btnSaveArgs_Click" Style="{StaticResource ModernWhiteButton}"/>
+                        <Button Content="Выйти" Padding="2" FontSize="17" x:Name="btnSignOut" Margin="20 10" VerticalAlignment="Bottom" Click="btnSignOut_Click" Style="{StaticResource ModernWhiteButton}"/>
+                    </StackPanel>
                 </Grid>
             </Border>
             
