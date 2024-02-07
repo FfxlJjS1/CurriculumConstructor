@@ -111,7 +111,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
                 return;
             }
 
-            _model = generalModel.TestTasksByDiscipModule[((int)comboBoxSemesterNumber.SelectedItem, (int)comboBoxSemesterModuleNumber.SelectedItem)];
+            _model = generalModel.TestTasksByDiscipModule[new GeneralModel.SemesterModuleNumbers((int)comboBoxSemesterNumber.SelectedItem, (int)comboBoxSemesterModuleNumber.SelectedItem)];
 
             _competenciesComboBoxItems = _model.competencyFormingTestTasks.Select(x => new CompetenciesComboBoxItem() { CompetenciesCode = x.Key }).ToList();
 
@@ -145,9 +145,9 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             _competenciesComboBoxItems.Add(new CompetenciesComboBoxItem() { CompetenciesCode = selectedCompetenciesCodeAsItem });
 
-            ComboBoxCompetenciesCode.SelectedItem = selectedCompetenciesCodeAsItem;
-
             ComboBoxCompetenciesCode.Items.Refresh();
+
+            ComboBoxCompetenciesCode.SelectedIndex = _competenciesComboBoxItems.Count - 1;
 
             Reload();
         }

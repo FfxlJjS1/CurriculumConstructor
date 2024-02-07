@@ -10,7 +10,7 @@
 
     <Grid>
         <TabControl x:Name="tabControlAssessmentTools">
-            <TabItem>
+            <TabItem x:Name="tabItemLaboratoryAssestmToool">
                 <TabItem.Header>Содержания оценочных средств (лабораторные)</TabItem.Header>
                 <TabItem.Content>
                     <Grid Background="#eff2f7">
@@ -90,7 +90,7 @@
                     </Grid>
                 </TabItem.Content>
             </TabItem>
-            <TabItem>
+            <TabItem x:Name="tabItemPracticeAssestmToool">
                 <TabItem.Header>Пример практической задачи для оценки компетенции</TabItem.Header>
                 <TabItem.Content>
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -131,7 +131,7 @@
 
                                 <TextBlock Text="Описание задания практической задачи" Grid.Row="0" FontSize="16" Margin="4"/>
 
-                                <TextBox Style="{StaticResource ModernTextBox}" Margin="4" Grid.Row="1" Text="{Binding practice.PracticeTaskDiscription}"/>
+                                <TextBox Style="{StaticResource ModernTextBox}" Margin="4" Grid.Row="1" Text="{Binding practice.PracticeTaskDescription}"/>
                             </Grid>
                         </Grid>
                     </ScrollViewer>

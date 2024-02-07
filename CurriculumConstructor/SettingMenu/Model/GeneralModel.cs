@@ -1,7 +1,10 @@
-﻿using System;
+﻿using CurriculumConstructor.UserClassJsomConverters;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace CurriculumConstructor.SettingMenu.Model
 {
@@ -52,16 +55,66 @@ namespace CurriculumConstructor.SettingMenu.Model
 
             foreach(var semester in Semesters)
             {
-                DisciplineThematicPlan.Add((semester.SemesterNumber, 1), new SemesterModuleData());
-                DisciplineThematicPlan.Add((semester.SemesterNumber, 2), new SemesterModuleData());
+                DisciplineThematicPlan.Add(new SemesterModuleNumbers(semester.SemesterNumber, 1), new SemesterModuleData());
+                DisciplineThematicPlan.Add(new SemesterModuleNumbers(semester.SemesterNumber, 2), new SemesterModuleData());
 
-                TestTasksByDiscipModule.Add((semester.SemesterNumber, 1), new TestTasksClass());
-                TestTasksByDiscipModule.Add((semester.SemesterNumber, 2), new TestTasksClass());
+                TestTasksByDiscipModule.Add(new SemesterModuleNumbers(semester.SemesterNumber, 1), new TestTasksClass());
+                TestTasksByDiscipModule.Add(new SemesterModuleNumbers(semester.SemesterNumber, 2), new TestTasksClass());
 
                 SemesterQuestionCodes.Add(semester.SemesterNumber, new List<QuestionCodesClass>());
                 ExamTestTasksVariantTemplate.Add(semester.SemesterNumber, new Dictionary<List<string>, List<TestTasksClass.TestTaskLine>>());
             }
         }
+
+        [JsonConstructor]
+        public GeneralModel(string parentBlock, string parentBlock_1, string parentSubBlock, string parentSubBlock_1, int[] examSemesterNumbers, int[] offsetSemesterNumbers, int[] offsetWithMarkSemesterNumbers, int[] courseworkSemesters, string control, string expert, string actual, int hoursPerCreditUnit, int contansHours, List<Semester> semesters, string[] disciplineCompetencies, List<CompetencyCode_Name> competencyCode_Names, string index, string author, string authorInTheInstrumentalCase, string reviewer, string departmentChair, string profileNumber, string profileName, string disciplineName, string qualification, string educationForm, string educationPeriod, string startYear, List<CompetencyPlanningResult> competencyPlanningResults, Dictionary<SemesterModuleNumbers, SemesterModuleData> disciplineThematicPlan, int needTotalLectureHours, int needTotalPracticeHours, int needTotalLaboratoryWorkHours, int needTotalIndependentHours, string methodBook, Dictionary<SemesterModuleNumbers, TestTasksClass> testTasksByDiscipModule, EvaluationCriteriesClass evaluationCriteries, Dictionary<int, List<QuestionCodesClass>> semesterQuestionCodes, Dictionary<int, Dictionary<List<string>, List<TestTasksClass.TestTaskLine>>> examTestTasksVariantTemplate, EducationLiteratureModelComplex educationLiteraturesComplex, List<LiteratureModel> siteList, List<SoftwareInfo> softwareInfos, List<PlaceTheirEquipmentsClass> placeTheirEquipments)
+        {
+            ParentBlock = parentBlock;
+            ParentBlock_1 = parentBlock_1;
+            ParentSubBlock = parentSubBlock;
+            ParentSubBlock_1 = parentSubBlock_1;
+            ExamSemesterNumbers = examSemesterNumbers;
+            OffsetSemesterNumbers = offsetSemesterNumbers;
+            OffsetWithMarkSemesterNumbers = offsetWithMarkSemesterNumbers;
+            CourseworkSemesters = courseworkSemesters;
+            Control = control;
+            Expert = expert;
+            Actual = actual;
+            HoursPerCreditUnit = hoursPerCreditUnit;
+            ContansHours = contansHours;
+            Semesters = semesters;
+            DisciplineCompetencies = disciplineCompetencies;
+            this.competencyCode_Names = competencyCode_Names;
+            Index = index;
+            Author = author;
+            AuthorInTheInstrumentalCase = authorInTheInstrumentalCase;
+            Reviewer = reviewer;
+            DepartmentChair = departmentChair;
+            ProfileNumber = profileNumber;
+            ProfileName = profileName;
+            DisciplineName = disciplineName;
+            Qualification = qualification;
+            EducationForm = educationForm;
+            EducationPeriod = educationPeriod;
+            StartYear = startYear;
+            this.competencyPlanningResults = competencyPlanningResults;
+            DisciplineThematicPlan = disciplineThematicPlan;
+            NeedTotalLectureHours = needTotalLectureHours;
+            NeedTotalPracticeHours = needTotalPracticeHours;
+            NeedTotalLaboratoryWorkHours = needTotalLaboratoryWorkHours;
+            NeedTotalIndependentHours = needTotalIndependentHours;
+            MethodBook = methodBook;
+            TestTasksByDiscipModule = testTasksByDiscipModule;
+            EvaluationCriteries = evaluationCriteries;
+            SemesterQuestionCodes = semesterQuestionCodes;
+            ExamTestTasksVariantTemplate = examTestTasksVariantTemplate;
+            EducationLiteraturesComplex = educationLiteraturesComplex;
+            SiteList = siteList;
+            SoftwareInfos = softwareInfos;
+            PlaceTheirEquipments = placeTheirEquipments;
+        }
+
+
 
         // Block and sub block of discipline
         public string ParentBlock { get; set; } = ""; // Excel
@@ -151,7 +204,36 @@ namespace CurriculumConstructor.SettingMenu.Model
 
 
         // 4. Thematic plan of discipline
-        public Dictionary<(int semesterNumber, int semesterModuleNumber), SemesterModuleData> DisciplineThematicPlan { get; } = new Dictionary<(int semesterNumber, int semesterModuleNumber), SemesterModuleData>();
+        public Dictionary<SemesterModuleNumbers, SemesterModuleData> DisciplineThematicPlan { get; } = new Dictionary<SemesterModuleNumbers, SemesterModuleData>();
+
+        [JsonConverter(typeof(SemesterModuleNumbersConverter))]
+        public class SemesterModuleNumbers
+        {
+            public SemesterModuleNumbers(int semesterNumber, int semesterModuleNumber)
+            {
+                SemesterNumber = semesterNumber;
+                SemesterModuleNumber = semesterModuleNumber;
+            }
+
+            public int SemesterNumber { get; set; }
+            public int SemesterModuleNumber { get; set; }
+
+            public override bool Equals(object? obj)
+            {
+                if(obj is null || obj is not SemesterModuleNumbers) return false;
+                return ((SemesterModuleNumbers)obj).SemesterNumber == SemesterNumber && ((SemesterModuleNumbers)obj).SemesterModuleNumber == SemesterModuleNumber;
+            }
+
+            public override int GetHashCode()
+            {
+                return ToString().GetHashCode();
+            }
+
+            public override string ToString()
+            {
+                return SemesterNumber.ToString() + ":" + SemesterModuleNumber.ToString();
+            }
+        }
 
         public int NeedTotalLectureHours { get; set; } // Excel + Processing
         public int NeedTotalPracticeHours { get; set; } // Excel + Processing
@@ -225,7 +307,7 @@ namespace CurriculumConstructor.SettingMenu.Model
 
 
         // Test tasks. 6.3.1.2
-        public Dictionary<(int semesterNumber, int semesterModuleNumber), TestTasksClass> TestTasksByDiscipModule { get; } = new Dictionary<(int semesterNumber, int semesterModuleNumber), TestTasksClass>();
+        public Dictionary<SemesterModuleNumbers, TestTasksClass> TestTasksByDiscipModule { get; } = new Dictionary<SemesterModuleNumbers, TestTasksClass>();
 
         public class TestTasksClass
         {

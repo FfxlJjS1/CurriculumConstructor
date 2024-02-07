@@ -23,7 +23,7 @@
             <TextBox x:Name="FilePathNameTextBlock" FontSize="18" VerticalContentAlignment="Center" Style="{StaticResource ModernTextBox}" Margin="0 0 10 0" Grid.Column="0"/>
 
             <Button Click="FileSelectClickAsync" Margin="2 0" Grid.Column="1" Style="{StaticResource ModernWhiteButton}" FontSize="16" Content="Выберите файл (*.xlsx, *.xls)"/>
-            <Button IsEnabled="False" Click="FileParamsSelectClickAsync" Margin="2 0" Grid.Column="2" Style="{StaticResource ModernWhiteButton}" FontSize="16" Content="Выберите файл параметров"/>
+            <Button Click="FileParamsSelectClickAsync" Margin="2 0" Grid.Column="2" Style="{StaticResource ModernWhiteButton}" FontSize="16" Content="Выберите файл параметров"/>
         </Grid>
 
         <DataGrid x:Name="DataGridDisciplines" Grid.Row="1" IsReadOnly="True" AutoGenerateColumns="False" MouseDoubleClick="DataGridDisciplines_MouseDoubleClick">

@@ -22,7 +22,7 @@ namespace CurriculumConstructor.SettingMenu.Windows
     {
         private List<GeneralModel.CompetencyCode_Name> competenciesCode_Name;
 
-        public DisciplineContentWindow(ref GeneralModel.SemesterModuleData.DisciplineThematicTheme discThematicTheme, List<GeneralModel.CompetencyCode_Name> competencies)
+        public DisciplineContentWindow(ref GeneralModel.SemesterModuleData.DisciplineThematicTheme discThematicTheme, List<GeneralModel.CompetencyCode_Name> competencies, (bool lectures, bool practices, bool labWorks) acceptedthemeTypes)
         {
             InitializeComponent();
             this.Title = $"{discThematicTheme.ThemeName} ({discThematicTheme.AllHour} ч.)";
@@ -30,11 +30,17 @@ namespace CurriculumConstructor.SettingMenu.Windows
             this.competenciesCode_Name = competencies;
             _themeDisciplines = discThematicTheme;
 
-            comboBoxThemeType.ItemsSource = new List<ComboBoxThemeType>() {
-                new ComboBoxThemeType(GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.Lecture, "Лекция"),
-                new ComboBoxThemeType(GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.PracticeWork, "Практическое занятие"),
-                new ComboBoxThemeType(GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.LaboratoryWork, "Лабораторное занятие")
-            };
+            var acceptedThemeTypesCombobox = new List<ComboBoxThemeType>();
+
+            if (acceptedthemeTypes.lectures)
+                acceptedThemeTypesCombobox.Add(new ComboBoxThemeType(GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.Lecture, "Лекция"));
+            if(acceptedthemeTypes.practices)
+                acceptedThemeTypesCombobox.Add(new ComboBoxThemeType(GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.PracticeWork, "Практическое занятие"));
+            if (acceptedthemeTypes.practices)
+                acceptedThemeTypesCombobox.Add(new ComboBoxThemeType(GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.LaboratoryWork, "Лабораторное занятие"));
+
+
+            comboBoxThemeType.ItemsSource = acceptedThemeTypesCombobox;
 
             Reload();
         }

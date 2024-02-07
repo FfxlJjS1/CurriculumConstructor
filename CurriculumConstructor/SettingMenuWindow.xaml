@@ -94,7 +94,7 @@
                     </ScrollViewer>
 
                     <StackPanel Grid.Row="1">
-                        <Button IsEnabled="False" Content="Сохранить параметры"  FontSize="17" Padding="2" x:Name="btnSaveArgs" Margin="20 10" VerticalAlignment="Bottom" Click="btnSaveArgs_Click" Style="{StaticResource ModernWhiteButton}"/>
+                        <Button Content="Сохранить параметры"  FontSize="17" Padding="2" x:Name="btnSaveArgs" Margin="20 10" VerticalAlignment="Bottom" Click="btnSaveArgs_Click" Style="{StaticResource ModernWhiteButton}"/>
                         <Button Content="Выйти" Padding="2" FontSize="17" x:Name="btnSignOut" Margin="20 10" VerticalAlignment="Bottom" Click="btnSignOut_Click" Style="{StaticResource ModernWhiteButton}"/>
                     </StackPanel>
                 </Grid>

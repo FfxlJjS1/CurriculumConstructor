@@ -29,8 +29,6 @@ namespace CurriculumConstructor.SettingMenu.Pages
             InitializeComponent();
 
             this.generalModel = generalModel;
-
-            ComboboxOPKs.ItemsSource = generalModel.competencyPlanningResults.Select(x => x.Code).ToList();
         }
 
         private void ComboboxOPKs_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -47,24 +45,25 @@ namespace CurriculumConstructor.SettingMenu.Pages
         {
             var model = this.DataContext as GeneralModel.CompetencyPlanningResult;
 
-            if(model == null)
+            if (model == null)
             {
                 return;
             }
 
             string CodeText = txtBoxCodeIndicatorCode.Text;
-         
+
             int Code;
             string Text = txtBoxCodeIndicatorText.Text;
 
-            if(!int.TryParse(CodeText, out Code))
+            if (!int.TryParse(CodeText, out Code))
             {
                 MessageBox.Show("Введите числоой номер индикатора для его добавления");
 
                 return;
             }
 
-            if(Text.Length <= 0) {
+            if (Text.Length <= 0)
+            {
                 MessageBox.Show("Введите текст индикатора дисциплины");
                 return;
             }
@@ -84,7 +83,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             listBoxEnteredCompetencyIndicator.Items.Refresh();
         }
 
-        private class CodeIndicatorViewData {
+        private class CodeIndicatorViewData
+        {
             public int Code { get; set; }
             public string FullText { get; set; } = "";
         }
@@ -100,7 +100,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             var selectedItem = listBoxEnteredCompetencyIndicator.SelectedItem as CodeIndicatorViewData;
 
-            if(selectedItem ==  null)
+            if (selectedItem == null)
             {
                 MessageBox.Show("Выберите индикатор для удаления");
 
@@ -156,7 +156,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             var selectedItem = listBoxEnteredToKnow.SelectedItem as string;
 
-            if(selectedItem == null)
+            if (selectedItem == null)
             {
                 MessageBox.Show("Выберите результат (знать) для удаления");
 
@@ -282,7 +282,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
             }
 
             string senderName = (sender as Button).Name;
-            int btnIdentificator = 
+            int btnIdentificator =
                 senderName == btnModifyEvaluationCriteriaToKnow.Name
                 ? 1
                 : senderName == btnModifyEvaluationCriteriaToAble.Name
@@ -299,6 +299,14 @@ namespace CurriculumConstructor.SettingMenu.Pages
             EvaluationCriteriesSetWindow evaluationCriteriesSetWindow = new EvaluationCriteriesSetWindow(ref model, btnIdentificator);
 
             evaluationCriteriesSetWindow.ShowDialog();
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            ComboboxOPKs.ItemsSource = generalModel.competencyPlanningResults.Select(x => x.Code).ToList();
+
+            if (ComboboxOPKs.ItemsSource != null)
+                ComboboxOPKs.SelectedIndex = 0;
         }
     }
 }

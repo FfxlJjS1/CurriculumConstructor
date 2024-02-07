@@ -37,13 +37,7 @@
                 <TextBlock Text="Наименование помещений" />
                 <TextBox Text="{Binding PlaceName}"  Style="{StaticResource ModernTextBox}" Height="100"/>
 
-                <TextBlock Text="Оснащенность помещений"/>
-
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <ListBox Height="160" x:Name="listBoxEquipments" ItemsSource="{Binding EquipmentsName}"/>
-                </ScrollViewer>
-
-                <TextBlock Text="Новое оснащение"/>
+                <TextBlock Text="Новое оснащение" Margin="0 20 0 0"/>
                 <TextBox Style="{StaticResource  ModernTextBox}" x:Name="txtBoxNewEquipment"/>
 
                 <Grid>
@@ -51,10 +45,16 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    
+
                     <Button Grid.Column="0" Content="Добавить оснащение" Click="AddEquipmentClick" Style="{StaticResource ModernWhiteButton}" Margin="0 5 0 0" />
                     <Button Grid.Column="1" Content="Удалить оснащение" Click="DelEquipmentClick" Style="{StaticResource ModernWhiteButton}" Margin="0 5 0 0" />
                 </Grid>
+                
+                <TextBlock Text="Оснащенность помещений"/>
+
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <ListBox Height="160" x:Name="listBoxEquipments" ItemsSource="{Binding EquipmentsName}"/>
+                </ScrollViewer>
 
                 <Button Content="Добавить помещение" Click="SaveClick" Style="{StaticResource ModernWhiteButton}" Margin="0 20 0 10" />
             </StackPanel>

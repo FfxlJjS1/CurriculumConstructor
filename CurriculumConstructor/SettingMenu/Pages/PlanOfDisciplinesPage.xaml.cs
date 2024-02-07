@@ -101,10 +101,13 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
         private void ReloadHoursValues()
         {
-            txtboxLecture.Text = "Лекций: " + generalModel.DisciplineThematicPlan.Sum(x => x.Value.DisciplineThematicPlan.Sum(x => x.LectureHours)).ToString() + "/" + generalModel.NeedTotalLectureHours.ToString();
-            txtboxPractice.Text = "Практический занятий: " + generalModel.DisciplineThematicPlan.Sum(x => x.Value.DisciplineThematicPlan.Sum(x => x.PracticeHours)).ToString() + "/" + generalModel.NeedTotalPracticeHours.ToString();
-            txtboxLaboratory.Text = "Лабораторных занятий: " + generalModel.DisciplineThematicPlan.Sum(x => x.Value.DisciplineThematicPlan.Sum(x => x.LaboratoryWorkHours)).ToString() + "/" + generalModel.NeedTotalLaboratoryWorkHours.ToString();
-            txtboxIndependent.Text = "СРС: " + generalModel.DisciplineThematicPlan.Sum(x => x.Value.DisciplineThematicPlan.Sum(x => x.IndependentHours)).ToString() + "/" + generalModel.NeedTotalIndependentHours.ToString();
+            var semesterDicsiplinePlan = generalModel.DisciplineThematicPlan[new GeneralModel.SemesterModuleNumbers((int)comboBoxSemesterNumber.SelectedItem, (int)comboBoxSemesterModuleNumber.SelectedItem)].DisciplineThematicPlan;
+            var semesterValues = generalModel.Semesters.First(x => x.SemesterNumber == (int)comboBoxSemesterNumber.SelectedItem);
+
+            txtboxLecture.Text = "Лекций: " + semesterDicsiplinePlan.Sum(x => x.LectureHours).ToString() + "/" + semesterValues.Lectures.ToString();
+            txtboxPractice.Text = "Практический занятий: " + semesterDicsiplinePlan.Sum(x => x.PracticeHours).ToString() + "/" + semesterValues.PracticeWorks.ToString();
+            txtboxLaboratory.Text = "Лабораторных занятий: " + semesterDicsiplinePlan.Sum(x => x.LaboratoryWorkHours).ToString() + "/" + semesterValues.LaboratoryWorks.ToString();
+            txtboxIndependent.Text = "СРС: " + semesterDicsiplinePlan.Sum(x => x.IndependentHours).ToString() + "/" + semesterValues.IndependentWork.ToString();
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
@@ -123,7 +126,9 @@ namespace CurriculumConstructor.SettingMenu.Pages
                 return;
             }
 
-            DisciplineContentWindow disciplineContentWindow = new DisciplineContentWindow(ref _themeDisciplines, generalModel.competencyCode_Names);
+            var semesterValues = generalModel.Semesters[(int)comboBoxSemesterNumber.SelectedItem];
+
+            DisciplineContentWindow disciplineContentWindow = new DisciplineContentWindow(ref _themeDisciplines, generalModel.competencyCode_Names, (semesterValues.Lectures > 0, semesterValues.PracticeWorks > 0, semesterValues.LaboratoryWorks > 0));
 
             disciplineContentWindow.ShowDialog();
 
@@ -139,17 +144,17 @@ namespace CurriculumConstructor.SettingMenu.Pages
                 return;
             }
 
-            _model = generalModel.DisciplineThematicPlan[((int)comboBoxSemesterNumber.SelectedItem, (int)comboBoxSemesterModuleNumber.SelectedItem)];
+            _model = generalModel.DisciplineThematicPlan[new GeneralModel.SemesterModuleNumbers((int)comboBoxSemesterNumber.SelectedItem, (int)comboBoxSemesterModuleNumber.SelectedItem)];
 
             isOnTxtBoxChanged = false;
 
-            txtBoxMinLabPrac.DataContext = _model.CurrentControl_Laboratory_Practice;
-            txtBoxMaxLabPrac.DataContext = _model.CurrentControl_Laboratory_Practice;
-            txtBoxMinTesting.DataContext = _model.CurrentControl_Testing;
-            txtBoxMaxTesting.DataContext = _model.CurrentControl_Testing;
+            txtBoxMinLabPrac.DataContext = _model;
+            txtBoxMaxLabPrac.DataContext = _model;
+            txtBoxMinTesting.DataContext = _model;
+            txtBoxMaxTesting.DataContext = _model;
 
-            txtBoxMinTotal.Text = _model.TotalPointsCount.Item1.ToString();
-            txtBoxMaxTotal.Text = _model.TotalPointsCount.Item2.ToString();
+            txtBoxMinTotal.DataContext = _model;
+            txtBoxMaxTotal.DataContext = _model;
 
             isOnTxtBoxChanged = true;
 
@@ -185,12 +190,11 @@ namespace CurriculumConstructor.SettingMenu.Pages
             _model.TotalPointsCount.Item1 = _model.CurrentControl_Laboratory_Practice.Item1
                 + _model.CurrentControl_Testing.Item1;
 
-            txtBoxMinTotal.Text = _model.TotalPointsCount.Item1.ToString();
-
             _model.TotalPointsCount.Item2 = _model.CurrentControl_Laboratory_Practice.Item2
                 + _model.CurrentControl_Testing.Item2;
 
-            txtBoxMaxTotal.Text = _model.TotalPointsCount.Item2.ToString();
+            txtBoxMinTotal.DataContext = _model;
+            txtBoxMaxTotal.DataContext = _model;
         }
     }
 }

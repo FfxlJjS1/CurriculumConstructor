@@ -21,6 +21,7 @@ using Button = System.Windows.Controls.Button;
 using System.Runtime.ConstrainedExecution;
 using System.Text.Json;
 using System.IO;
+using CurriculumConstructor.UserClassJsomConverters;
 
 namespace CurriculumConstructor
 {
@@ -49,7 +50,7 @@ namespace CurriculumConstructor
         private async void FileSelectClickAsync(object sender, RoutedEventArgs e)
         {
             (sender as Button).IsEnabled = false;
-            (sender as Button).Content = "Загружется";
+            (sender as Button).Content = "Загружается";
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
@@ -256,13 +257,13 @@ namespace CurriculumConstructor
 
                     semester.SemesterNumber = semesterNumber;
 
-                    semester.CreditUnits = GetCell(worksheet, rowNumber, semesterColumnStartPosition) ?? "0";
-                    semester.Total = GetCell(worksheet, rowNumber, semesterColumnStartPosition + 1) ?? "0";
-                    semester.Lectures = GetCell(worksheet, rowNumber, semesterColumnStartPosition + 2) ?? "0";
-                    semester.LaboratoryWorks = GetCell(worksheet, rowNumber, semesterColumnStartPosition + 3) ?? "0";
-                    semester.PracticeWorks = GetCell(worksheet, rowNumber, semesterColumnStartPosition + 4) ?? "0";
-                    semester.IndependentWork = GetCell(worksheet, rowNumber, semesterColumnStartPosition + 5) ?? "0";
-                    semester.Control = GetCell(worksheet, rowNumber, semesterColumnStartPosition + 6) ?? "0";
+                    semester.CreditUnits = Convert.ToInt32(GetCell(worksheet, rowNumber, semesterColumnStartPosition) ?? "0");
+                    semester.Total = Convert.ToInt32(GetCell(worksheet, rowNumber, semesterColumnStartPosition + 1) ?? "0");
+                    semester.Lectures = Convert.ToInt32(GetCell(worksheet, rowNumber, semesterColumnStartPosition + 2) ?? "0");
+                    semester.LaboratoryWorks = Convert.ToInt32(GetCell(worksheet, rowNumber, semesterColumnStartPosition + 3) ?? "0");
+                    semester.PracticeWorks = Convert.ToInt32(GetCell(worksheet, rowNumber, semesterColumnStartPosition + 4) ?? "0");
+                    semester.IndependentWork = Convert.ToInt32(GetCell(worksheet, rowNumber, semesterColumnStartPosition + 5) ?? "0");
+                    semester.Control = Convert.ToInt32(GetCell(worksheet, rowNumber, semesterColumnStartPosition + 6) ?? "0");
 
                     rowElement.Semesters.Add(semester);
                 }
@@ -274,10 +275,6 @@ namespace CurriculumConstructor
                 if (discipline_courseworkSemesters.ContainsKey(rowElement.DisciplineName))
                 {
                     rowElement.CourseworkSemesters = discipline_courseworkSemesters[rowElement.DisciplineName].ToArray();
-                }
-                else
-                {
-                    rowElement.CourseworkSemesters = new int[0];
                 }
 
                 disciplineRows.Add(rowElement);
@@ -321,16 +318,15 @@ namespace CurriculumConstructor
 
             string? jsonString = "";
 
-            using (StreamReader reader = new StreamReader(path))
-            {
-                jsonString = await reader.ReadLineAsync();
-            }
+            jsonString = File.ReadAllText(path);
 
             if(jsonString != null)
             {
                 var options = new JsonSerializerOptions
                 {
                     IncludeFields = true,
+                    WriteIndented = true,
+                    Converters = { new SemesterModuleNumbersConverter() }
                 };
 
                 GeneralModel? generalModel = JsonSerializer.Deserialize<GeneralModel>(jsonString, options);
@@ -367,12 +363,12 @@ namespace CurriculumConstructor
         public int rowNumber;
         public string Index { get; set; }
         public string DisciplineName { get; set; }
-        public string Exam { get; set; }
-        public string Offset { get; set; }
-        public string OffsetWithMark { get; set; }
-        public string Control { get; set; }
-        public string Expert { get; set; }
-        public string Actual { get; set; }
+        public string Exam { get; set; } = "";
+        public string Offset { get; set; } = "";
+        public string OffsetWithMark { get; set; } = "";
+        public string Control { get; set; } = "0";
+        public string Expert { get; set; } = "0";
+        public string Actual { get; set; } = "0";
         public int HoursPerCreditUnit { get; set; }
         public int ContansHours { get; set; }
         
@@ -381,18 +377,18 @@ namespace CurriculumConstructor
         public int Code { get; set; }
         public string DepartmentName { get; set; }
         public string[] Competencies { get; set; }
-        public int[] CourseworkSemesters { get; set; }
+        public int[] CourseworkSemesters { get; set; } = new int[0];
     }
 
     public class Semester
     {
         public int SemesterNumber { get; set; }
-        public string CreditUnits { get; set; }
-        public string Total { get; set; }
-        public string Lectures { get; set; }
-        public string LaboratoryWorks { get; set; }
-        public string PracticeWorks { get; set; }
-        public string IndependentWork { get; set; }
-        public string Control { get; set; }
+        public int CreditUnits { get; set; }
+        public int Total { get; set; }
+        public int Lectures { get; set; }
+        public int LaboratoryWorks { get; set; }
+        public int PracticeWorks { get; set; }
+        public int IndependentWork { get; set; }
+        public int Control { get; set; }
     }
 }

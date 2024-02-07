@@ -18,6 +18,7 @@ namespace TestWord
         private FileInfo _fileInfo;
         private Word.Application app;
         private Word._Document wordDocument;
+        private bool IsClosedWordDocument = true;
 
         // Data
         GeneralModel generalModel;
@@ -40,7 +41,8 @@ namespace TestWord
         {
             try
             {
-                app.ActiveDocument.Close(Word.WdSaveOptions.wdDoNotSaveChanges);
+                if(!IsClosedWordDocument)
+                    app.ActiveDocument.Close(Word.WdSaveOptions.wdDoNotSaveChanges);
             }
             catch (Exception ex)
             {
@@ -76,6 +78,8 @@ namespace TestWord
 
                 app = new Word.Application();
                 wordDocument = app.Documents.Open(file, ReadOnly: false);
+
+                IsClosedWordDocument = false;
 
                 replaceText(new Dictionary<string, string>());
 
@@ -113,6 +117,8 @@ namespace TestWord
 
                 app.ActiveDocument.Close(Word.WdSaveOptions.wdDoNotSaveChanges);
 
+                IsClosedWordDocument = true;
+
                 return true;
             }
             catch (Exception ex)
@@ -128,14 +134,7 @@ namespace TestWord
         }
 
         internal void PreviewView(string filePathForTempSave)
-        {/*
-            //Если нужно, через FileInfo можно получить другие данные
-            FileInfo targetDir = new FileInfo("./" + nameForTempSave);
-
-            string pathToFolder = targetDir.FullName + "";
-            string name_folder = targetDir.Name;
-
-            Object newFileName = System.IO.Path.Combine(@pathToFolder.ToString(), nameForTempSave);*/
+        {
             app.ActiveDocument.SaveAs2(filePathForTempSave);
         }
 
@@ -318,7 +317,7 @@ namespace TestWord
             bool semesterMoreThan1 = semesterNumbers.Length > 1;
 
             {
-                var items = generalModel.DisciplineThematicPlan.Select(x => new { semesterNumber = x.Key.semesterNumber, x.Value.DisciplineThematicPlan });
+                var items = generalModel.DisciplineThematicPlan.Select(x => new { semesterNumber = x.Key.SemesterNumber, x.Value.DisciplineThematicPlan });
 
                 foreach (var item in items)
                 {
@@ -696,7 +695,7 @@ namespace TestWord
 
                 wordTable.Rows[rowNumber].Range.Bold = 1;
 
-                wordTable.Cell(rowNumber, 1).Range.Text = "Дисциплинарный модуль " + disciplineModule.Key.semesterNumber + "." + disciplineModule.Key.semesterModuleNumber;
+                wordTable.Cell(rowNumber, 1).Range.Text = "Дисциплинарный модуль " + disciplineModule.Key.SemesterNumber + "." + disciplineModule.Key.SemesterModuleNumber;
 
                 if (themes.Count > 0)
                 {
@@ -1319,8 +1318,8 @@ namespace TestWord
                 wordTable.Cell(rowNumber, 1).Range.Bold = 1;
 
                 wordTable.Cell(rowNumber, 1).Range.Text = "Дисциплинарный модуль "
-                    + testsByDisciplineModule.Key.semesterNumber + "."
-                    + testsByDisciplineModule.Key.semesterModuleNumber;
+                    + testsByDisciplineModule.Key.SemesterNumber + "."
+                    + testsByDisciplineModule.Key.SemesterModuleNumber;
 
                 if (testsByCompetencies.Count > 0)
                     rowNumber++;
@@ -1643,7 +1642,7 @@ namespace TestWord
             {
                 if (semestersCountMoreThan1)
                 {
-                    wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber, 7));
+                    wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber, 6));
 
                     wordTable.Cell(rowNumber, 1).Range.Text = semesterCompetencyTasks.Key.ToString() + " СЕМЕСТР";
 
@@ -1762,8 +1761,8 @@ namespace TestWord
                 // Making tables
                 {
                     SemesterModuleData[] semesterModules = new SemesterModuleData[] {
-                        disciplineThematicPlan[(semesterNumber, 1)],
-                        disciplineThematicPlan[(semesterNumber, 2)]
+                        disciplineThematicPlan[new SemesterModuleNumbers(semesterNumber, 1)],
+                        disciplineThematicPlan[new SemesterModuleNumbers(semesterNumber, 2)]
                     };
 
                     string[] semesterModulesTableTag = new string[] {

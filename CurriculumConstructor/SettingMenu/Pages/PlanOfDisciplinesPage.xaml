@@ -76,12 +76,12 @@
                     <TextBlock Text="Текущий контроль (тетстированипе)" TextWrapping="Wrap" FontSize="15" Grid.Column="0" Grid.Row="2"/>
                     <TextBlock Text="Общее количество баллов" TextWrapping="Wrap" FontSize="15" Grid.Column="0" Grid.Row="3"/>
 
-                    <TextBox Text="{Binding Item1}" TextChanged="txtBoxMinMaxLabPrac_TextChanged" x:Name="txtBoxMinLabPrac" Style="{StaticResource ModernTextBox}" Grid.Column="1" Grid.Row="1" Margin="2"/>
-                    <TextBox Text="{Binding Item2}" TextChanged="txtBoxMinMaxLabPrac_TextChanged" x:Name="txtBoxMaxLabPrac" Style="{StaticResource ModernTextBox}" Grid.Column="2" Grid.Row="1" Margin="2"/>
-                    <TextBox Text="{Binding Item1}" TextChanged="txtBoxMinMaxLabPrac_TextChanged" x:Name="txtBoxMinTesting" Style="{StaticResource ModernTextBox}" Grid.Column="1" Grid.Row="2" Margin="2"/>
-                    <TextBox Text="{Binding Item2}" TextChanged="txtBoxMinMaxLabPrac_TextChanged" x:Name="txtBoxMaxTesting" Style="{StaticResource ModernTextBox}" Grid.Column="2" Grid.Row="2" Margin="2"/>
-                    <TextBox x:Name="txtBoxMinTotal" Style="{StaticResource ModernTextBox}" IsEnabled="False" Grid.Column="1" Grid.Row="3" Margin="2"/>
-                    <TextBox x:Name="txtBoxMaxTotal" Style="{StaticResource ModernTextBox}" IsEnabled="False" Grid.Column="2" Grid.Row="3" Margin="2"/>
+                    <TextBox Text="{Binding CurrentControl_Laboratory_Practice.Item1}" TextChanged="txtBoxMinMaxLabPrac_TextChanged" x:Name="txtBoxMinLabPrac" Style="{StaticResource ModernTextBox}" Grid.Column="1" Grid.Row="1" Margin="2"/>
+                    <TextBox Text="{Binding CurrentControl_Laboratory_Practice.Item2}" TextChanged="txtBoxMinMaxLabPrac_TextChanged" x:Name="txtBoxMaxLabPrac" Style="{StaticResource ModernTextBox}" Grid.Column="2" Grid.Row="1" Margin="2"/>
+                    <TextBox Text="{Binding CurrentControl_Testing.Item1}" TextChanged="txtBoxMinMaxLabPrac_TextChanged" x:Name="txtBoxMinTesting" Style="{StaticResource ModernTextBox}" Grid.Column="1" Grid.Row="2" Margin="2"/>
+                    <TextBox Text="{Binding CurrentControl_Testing.Item2}" TextChanged="txtBoxMinMaxLabPrac_TextChanged" x:Name="txtBoxMaxTesting" Style="{StaticResource ModernTextBox}" Grid.Column="2" Grid.Row="2" Margin="2"/>
+                    <TextBox Text="{Binding TotalPointsCount.Item1}" x:Name="txtBoxMinTotal" Style="{StaticResource ModernTextBox}" IsEnabled="False" Grid.Column="1" Grid.Row="3" Margin="2"/>
+                    <TextBox Text="{Binding TotalPointsCount.Item2}" x:Name="txtBoxMaxTotal" Style="{StaticResource ModernTextBox}" IsEnabled="False" Grid.Column="2" Grid.Row="3" Margin="2"/>
                 </Grid>
 
                 <Button Content="Добавить тему" Click="SaveClick" Style="{StaticResource ModernWhiteButton}" Margin="0 10" />

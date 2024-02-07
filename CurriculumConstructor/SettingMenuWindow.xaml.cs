@@ -13,6 +13,7 @@ using CurriculumConstructor.SettingMenu.Model;
 using System.Text.Json;
 using System.IO;
 using System.Windows.Forms;
+using CurriculumConstructor.UserClassJsomConverters;
 
 namespace CurriculumConstructor
 {
@@ -33,12 +34,21 @@ namespace CurriculumConstructor
 
         public SettingMenuWindow(GeneralModel _generalModel)
         {
+            InitializeComponent();
+            Nav.SettingMenuFrame = ContentFrame;
+
             generalModel = _generalModel;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             this.Title = generalModel.ProfileNumber + " - " + generalModel.DisciplineName;
+
+            if (generalModel.NeedTotalPracticeHours <= 0 && generalModel.NeedTotalLaboratoryWorkHours <= 0)
+            {
+                assessmentToolsMenuButton.Visibility = Visibility.Collapsed;
+                assessmentToolsMenuButton.IsEnabled = false;
+            }
 
             if (!generalModel.IsExam)
             {
@@ -57,14 +67,14 @@ namespace CurriculumConstructor
 
         private void MeuButton_Checked(object sender, RoutedEventArgs e)
         {
-            if(ContentFrame.Content is WordPreview)
+            if (ContentFrame.Content is WordPreview)
             {
                 (ContentFrame.Content as WordPreview).RemoveState();
             }
 
             System.Windows.Controls.RadioButton? radioButton = sender as System.Windows.Controls.RadioButton;
 
-            if(radioButton == null)
+            if (radioButton == null)
                 return;
 
             var senderName = radioButton.Name;
@@ -80,13 +90,21 @@ namespace CurriculumConstructor
 
                 string filePath = System.Windows.Forms.Application.StartupPath + "//" + "shablon_1.docx";
 
+                bool previewFileStatus = false;
                 {
                     var helper = new WordHelper("shablon.docx", ref generalModel);
 
-                    helper.Process(true, filePath);
+                    previewFileStatus = helper.Process(true, filePath);
                 }
 
-                ContentFrame.Navigate(new WordPreview(filePath, ref generalModel));
+                if (previewFileStatus)
+                {
+                    ContentFrame.Navigate(new WordPreview(filePath, ref generalModel));
+                }
+                else
+                {
+                    System.Windows.Forms.MessageBox.Show("Неизвестная ошибка! Не удалось создать шаблон. Обратитесь к разработчикам или администраторам.");
+                }
             }
             else if (senderName == titleMenuButton.Name)
             {
@@ -100,19 +118,19 @@ namespace CurriculumConstructor
             {
                 ContentFrame.Navigate(new PlanOfDisciplinesPage(ref generalModel));
             }
-            else if(senderName == assessmentToolsMenuButton.Name)
+            else if (senderName == assessmentToolsMenuButton.Name)
             {
                 ContentFrame.Navigate(new AssessmentToolsPage(ref generalModel));
             }
-            else if(senderName == testTasksForEvaulationCompetenciesMenuButton.Name)
+            else if (senderName == testTasksForEvaulationCompetenciesMenuButton.Name)
             {
                 ContentFrame.Navigate(new TestTasksForDetermineTheLevelOfCompetenciesPage(ref generalModel));
             }
-            else if(senderName == sampleQuestionsForCertificationMenuButton.Name)
+            else if (senderName == sampleQuestionsForCertificationMenuButton.Name)
             {
                 ContentFrame.Navigate(new SampleQuestionsForCertificationPage(ref generalModel));
             }
-            else if(senderName == examTestTasksVariantTemplateMenuButton.Name)
+            else if (senderName == examTestTasksVariantTemplateMenuButton.Name)
             {
                 ContentFrame.Navigate(new ExamTestTasksVariantTemplatePage(ref generalModel));
             }
@@ -124,7 +142,7 @@ namespace CurriculumConstructor
             {
                 ContentFrame.Navigate(new ProffecionalDatabasePage(ref generalModel));
             }
-            else if(senderName == programListMenuButton.Name)
+            else if (senderName == programListMenuButton.Name)
             {
                 ContentFrame.Navigate(new ProgramListPage(ref generalModel));
             }
@@ -151,7 +169,13 @@ namespace CurriculumConstructor
                     var options = new JsonSerializerOptions
                     {
                         IncludeFields = true,
+                        WriteIndented = true,
+                        Converters = {
+                            new SemesterModuleNumbersConverter()
+                        }
                     };
+
+                    string json = JsonSerializer.Serialize(new GeneralModel.SemesterModuleNumbers(1, 2), options);
 
                     string jsonString = JsonSerializer.Serialize(generalModel, options);
 

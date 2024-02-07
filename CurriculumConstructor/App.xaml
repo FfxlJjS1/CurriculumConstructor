@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="Themes/WhiteButtonTheme.xaml"/>
                 <ResourceDictionary Source="Themes/MenuButtonTheme.xaml"/>
                 <ResourceDictionary Source="Themes/SearchTextBoxTheme.xaml"/>
+                <ResourceDictionary Source="Themes/TabControlStaticHeadersStyle.xaml"/>
                 <ResourceDictionary Source="Themes/ComboBoxTextBoxStyle.xaml"/>
                 <ResourceDictionary Source="Themes/ComboBoxTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>

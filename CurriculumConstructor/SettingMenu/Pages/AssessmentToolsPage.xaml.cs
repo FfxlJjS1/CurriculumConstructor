@@ -46,6 +46,22 @@ namespace CurriculumConstructor.SettingMenu.Pages
             comboBoxPracCompetencyCode.ItemsSource = generalModel.DisciplineCompetencies;
 
             DataContext = generalModel.EvaluationCriteries;
+
+            if(generalModel.NeedTotalLaboratoryWorkHours <= 0)
+            {
+                tabItemLaboratoryAssestmToool.Visibility = Visibility.Collapsed;
+                tabItemLaboratoryAssestmToool.IsEnabled = false;
+
+                tabControlAssessmentTools.SelectedIndex = 1;
+            }
+
+            if(generalModel.NeedTotalPracticeHours <= 0)
+            {
+                tabItemPracticeAssestmToool.Visibility = Visibility.Collapsed;
+                tabItemPracticeAssestmToool.IsEnabled = false;
+
+                tabControlAssessmentTools.SelectedIndex = 0;
+            }
         }
 
         private void QuestionCodeListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

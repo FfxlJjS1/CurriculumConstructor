@@ -32,7 +32,7 @@
             </StackPanel>
         </Grid>
 
-        <TabControl x:Name="tabControlEducLiters" Grid.Column="1" SelectionChanged="TabControl_SelectionChanged">
+        <TabControl Style="{StaticResource TabControlStaticHeadersStyle}" x:Name="tabControlEducLiters" Grid.Column="1" SelectionChanged="TabControl_SelectionChanged">
             <TabItem>
                 <TabItem.Header>Основная литература</TabItem.Header>
                 <TabItem.Content>
