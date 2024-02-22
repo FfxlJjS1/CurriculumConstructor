@@ -116,6 +116,11 @@ namespace CurriculumConstructor.SettingMenu.Pages
             _competenciesComboBoxItems = _model.competencyFormingTestTasks.Select(x => new CompetenciesComboBoxItem() { CompetenciesCode = x.Key }).ToList();
 
             ComboBoxCompetenciesCode.ItemsSource = _competenciesComboBoxItems;
+            
+            if (_competenciesComboBoxItems.Count > 0)
+            {
+                ComboBoxCompetenciesCode.SelectedIndex = 0;
+            }
 
             Reload();
         }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CurriculumConstructor.SettingMenu.Model
@@ -18,7 +19,7 @@ namespace CurriculumConstructor.SettingMenu.Model
             ProfileNumber = titleData.ProfileNumber;
             ProfileName = titleData.ProfileName;
             Qualification = titleData.Qualification;
-            //DepartmentChair = titleData.DepartmentName;
+            DepartmentName = titleData.DepartmentName;
             EducationForm = titleData.EducationForm;
             EducationPeriod = titleData.EducationPeriod;
             StartYear = titleData.StartYear;
@@ -67,7 +68,7 @@ namespace CurriculumConstructor.SettingMenu.Model
         }
 
         [JsonConstructor]
-        public GeneralModel(string parentBlock, string parentBlock_1, string parentSubBlock, string parentSubBlock_1, int[] examSemesterNumbers, int[] offsetSemesterNumbers, int[] offsetWithMarkSemesterNumbers, int[] courseworkSemesters, string control, string expert, string actual, int hoursPerCreditUnit, int contansHours, List<Semester> semesters, string[] disciplineCompetencies, List<CompetencyCode_Name> competencyCode_Names, string index, string author, string authorInTheInstrumentalCase, string reviewer, string departmentChair, string profileNumber, string profileName, string disciplineName, string qualification, string educationForm, string educationPeriod, string startYear, List<CompetencyPlanningResult> competencyPlanningResults, Dictionary<SemesterModuleNumbers, SemesterModuleData> disciplineThematicPlan, int needTotalLectureHours, int needTotalPracticeHours, int needTotalLaboratoryWorkHours, int needTotalIndependentHours, string methodBook, Dictionary<SemesterModuleNumbers, TestTasksClass> testTasksByDiscipModule, EvaluationCriteriesClass evaluationCriteries, Dictionary<int, List<QuestionCodesClass>> semesterQuestionCodes, Dictionary<int, Dictionary<List<string>, List<TestTasksClass.TestTaskLine>>> examTestTasksVariantTemplate, EducationLiteratureModelComplex educationLiteraturesComplex, List<LiteratureModel> siteList, List<SoftwareInfo> softwareInfos, List<PlaceTheirEquipmentsClass> placeTheirEquipments)
+        public GeneralModel(string parentBlock, string parentBlock_1, string parentSubBlock, string parentSubBlock_1, int[] examSemesterNumbers, int[] offsetSemesterNumbers, int[] offsetWithMarkSemesterNumbers, int[] courseworkSemesters, string control, string expert, string actual, int hoursPerCreditUnit, int contansHours, List<Semester> semesters, string[] disciplineCompetencies, List<CompetencyCode_Name> competencyCode_Names, string index, string author, string authorInTheInstrumentalCase, string reviewer, string departmentChair, string departmentName, string profileNumber, string profileName, string disciplineName, string qualification, string educationForm, string educationPeriod, string startYear, List<CompetencyPlanningResult> competencyPlanningResults, Dictionary<SemesterModuleNumbers, SemesterModuleData> disciplineThematicPlan, int needTotalLectureHours, int needTotalPracticeHours, int needTotalLaboratoryWorkHours, int needTotalIndependentHours, string methodBook, Dictionary<SemesterModuleNumbers, TestTasksClass> testTasksByDiscipModule, EvaluationCriteriesClass evaluationCriteries, Dictionary<int, List<QuestionCodesClass>> semesterQuestionCodes, Dictionary<int, Dictionary<List<string>, List<TestTasksClass.TestTaskLine>>> examTestTasksVariantTemplate, EducationLiteratureModelComplex educationLiteraturesComplex, List<LiteratureModel> siteList, List<SoftwareInfo> softwareInfos, List<PlaceTheirEquipmentsClass> placeTheirEquipments)
         {
             ParentBlock = parentBlock;
             ParentBlock_1 = parentBlock_1;
@@ -90,6 +91,7 @@ namespace CurriculumConstructor.SettingMenu.Model
             AuthorInTheInstrumentalCase = authorInTheInstrumentalCase;
             Reviewer = reviewer;
             DepartmentChair = departmentChair;
+            DepartmentName = departmentName;
             ProfileNumber = profileNumber;
             ProfileName = profileName;
             DisciplineName = disciplineName;
@@ -114,6 +116,39 @@ namespace CurriculumConstructor.SettingMenu.Model
             PlaceTheirEquipments = placeTheirEquipments;
         }
 
+        public static string SerializeToJson(GeneralModel generalModel)
+        {
+            var options = new JsonSerializerOptions
+            {
+                IncludeFields = true,
+                WriteIndented = true,
+                Converters = {
+                            new SemesterModuleNumbersConverter(),
+                            new ListStringConverter()
+                        }
+            };
+
+            string jsonString = JsonSerializer.Serialize(generalModel, options);
+
+            return jsonString;
+        }
+
+        public static GeneralModel? DeserializeFromJson(string jsonString)
+        {
+            var options = new JsonSerializerOptions
+            {
+                IncludeFields = true,
+                WriteIndented = true,
+                Converters = {
+                    new SemesterModuleNumbersConverter(),
+                    new ListStringConverter()    
+                }
+            };
+
+            GeneralModel? generalModel = JsonSerializer.Deserialize<GeneralModel>(jsonString, options);
+
+            return generalModel;
+        }
 
 
         // Block and sub block of discipline
@@ -159,6 +194,7 @@ namespace CurriculumConstructor.SettingMenu.Model
         public string AuthorInTheInstrumentalCase { get; set; } = "";
         public string Reviewer { get; set; } = "";
         public string DepartmentChair { get; set; } = ""; // Excel
+        public string DepartmentName { get; set; } = ""; // Excel
         public string ProfileNumber { get; set; } = ""; // Excel
         public string ProfileName { get; set; } = ""; // Excel
         public string DisciplineName { get; set; } = ""; // Excel
@@ -430,7 +466,7 @@ namespace CurriculumConstructor.SettingMenu.Model
                 new SoftwareInfo("Kaspersky Endpoint Security для бизнеса – Стандартный Russian Edition", "№ 24С4-221222-121357-913-1225", "№691447/581-2022 от 16.12.2022г."), //Доработать текущий год поставить
                 new SoftwareInfo("Электронно-библиотечная система IPRbooks", "", "Лицензионный договор №409-2022 от 03.11.2022г."),
                 new SoftwareInfo("Образовательная платформа для подготовки кадров в цифровой экономике DATALIB.RU", "", "Лицензионный договор №428-2022/22d/B от 09.11.2022г."),
-                new SoftwareInfo("ПО «Автоматизированная тестирующая система", "Свидетельство государственной регистрации программ для ЭВМ №2014614238 от 01.04.2014г.", ""),
+                new SoftwareInfo("ПО «Автоматизированная тестирующая система", "Свидетельство государственной регистрации программ для ЭВМ №2014614238 от 01.04.2014г.", "", false),
         };
 
         public class SoftwareInfo

@@ -101,13 +101,14 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
         private void ReloadHoursValues()
         {
-            var semesterDicsiplinePlan = generalModel.DisciplineThematicPlan[new GeneralModel.SemesterModuleNumbers((int)comboBoxSemesterNumber.SelectedItem, (int)comboBoxSemesterModuleNumber.SelectedItem)].DisciplineThematicPlan;
+            var semesterModule1DicsiplinePlan = generalModel.DisciplineThematicPlan[new GeneralModel.SemesterModuleNumbers((int)comboBoxSemesterNumber.SelectedItem, 1)].DisciplineThematicPlan;
+            var semesterModule2DicsiplinePlan = generalModel.DisciplineThematicPlan[new GeneralModel.SemesterModuleNumbers((int)comboBoxSemesterNumber.SelectedItem, 2)].DisciplineThematicPlan;
             var semesterValues = generalModel.Semesters.First(x => x.SemesterNumber == (int)comboBoxSemesterNumber.SelectedItem);
 
-            txtboxLecture.Text = "Лекций: " + semesterDicsiplinePlan.Sum(x => x.LectureHours).ToString() + "/" + semesterValues.Lectures.ToString();
-            txtboxPractice.Text = "Практический занятий: " + semesterDicsiplinePlan.Sum(x => x.PracticeHours).ToString() + "/" + semesterValues.PracticeWorks.ToString();
-            txtboxLaboratory.Text = "Лабораторных занятий: " + semesterDicsiplinePlan.Sum(x => x.LaboratoryWorkHours).ToString() + "/" + semesterValues.LaboratoryWorks.ToString();
-            txtboxIndependent.Text = "СРС: " + semesterDicsiplinePlan.Sum(x => x.IndependentHours).ToString() + "/" + semesterValues.IndependentWork.ToString();
+            txtboxLecture.Text = "Лекций: " + (semesterModule1DicsiplinePlan.Sum(x => x.LectureHours) + semesterModule2DicsiplinePlan.Sum(x => x.LectureHours)).ToString() + "/" + semesterValues.Lectures.ToString();
+            txtboxPractice.Text = "Практический занятий: " + (semesterModule1DicsiplinePlan.Sum(x => x.PracticeHours) + semesterModule2DicsiplinePlan.Sum(x => x.PracticeHours)).ToString() + "/" + semesterValues.PracticeWorks.ToString();
+            txtboxLaboratory.Text = "Лабораторных занятий: " + (semesterModule1DicsiplinePlan.Sum(x => x.LaboratoryWorkHours) + semesterModule2DicsiplinePlan.Sum(x => x.LaboratoryWorkHours)).ToString() + "/" + semesterValues.LaboratoryWorks.ToString();
+            txtboxIndependent.Text = "СРС: " + (semesterModule1DicsiplinePlan.Sum(x => x.IndependentHours) + semesterModule2DicsiplinePlan.Sum(x => x.IndependentHours)).ToString() + "/" + semesterValues.IndependentWork.ToString();
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
@@ -126,7 +127,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
                 return;
             }
 
-            var semesterValues = generalModel.Semesters[(int)comboBoxSemesterNumber.SelectedItem];
+            var semesterValues = generalModel.Semesters.First(x => x.SemesterNumber == (int)comboBoxSemesterNumber.SelectedItem);
 
             DisciplineContentWindow disciplineContentWindow = new DisciplineContentWindow(ref _themeDisciplines, generalModel.competencyCode_Names, (semesterValues.Lectures > 0, semesterValues.PracticeWorks > 0, semesterValues.LaboratoryWorks > 0));
 

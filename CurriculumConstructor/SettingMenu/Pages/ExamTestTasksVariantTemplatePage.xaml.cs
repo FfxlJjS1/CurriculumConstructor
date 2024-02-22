@@ -126,7 +126,12 @@ namespace CurriculumConstructor.SettingMenu.Pages
             if (competenciesComboboxItem == null)
                 return;
 
-            _model = generalModel.ExamTestTasksVariantTemplate[selesterSemesterNumber][competenciesComboboxItem.CompetenciesCode];
+            if (generalModel.ExamTestTasksVariantTemplate[selesterSemesterNumber].Count <= 0)
+            {
+                _model = new List<GeneralModel.TestTasksClass.TestTaskLine>();
+            }
+            else
+                _model = generalModel.ExamTestTasksVariantTemplate[selesterSemesterNumber][competenciesComboboxItem.CompetenciesCode];
 
             Reload();
         }
@@ -150,9 +155,9 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             _competenciesComboBoxItems.Add(new CompetenciesComboBoxItem() { CompetenciesCode = selectedCompetenciesCodeAsItem });
 
-            ComboBoxCompetenciesCode.SelectedItem = selectedCompetenciesCodeAsItem;
-
             ComboBoxCompetenciesCode.Items.Refresh();
+
+            ComboBoxCompetenciesCode.SelectedIndex = _competenciesComboBoxItems.Count - 1;
 
             Reload();
         }
@@ -164,12 +169,24 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
             selesterSemesterNumber = (int)comboBoxCompetensiesVariantTestsSemester.SelectedValue;
 
-            _competenciesComboBoxItems.AddRange(generalModel.ExamTestTasksVariantTemplate[selesterSemesterNumber].Select(
+            _competenciesComboBoxItems = generalModel.ExamTestTasksVariantTemplate[selesterSemesterNumber].Select(
                 x => new CompetenciesComboBoxItem()
-                { CompetenciesCode = x.Key })
-            );
+                { CompetenciesCode = x.Key }).ToList();
 
             ComboBoxCompetenciesCode.ItemsSource = _competenciesComboBoxItems;
+
+            if(_competenciesComboBoxItems.Count > 0)
+            {
+                ComboBoxCompetenciesCode.SelectedIndex = 0;
+            }
+            else
+            {
+                ComboBoxCompetenciesCode.SelectedIndex = -1;
+
+                _model = new List<GeneralModel.TestTasksClass.TestTaskLine>();
+
+                Reload();
+            }
         }
     }
 }

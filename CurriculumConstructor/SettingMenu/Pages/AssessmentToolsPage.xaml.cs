@@ -40,7 +40,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
                     disciplineTheme.ThemeContents
                         .Where(theme => theme.ThemeType == GeneralModel.SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.LaboratoryWork)
                 )
-            ).ToList();
+            ).Select(x => x.ThemeText).ToList();
 
             comboBoxLabCompetencyCode.ItemsSource = generalModel.DisciplineCompetencies;
             comboBoxPracCompetencyCode.ItemsSource = generalModel.DisciplineCompetencies;
@@ -62,6 +62,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
 
                 tabControlAssessmentTools.SelectedIndex = 0;
             }
+
+            AddQuestionToLab();
         }
 
         private void QuestionCodeListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -72,6 +74,7 @@ namespace CurriculumConstructor.SettingMenu.Pages
             questionCode = QuestionCodeListBox.SelectedItem as GeneralModel.EvaluationCriteriesClass.LaboratoryEvaluationClass.QuestionCodeClass;
 
             textBoxLabQuestionText.DataContext = questionCode;
+            comboBoxLabCompetencyCode.DataContext = questionCode;
 
             IsEdit = true;
         }
@@ -91,6 +94,8 @@ namespace CurriculumConstructor.SettingMenu.Pages
             criteries.laboratory.QuestionsCodeExampleForDefenceLabWork.Add(questionCode);
 
             QuestionCodeListBox.Items.Refresh();
+
+            AddQuestionToLab();
         }
 
         private void DelQuestionToLab(object sender, RoutedEventArgs e)
@@ -107,11 +112,22 @@ namespace CurriculumConstructor.SettingMenu.Pages
             criteries.laboratory.QuestionsCodeExampleForDefenceLabWork.Remove(questionForLaboratoryToDel);
 
             QuestionCodeListBox.Items.Refresh();
+
+            AddQuestionToLab();
         }
 
         private void AddQuestionToLab(object sender, RoutedEventArgs e)
         {
+            AddQuestionToLab();
+        }
+
+        private void AddQuestionToLab()
+        {
             questionCode = new GeneralModel.EvaluationCriteriesClass.LaboratoryEvaluationClass.QuestionCodeClass();
+
+            textBoxLabQuestionText.DataContext = questionCode;
+            comboBoxLabCompetencyCode.DataContext = questionCode;
+            comboBoxLabCompetencyCode.SelectedItem = null;
 
             IsEdit = false;
         }

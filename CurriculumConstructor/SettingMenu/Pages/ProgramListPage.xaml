@@ -41,7 +41,9 @@
                 <TextBox Text="{Binding License}"  Style="{StaticResource ModernTextBox}"/>
 
                 <TextBlock Text="Договор" />
-                <TextBox Text="{Binding Agreement}"  Style="{StaticResource ModernTextBox}"/>
+                <TextBox Text="{Binding Agreement}"  Style="{StaticResource ModernTextBox}" IsEnabled="{Binding AgreementIsExist}"/>
+
+                <CheckBox IsChecked="{Binding AgreementIsExist}" Content="Убрать ячейку 'Договор'" Margin="0 10 0 5"/>
 
                 <Button Content="Добавить ПО" Click="SaveClick" Style="{StaticResource ModernWhiteButton}" Margin="0 10" />
             </StackPanel>

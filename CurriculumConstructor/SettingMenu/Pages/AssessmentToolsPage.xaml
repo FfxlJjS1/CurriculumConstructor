@@ -27,7 +27,7 @@
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Text="Выберите лабораторную работу:" FontSize="16" Grid.Column="0"/>
-                            <ComboBox Style="{StaticResource ComboBoxTheme}" SelectedItem="{Binding laboratory.TaskAndQuestionExampleForDefenceLabWork}" DisplayMemberPath="ThemeText" Grid.Column="1" Margin="5 0 0 0" x:Name="comboBoxLaboratoryThemeText"/>
+                            <ComboBox Style="{StaticResource ComboBoxTheme}" SelectedItem="{Binding laboratory.LaboratoryTaskWithNumber}" Grid.Column="1" Margin="5 0 0 0" x:Name="comboBoxLaboratoryThemeText"/>
                         </Grid>
 
                         <Grid Grid.Row="1" Margin="2">
@@ -80,7 +80,7 @@
                                         </Grid.ColumnDefinitions>
 
                                         <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Код компетенции вопроса: " FontSize="15"/>
-                                        <ComboBox Grid.Column="1" FontSize="15" Style="{StaticResource ComboBoxTheme}" x:Name="comboBoxLabCompetencyCode"/>
+                                        <ComboBox Grid.Column="1" FontSize="15" Style="{StaticResource ComboBoxTheme}" x:Name="comboBoxLabCompetencyCode" SelectedItem="{Binding CompetencyCode}"/>
                                     </Grid>
 
                                     <Button Style="{StaticResource ModernWhiteButton}" Content="Добавить вопрос" Click="SaveQuestionToLab"/>

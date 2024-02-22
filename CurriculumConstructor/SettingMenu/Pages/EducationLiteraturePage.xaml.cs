@@ -23,7 +23,6 @@ namespace CurriculumConstructor.SettingMenu.Pages
     public partial class EducationLiteraturePage : Page
     {
         private GeneralModel generalModel;
-        private List<GeneralModel.EducationLiteratureModelComplex.EducationLiteratureModel> _model;
 
         private GeneralModel.EducationLiteratureModelComplex.EducationLiteratureModel _educationLiterature;
         private bool IsEdit;

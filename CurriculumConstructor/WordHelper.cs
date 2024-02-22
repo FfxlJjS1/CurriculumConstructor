@@ -41,7 +41,7 @@ namespace TestWord
         {
             try
             {
-                if(!IsClosedWordDocument)
+                if (!IsClosedWordDocument)
                     app.ActiveDocument.Close(Word.WdSaveOptions.wdDoNotSaveChanges);
             }
             catch (Exception ex)
@@ -93,19 +93,21 @@ namespace TestWord
 
                 CreateCompetenciesFormingLevelEvaluationTestTasksTable(); // 6.3.1.2.
 
-                PutTextToPracticeAndLabEvaluationCriteries(); // 6.3.2.3, 6.3.3.3
+                PutTextToLabAndPracticeEvaluationCriteries(); // 6.3.2.3, 6.3.3.3
 
                 CreateTextForExamTypes(); // 6.3.4; 6.3.5; 6.3.6.
 
 
                 CreateRatingPointsDisctributionByDisciplineTables(); // 6.4.
 
+                CreateAttestationEvaluationCretariesForms(); // 6.4 Down lists
+
                 CreateEducationLiteratureTable(); // 7.
                 CreateProffectionalBasesTable(); // 8.
                 CreateSoftwareInfoTable(); // 10.
                 CreateMaterialTechnicalBaseTable(); // 11.
 
-                CreateAcquiredCompetenciesAsDisciplineMasteringResultTable(); // Annotation again
+                CreateAcquiredCompetenciesAsDisciplineMasteringResultTable(false); // Annotation again
 
                 FillingAnnotationTable(); /// Annotation again (exists table, about discipline)
 
@@ -176,14 +178,24 @@ namespace TestWord
             {
                 List<Semester> semesters = generalModel.Semesters;
                 List<string> attestationList = new List<string>();
+                List<string> controlAttestationList = new List<string>();
 
                 if (generalModel.IsOffset)
+                {
                     attestationList.Add("зачёта");
+                    controlAttestationList.Add("зачет");
+                }
                 if (generalModel.IsOffsetWithMark)
+                {
                     attestationList.Add("зачёта с оценкой");
+                    controlAttestationList.Add("зачет с оценкой");
+                }
                 if (generalModel.IsExam)
+                {
                     attestationList.Add("экзамена");
-                
+                    controlAttestationList.Add("экзамен");
+                }
+
                 items = new Dictionary<string, string>
                 {
                     //EXCEL ИЛИ ПРОГРАММНО РАССЧИТАТЬ
@@ -213,6 +225,7 @@ namespace TestWord
                     {"<PRACTICE_HOURS>" , semesters.Sum(semester => Convert.ToInt32(semester.PracticeWorks)).ToString()},
                     {"<LABORATORY_HOURS>" , semesters.Sum(semester => Convert.ToInt32(semester.LaboratoryWorks)).ToString()},
                     {"<INDEPENDENT_HOURS>" , semesters.Sum(semester => Convert.ToInt32(semester.IndependentWork)).ToString()},
+                    {"<CONTROL_ATTESTATION_LIST>", string.Join(", ", controlAttestationList)},
                     {"<CONTROL_HOURS>" ,semesters.Sum(semester => Convert.ToInt32(semester.Control)).ToString()},
                     {"<ATTESTATION_LIST>", string.Join(", ", semesters.Select(x => x.SemesterNumber).Select(x =>
                         (generalModel.OffsetSemesterNumbers.Contains(x) ? "зачёт в "
@@ -222,8 +235,17 @@ namespace TestWord
                         + x.ToString() + " семестре"
                         ))
                     },
+                    {"<ATTESTATION_LIST_LOWER>", string.Join(", ", semesters.Select(x => x.SemesterNumber).Select(x =>
+                        x.ToString() + " семестре " + (generalModel.OffsetSemesterNumbers.Contains(x) ? "зачёт"
+                        : generalModel.OffsetWithMarkSemesterNumbers.Contains(x) ? "зачёт с оценкой"
+                        : generalModel.ExamSemesterNumbers.Contains(x) ? "экзамен"
+                        : "неизвестное")
+                        ))
+                    },
                     {"<ATTESTATION_LIST_WITH_COURSEWORK>", string.Join(", ", attestationList)
                         + (generalModel.CourseworkSemesters.Length > 0 ? ((generalModel.IsOffset || generalModel.IsOffsetWithMark || generalModel.IsExam ? " и " : "") + "курсовой работы") : "")},
+
+                    {"<DISCIPLINE_MODULES_COUNT_WORD>", string.Join(", ", generalModel.Semesters.Select(x => "по 2 дисциплинарных модуля в " + x.SemesterNumber.ToString() + "семестре"))},
 
                     //ВВОДИМЫЕ ДАННЫЕ
                     {"<AUTHOR>", generalModel.Author },
@@ -249,7 +271,7 @@ namespace TestWord
             Object missing = Type.Missing;
 
             app.Selection.Find.Execute(tag,
-                    MatchCase: false,
+                    MatchCase: true,
                     MatchWholeWord: false,
                     MatchWildcards: false,
                     MatchSoundsLike: missing,
@@ -385,7 +407,7 @@ namespace TestWord
 
             int currentTableRow = 3;
 
-            foreach(var semesterNumber in semesterNumbers)
+            foreach (var semesterNumber in semesterNumbers)
             {
                 var semesterThemes = themes.Where(x => x.semesterNumber == semesterNumber).Select(x => x.theme).ToList();
                 int semesterTotalLectureHous = 0, semesterTotalPracticeHous = 0, semesterTotalLabWordHous = 0, semesterTotalIndependentHous = 0;
@@ -394,9 +416,9 @@ namespace TestWord
                 {
                     int themeNumber = 1;
 
-                    foreach(var semesterTheme in semesterThemes)
+                    foreach (var semesterTheme in semesterThemes)
                     {
-                        wordTable.Cell(currentTableRow, 1).Range.Text = (themeNumber + 1).ToString();
+                        wordTable.Cell(currentTableRow, 1).Range.Text = themeNumber.ToString();
                         wordTable.Cell(currentTableRow, 2).Range.Text = semesterTheme.ThemeName;
                         wordTable.Cell(currentTableRow, 3).Range.Text = semesterNumber.ToString();
                         wordTable.Cell(currentTableRow, 4).Range.Text = semesterTheme.LectureHours != 0 ? semesterTheme.LectureHours.ToString() : "-";
@@ -449,15 +471,25 @@ namespace TestWord
         }
 
 
-        private void CreateAcquiredCompetenciesAsDisciplineMasteringResultTable()
+        private void CreateAcquiredCompetenciesAsDisciplineMasteringResultTable(bool addResults = true)
         {
             //данные - код, имя, знать, уметь, владеть, индикаторы
             List<CompetencyPlanningResult> competences = generalModel.competencyPlanningResults;
 
-            Word.Range wordRange = FindByTag("<ACQUIRED_COMPETENCIES_AS_DISCIPLINE_MASTERING_RESULT_TABLE>");
+            int indexForCompetenciesObjects = 1;
+
+            var lecturesCompetencies = generalModel.DisciplineThematicPlan.SelectMany(x => x.Value.DisciplineThematicPlan.SelectMany(x => x.ThemeContents.Where(x => x.ThemeType == SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.Lecture).Select(x => (indexForCompetenciesObjects++, x.FormingCompetency)))).ToList();
+            indexForCompetenciesObjects = 1;
+            var practiceCompetencies = generalModel.DisciplineThematicPlan.SelectMany(x => x.Value.DisciplineThematicPlan.SelectMany(x => x.ThemeContents.Where(x => x.ThemeType == SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.PracticeWork).Select(x => (indexForCompetenciesObjects++, x.FormingCompetency)))).ToList();
+            indexForCompetenciesObjects = 1;
+            var laboratoryCompetencies = generalModel.DisciplineThematicPlan.SelectMany(x => x.Value.DisciplineThematicPlan.SelectMany(x => x.ThemeContents.Where(x => x.ThemeType == SemesterModuleData.DisciplineThematicTheme.ThemeContent.ThemeTypeEnum.LaboratoryWork).Select(x => (indexForCompetenciesObjects++, x.FormingCompetency)))).ToList();
+            
+            int plusColumn = addResults ? 1 : 0;
+
+            Word.Range wordRange = FindByTag("<ACQUIRED_COMPETENCIES_AS_DISCIPLINE_MASTERING_RESULT_TABLE" + (!addResults ? "_WITHOUT_THIRD_COLUMN" : "") + ">");
 
             var wordTable = wordDocument.Tables.Add(wordRange,
-                competences.Count + 1, 4); // Rows: Competencies count + row for attribute names
+                competences.Count + 1, 3 + plusColumn); // Rows: Competencies count + row for attribute names
 
             wordTable.Range.Font.Size = 12;
             wordTable.Borders.Enable = 1;
@@ -465,19 +497,29 @@ namespace TestWord
             // Entering data from model
             wordTable.Cell(1, 1).Range.Text = "Оцениваемые компетенции (код, наименование)";
             wordTable.Cell(1, 2).Range.Text = "Код и наименование индикатора (индикаторов) достижения компетенции";
-            wordTable.Cell(1, 3).Range.Text = "Результаты освоения компетенции";
-            wordTable.Cell(1, 4).Range.Text = "Оценочные средства текущего контроля и промежуточной аттестации";
+
+            if (addResults)
+            {
+                wordTable.Cell(1, 3).Range.Text = "Результаты освоения компетенции";
+            }
+
+            wordTable.Cell(1, 3 + plusColumn).Range.Text = "Оценочные средства текущего контроля и промежуточной аттестации";
 
             wordTable.Columns.PreferredWidthType = WdPreferredWidthType.wdPreferredWidthPoints;
             wordTable.Columns[1].PreferredWidth = app.MillimetersToPoints(42.4f);
             wordTable.Columns[2].PreferredWidth = app.MillimetersToPoints(61.8f);
-            wordTable.Columns[3].PreferredWidth = app.MillimetersToPoints(34.6f);
-            wordTable.Columns[4].PreferredWidth = app.MillimetersToPoints(35.0f);
+
+            if (addResults)
+            {
+                wordTable.Columns[3].PreferredWidth = app.MillimetersToPoints(34.6f);
+            }
+
+            wordTable.Columns[3 + plusColumn].PreferredWidth = app.MillimetersToPoints(35.0f);
 
             var semesterNumbers_attestType = generalModel.OffsetSemesterNumbers.Select(x => (x, 0)).Union(
                     generalModel.OffsetWithMarkSemesterNumbers.Select(x => (x, 1))).Union(
                     generalModel.ExamSemesterNumbers.Select(x => (x, 2))).OrderBy(x => x.x).ToArray();
-            
+
 
             for (int i = 0; i < competences.Count; i++)
             {
@@ -528,66 +570,68 @@ namespace TestWord
                     childIndex++;
                 }
 
-                // Column 3
-                Word.Range range3 = wordTable.Cell(currentTableRow, 3).Range;
-
-                // To know
-                range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                range3.InsertAfter("Знать:");
-                range3.Font.Bold = 1;
-                range3.InsertParagraphAfter();
-                range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-
-                for (int toKnowIndex = 0; toKnowIndex < row.ToKnowResult.Count; toKnowIndex++)
+                if (addResults)
                 {
-                    string know = row.ToKnowResult[toKnowIndex];
+                    // Column 3
+                    Word.Range range3 = wordTable.Cell(currentTableRow, 3).Range;
 
+                    // To know
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                    range3.InsertAfter("- " + know.ToLower() + (toKnowIndex < row.ToKnowResult.Count - 1 ? ";" : "."));
-                    range3.Font.Bold = 0;
+                    range3.InsertAfter("Знать:");
+                    range3.Font.Bold = 1;
                     range3.InsertParagraphAfter();
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-                }
 
-                // To able
-                range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                range3.InsertAfter("Уметь:");
-                range3.Font.Bold = 1;
-                range3.InsertParagraphAfter();
-                range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+                    for (int toKnowIndex = 0; toKnowIndex < row.ToKnowResult.Count; toKnowIndex++)
+                    {
+                        string know = row.ToKnowResult[toKnowIndex];
 
-                for (int toAbleIndex = 0; toAbleIndex < row.ToAbilityResult.Count; toAbleIndex++)
-                {
-                    string able = row.ToAbilityResult[toAbleIndex];
+                        range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                        range3.InsertAfter("- " + know.ToLower() + (toKnowIndex < row.ToKnowResult.Count - 1 ? ";" : "."));
+                        range3.Font.Bold = 0;
+                        range3.InsertParagraphAfter();
+                        range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+                    }
 
+                    // To able
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                    range3.InsertAfter("- " + able.ToLower() + (toAbleIndex < row.ToAbilityResult.Count - 1 ? ";" : "."));
-                    range3.Font.Bold = 0;
+                    range3.InsertAfter("Уметь:");
+                    range3.Font.Bold = 1;
                     range3.InsertParagraphAfter();
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-                }
 
-                // To own
-                range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                range3.InsertAfter("Владеть:");
-                range3.Font.Bold = 1;
-                range3.InsertParagraphAfter();
-                range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+                    for (int toAbleIndex = 0; toAbleIndex < row.ToAbilityResult.Count; toAbleIndex++)
+                    {
+                        string able = row.ToAbilityResult[toAbleIndex];
 
-                for (int toOwnIndex = 0; toOwnIndex < row.ToOwnResult.Count; toOwnIndex++)
-                {
-                    string own = row.ToOwnResult[toOwnIndex];
+                        range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                        range3.InsertAfter("- " + able.ToLower() + (toAbleIndex < row.ToAbilityResult.Count - 1 ? ";" : "."));
+                        range3.Font.Bold = 0;
+                        range3.InsertParagraphAfter();
+                        range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+                    }
 
+                    // To own
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                    range3.InsertAfter("- " + own.ToLower() + (toOwnIndex < row.ToOwnResult.Count - 1 ? ";" : "."));
-                    range3.Font.Bold = 0;
+                    range3.InsertAfter("Владеть:");
+                    range3.Font.Bold = 1;
                     range3.InsertParagraphAfter();
                     range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-                }
 
+                    for (int toOwnIndex = 0; toOwnIndex < row.ToOwnResult.Count; toOwnIndex++)
+                    {
+                        string own = row.ToOwnResult[toOwnIndex];
+
+                        range3.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                        range3.InsertAfter("- " + own.ToLower() + (toOwnIndex < row.ToOwnResult.Count - 1 ? ";" : "."));
+                        range3.Font.Bold = 0;
+                        range3.InsertParagraphAfter();
+                        range3.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+                    }
+                }
 
                 // Column 4
-                Word.Range range4 = wordTable.Cell(currentTableRow, 4).Range;
+                Word.Range range4 = wordTable.Cell(currentTableRow, 3 + plusColumn).Range;
 
                 //текущий контроль
                 range4.Collapse(Word.WdCollapseDirection.wdCollapseStart);
@@ -597,7 +641,134 @@ namespace TestWord
                 range4.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
                 range4.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                range4.InsertAfter("Компьютерное тестирование по теме 1-5\nПрактические задачи по темам 1-5\nЛабораторные работыпо темам 1-3"); //!!!!!
+
+                var lecturesForCompetenciesCodeNumbers = lecturesCompetencies.Where(x => x.FormingCompetency.Contains(row.Code)).Select(x => x.Item1).ToList();
+                var practicesForCompetenciesCodeNumbers = practiceCompetencies.Where(x => x.FormingCompetency.Contains(row.Code)).Select(x => x.Item1).ToList();
+                var laboratoriesForCompetenciesCodeNumbers = laboratoryCompetencies.Where(x => x.FormingCompetency.Contains(row.Code)).Select(x => x.Item1).ToList();
+
+                string stringForInsert = "";
+
+                if(lecturesForCompetenciesCodeNumbers.Count > 0)
+                {
+                    List<string> lecturesNumbersStrings = new List<string>();
+
+                    int startArrayNumber = lecturesForCompetenciesCodeNumbers[0],
+                        endArrayNumber = lecturesForCompetenciesCodeNumbers[0];
+
+                    for (int lectureIndex = 1; lectureIndex < lecturesForCompetenciesCodeNumbers.Count; lectureIndex++)
+                    {
+                        if (lecturesForCompetenciesCodeNumbers[lectureIndex] == lecturesForCompetenciesCodeNumbers[lectureIndex - 1] + 1)
+                        {
+                            endArrayNumber = lecturesForCompetenciesCodeNumbers[lectureIndex];
+                        }
+                        else
+                        {
+                            if(startArrayNumber >= endArrayNumber)
+                            {
+                                lecturesNumbersStrings.Add(startArrayNumber.ToString());
+                            }
+                            else
+                            {
+                                lecturesNumbersStrings.Add(startArrayNumber.ToString() + "-" + endArrayNumber.ToString());
+                            }
+
+                            startArrayNumber = lecturesForCompetenciesCodeNumbers[lectureIndex];
+                        }
+                    }
+
+                    if (startArrayNumber >= endArrayNumber)
+                    {
+                        lecturesNumbersStrings.Add(startArrayNumber.ToString());
+                    }
+                    else
+                    {
+                        lecturesNumbersStrings.Add(startArrayNumber.ToString() + "-" + endArrayNumber.ToString());
+                    }
+
+                    stringForInsert += "Компьютерное тестирование по " + (lecturesForCompetenciesCodeNumbers.Count > 1 ? "темам " : "теме ") + string.Join(", ", lecturesNumbersStrings) + (practicesForCompetenciesCodeNumbers.Count > 0 || laboratoriesForCompetenciesCodeNumbers.Count > 0 ? "\n" : "");
+                }
+
+                if (practicesForCompetenciesCodeNumbers.Count > 0)
+                {
+                    List<string> practicesNumbersStrings = new List<string>();
+
+                    int startArrayNumber = practicesForCompetenciesCodeNumbers[0],
+                        endArrayNumber = practicesForCompetenciesCodeNumbers[0];
+
+                    for (int practiceIndex = 1; practiceIndex < practicesForCompetenciesCodeNumbers.Count; practiceIndex++)
+                    {
+                        if (practicesForCompetenciesCodeNumbers[practiceIndex] == practicesForCompetenciesCodeNumbers[practiceIndex - 1] + 1)
+                        {
+                            endArrayNumber = practicesForCompetenciesCodeNumbers[practiceIndex];
+                        }
+                        else
+                        {
+                            if (startArrayNumber >= endArrayNumber)
+                            {
+                                practicesNumbersStrings.Add(startArrayNumber.ToString());
+                            }
+                            else
+                            {
+                                practicesNumbersStrings.Add(startArrayNumber.ToString() + "-" + endArrayNumber.ToString());
+                            }
+
+                            startArrayNumber = practicesForCompetenciesCodeNumbers[practiceIndex];
+                        }
+                    }
+
+                    if (startArrayNumber >= endArrayNumber)
+                    {
+                        practicesNumbersStrings.Add(startArrayNumber.ToString());
+                    }
+                    else
+                    {
+                        practicesNumbersStrings.Add(startArrayNumber.ToString() + "-" + endArrayNumber.ToString());
+                    }
+
+                    stringForInsert += "Практические задачи по " + (practicesForCompetenciesCodeNumbers.Count > 1 ? "темам " : "теме ") + string.Join(", ", practicesNumbersStrings) + (laboratoriesForCompetenciesCodeNumbers.Count > 0 ? "\n" : "");
+                }
+
+                if (laboratoriesForCompetenciesCodeNumbers.Count > 0)
+                {
+                    List<string> laboratoriesNumbersStrings = new List<string>();
+
+                    int startArrayNumber = laboratoriesForCompetenciesCodeNumbers[0],
+                        endArrayNumber = laboratoriesForCompetenciesCodeNumbers[0];
+
+                    for (int laboratoryIndex = 1; laboratoryIndex < laboratoriesForCompetenciesCodeNumbers.Count; laboratoryIndex++)
+                    {
+                        if (laboratoriesForCompetenciesCodeNumbers[laboratoryIndex] == laboratoriesForCompetenciesCodeNumbers[laboratoryIndex - 1] + 1)
+                        {
+                            endArrayNumber = laboratoriesForCompetenciesCodeNumbers[laboratoryIndex];
+                        }
+                        else
+                        {
+                            if (startArrayNumber >= endArrayNumber)
+                            {
+                                laboratoriesNumbersStrings.Add(startArrayNumber.ToString());
+                            }
+                            else
+                            {
+                                laboratoriesNumbersStrings.Add(startArrayNumber.ToString() + "-" + endArrayNumber.ToString());
+                            }
+
+                            startArrayNumber = laboratoriesForCompetenciesCodeNumbers[laboratoryIndex];
+                        }
+                    }
+
+                    if (startArrayNumber >= endArrayNumber)
+                    {
+                        laboratoriesNumbersStrings.Add(startArrayNumber.ToString());
+                    }
+                    else
+                    {
+                        laboratoriesNumbersStrings.Add(startArrayNumber.ToString() + "-" + endArrayNumber.ToString());
+                    }
+
+                    stringForInsert += "Лабораторные работы по " + (laboratoriesForCompetenciesCodeNumbers.Count > 1 ? "темам " : "теме ") + string.Join(", ", laboratoriesNumbersStrings);
+                }
+
+                range4.InsertAfter(stringForInsert);
                 range4.Font.Bold = 0;
                 range4.InsertParagraphAfter();
                 range4.InsertParagraphAfter();
@@ -616,7 +787,7 @@ namespace TestWord
 
                     rangeForSemAtt.InsertAfter("\n");
                     rangeForSemAtt.Collapse(WdCollapseDirection.wdCollapseEnd);
-                    
+
                     rangeForSemAtt.InsertAfter(semesterNumber_attestType.x.ToString() + " семестр – ");
 
                     rangeForSemAtt.Font.Bold = 1;
@@ -639,13 +810,23 @@ namespace TestWord
 
             wordTable.Cell(1, 1).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
             wordTable.Cell(1, 2).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
-            wordTable.Cell(1, 3).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
-            wordTable.Cell(1, 4).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
+
+            if (addResults)
+            {
+                wordTable.Cell(1, 3).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
+            }
+
+            wordTable.Cell(1, 3 + plusColumn).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
 
             wordTable.Cell(1, 1).Range.Bold = 1;
             wordTable.Cell(1, 2).Range.Bold = 1;
-            wordTable.Cell(1, 3).Range.Bold = 1;
-            wordTable.Cell(1, 4).Range.Bold = 1;
+
+            if (addResults)
+            {
+                wordTable.Cell(1, 3).Range.Bold = 1;
+            }
+
+            wordTable.Cell(1, 3 + plusColumn).Range.Bold = 1;
         }
 
         // 4.2.
@@ -659,8 +840,8 @@ namespace TestWord
 
             int rowsCount = 1  // Columns row
                     + disciplineThematicPlan.Count // Discipline module rows
-                    + disciplineThematicPlan.Sum(x => x.Value.DisciplineThematicPlan.Count // Themes count
-                    + disciplineThematicPlan.Sum(x => x.Value.DisciplineThematicPlan.Sum(x => x.ThemeContents.Count))); // Lectures + practices + laboratories count
+                    + disciplineThematicPlan.Sum(x => x.Value.DisciplineThematicPlan.Count) // Themes count
+                    + disciplineThematicPlan.Sum(x => x.Value.DisciplineThematicPlan.Sum(x => x.ThemeContents.Count)); // Lectures + practices + laboratories count
 
             var wordTable = wordDocument.Tables.Add(app.Selection.Range,
                     rowsCount, 4);
@@ -905,7 +1086,7 @@ namespace TestWord
                 wordTable.Cell(currentRow, 1).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                 wordTable.Cell(currentRow, 3).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphJustify;
                 wordTable.Cell(currentRow, 4).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
-                
+
                 // Переход на новую строку
                 stage++;
                 currentRow++;
@@ -917,13 +1098,13 @@ namespace TestWord
 
             currentRow++;
 
-            List<((string tag, string name) name_tag, (string tag, string description) description_tag, (string tag, string path) path_tag, bool descriptionToPath)> attestationsStrings = 
+            List<((string tag, string name) name_tag, (string tag, string description) description_tag, (string tag, string path) path_tag, bool descriptionToPath)> attestationsStrings =
                 new List<((string tag, string name) name_tag, (string tag, string description) description_tag, (string tag, string path) path_tag, bool descriptionToPath)>();
 
             if (generalModel.IsOffset)
                 attestationsStrings.Add((("<_OFFSET_NAME>", "Зачет"), ("<_OFFSET_DESCR>", ""), ("<_OFFSET_PATH>", ""), false));
             if (generalModel.IsOffsetWithMark)
-                attestationsStrings.Add((("<_OFF_MARK_NAME>", "Зачёт с оценкой"), ("<_OFF_MARK_DESCR>", "Итоговая форма определения степени достижения запланированных результатов обучения (оценивания уровня освоения компетенций). Зачет с оценкой  выставляется по результатам текущей работы в семестре без дополнительного опроса."), ("<_OFF_MARK_PATH>", ""), true)); 
+                attestationsStrings.Add((("<_OFF_MARK_NAME>", "Зачёт с оценкой"), ("<_OFF_MARK_DESCR>", "Итоговая форма определения степени достижения запланированных результатов обучения (оценивания уровня освоения компетенций). Зачет с оценкой  выставляется по результатам текущей работы в семестре без дополнительного опроса."), ("<_OFF_MARK_PATH>", ""), true));
             if (generalModel.IsExam)
                 attestationsStrings.Add((("<_EXAM_NAME>", "Экзамен"), ("<_EXAM_DESCR>", "Итоговая форма определения степени достижения запланированных результатов обучения (оценивания уровня освоения компетенций). Экзамен нацелен на комплексную проверку освоения дисциплины. Экзамен проводится в форме тестирования по всем темам дисциплины."), ("<_EXAM_PATH>", "Перечень вопросов, фонд тестового задания"), false));
 
@@ -940,7 +1121,7 @@ namespace TestWord
                 {
                     wordTable.Cell(currentRow, 4).Range.Text = attestation.path_tag.path;
                     wordTable.Cell(currentRow, 4).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
-                
+
                     keyValuesForReplace.Add(attestation.path_tag.tag, attestation.path_tag.path);
                 }
                 else
@@ -949,7 +1130,7 @@ namespace TestWord
                 // Форматирование
                 wordTable.Cell(currentRow, 1).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                 wordTable.Cell(currentRow, 3).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphJustify;
-                
+
                 // Переход на новую строку
                 stage++;
                 currentRow++;
@@ -963,7 +1144,7 @@ namespace TestWord
             wordTable.AutoFitBehavior(WdAutoFitBehavior.wdAutoFitContent);
 
             // Replace tags to text
-            foreach(var keyValuePair in keyValuesForReplace)
+            foreach (var keyValuePair in keyValuesForReplace)
             {
                 ReplaceTextToTag(keyValuePair.Key, keyValuePair.Value);
             }
@@ -1025,7 +1206,7 @@ namespace TestWord
             // Entering data
             for (int i = 0; i < competences.Count; i++)
             {
-                int rowNumber = 5 + i*3;
+                int rowNumber = 5 + i * 3;
                 var row = competences[i];
                 Dictionary<int, string> childs = row.CompetencyAchivmentIndicators;
 
@@ -1324,12 +1505,16 @@ namespace TestWord
                 if (testsByCompetencies.Count > 0)
                     rowNumber++;
 
-                foreach (var keyValuePair in testsByCompetencies)
+                foreach (var key in testsByCompetencies.Keys)
                 {
-                    string competencies = string.Join(", ", keyValuePair.Key);
-                    var tests = keyValuePair.Value;
+                    var testsByCompetentiesValue = testsByCompetencies[key];
 
-                    wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber + tests.Count - 1, 1));
+                    string competencies = string.Join(", ", key);
+                    var tests = testsByCompetentiesValue;
+                    int rowNumberForMerge = rowNumber + tests.Count - 1;
+
+                    if(rowNumber != rowNumberForMerge)
+                        wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber + tests.Count - 1, 1));
 
                     wordTable.Cell(rowNumber, 1).Range.Text = competencies;
 
@@ -1348,6 +1533,9 @@ namespace TestWord
                         if (testIndex < tests.Count - 1)
                             rowNumber++;
                     }
+
+                    if (key != testsByCompetencies.Keys.Last())
+                        rowNumber++;
                 }
 
                 rowNumber++;
@@ -1360,47 +1548,97 @@ namespace TestWord
         }
 
         // 6.3.2.3, 6.3.3.3
-        private void PutTextToPracticeAndLabEvaluationCriteries()
+        private void PutTextToLabAndPracticeEvaluationCriteries()
         {
-            ReplaceTextToTag("<TAB_TASK_WITH_NUMBER>", generalModel.EvaluationCriteries.laboratory.LaboratoryTaskWithNumber);
-            ReplaceTextToTag("<LAB_EXAMPLE_TASK>", generalModel.EvaluationCriteries.laboratory.TaskTextExampleForDefenceLabWork);
+            var rangeForLabEvalCrit = FindByTag("<LAB_EVAL_CRITER>");
 
+            rangeForLabEvalCrit.Text = "";
+
+            if (generalModel.NeedTotalLaboratoryWorkHours > 0)
             {
-                Word.Range rangeForQuestCompList = FindByTag("<QUESTION_COMPETENCY_CODE_LIST>");
+                rangeForLabEvalCrit.Collapse(WdCollapseDirection.wdCollapseEnd);
 
-                rangeForQuestCompList.Text = "";
+                rangeForLabEvalCrit.InsertAfter("Задания и вопросы к защите лабораторных работ:" + Environment.NewLine);
+                rangeForLabEvalCrit.Collapse(WdCollapseDirection.wdCollapseEnd);
 
-                var questCodeList = generalModel.EvaluationCriteries.laboratory.QuestionsCodeExampleForDefenceLabWork;
+                rangeForLabEvalCrit.InsertAfter("<TAB_TASK_WITH_NUMBER>" + Environment.NewLine);
+                rangeForLabEvalCrit.Collapse(WdCollapseDirection.wdCollapseEnd);
 
-                int questionNumber = 1;
+                rangeForLabEvalCrit.InsertAfter("Задание. ");
+                rangeForLabEvalCrit.Font.Underline = WdUnderline.wdUnderlineSingle;
+                rangeForLabEvalCrit.Font.Italic = 1;
+                rangeForLabEvalCrit.Collapse(WdCollapseDirection.wdCollapseEnd);
 
-                foreach (var questCode in questCodeList)
+                rangeForLabEvalCrit.InsertAfter("<LAB_EXAMPLE_TASK>" + Environment.NewLine);
+                rangeForLabEvalCrit.Font.Underline = WdUnderline.wdUnderlineNone;
+                rangeForLabEvalCrit.Font.Italic = 0;
+                rangeForLabEvalCrit.Collapse(WdCollapseDirection.wdCollapseEnd);
+
+                rangeForLabEvalCrit.InsertAfter("Вопросы к защите. " + Environment.NewLine);
+                rangeForLabEvalCrit.Font.Underline = WdUnderline.wdUnderlineSingle;
+                rangeForLabEvalCrit.Collapse(WdCollapseDirection.wdCollapseEnd);
+
+                rangeForLabEvalCrit.InsertAfter("<QUESTION_COMPETENCY_CODE_LIST>" + Environment.NewLine);
+                rangeForLabEvalCrit.Font.Underline = WdUnderline.wdUnderlineNone;
+                rangeForLabEvalCrit.Collapse(WdCollapseDirection.wdCollapseEnd);
+
+
+                ReplaceTextToTag("<TAB_TASK_WITH_NUMBER>", generalModel.EvaluationCriteries.laboratory.LaboratoryTaskWithNumber);
+                ReplaceTextToTag("<LAB_EXAMPLE_TASK>", generalModel.EvaluationCriteries.laboratory.TaskTextExampleForDefenceLabWork);
+
                 {
-                    rangeForQuestCompList.InsertAfter(questionNumber.ToString() + ". " + questCode.Question + "(" + questCode.CompetencyCode + ")");
+                    Word.Range rangeForQuestCompList = FindByTag("<QUESTION_COMPETENCY_CODE_LIST>");
 
-                    if(questCode != questCodeList.Last())
+                    rangeForQuestCompList.Text = "";
+
+                    var questCodeList = generalModel.EvaluationCriteries.laboratory.QuestionsCodeExampleForDefenceLabWork;
+
+                    int questionNumber = 1;
+
+                    foreach (var questCode in questCodeList)
                     {
-                        rangeForQuestCompList.InsertAfter(Environment.NewLine);
-                    }
+                        rangeForQuestCompList.InsertAfter(questionNumber.ToString() + ". " + questCode.Question + "(" + questCode.CompetencyCode + ")");
 
-                    questionNumber++;
+                        if (questCode != questCodeList.Last())
+                        {
+                            rangeForQuestCompList.InsertAfter(Environment.NewLine);
+                        }
+
+                        questionNumber++;
+                    }
                 }
             }
-            
-            ReplaceTextToTag("<PRACTICE_TASK_COMPETENCY_CODE>", generalModel.EvaluationCriteries.practice.CompetencyCode);
-            ReplaceTextToTag("<PRACTICE_TASK>", generalModel.EvaluationCriteries.practice.PracticeTask);
 
+            var rangeForPracEvalCrit = FindByTag("<PRAC_EVAL_CRITER>");
+
+            rangeForPracEvalCrit.Text = "";
+
+            if (generalModel.NeedTotalPracticeHours > 0)
             {
-                Word.Range rangeForPractTaskDescr = FindByTag("<PRACTICE_TASK_DESCRIPTION>");
+                rangeForPracEvalCrit.Collapse(WdCollapseDirection.wdCollapseEnd);
 
-                rangeForPractTaskDescr.Text = "";
+                rangeForPracEvalCrit.InsertAfter("Пример практической задачи для оценки сформированности компетенции <PRACTICE_TASK_COMPETENCY_CODE>" + Environment.NewLine);
+                rangeForPracEvalCrit.Collapse(WdCollapseDirection.wdCollapseEnd);
 
-                rangeForPractTaskDescr.Collapse(WdCollapseDirection.wdCollapseEnd);
+                rangeForPracEvalCrit.InsertAfter("<PRACTICE_TASK><PRACTICE_TASK_DESCRIPTION>" + Environment.NewLine);
+                rangeForPracEvalCrit.Collapse(WdCollapseDirection.wdCollapseEnd);
 
-                if (generalModel.EvaluationCriteries.practice.PracticeTaskDescription != "")
+
+                ReplaceTextToTag("<PRACTICE_TASK_COMPETENCY_CODE>", generalModel.EvaluationCriteries.practice.CompetencyCode);
+                ReplaceTextToTag("<PRACTICE_TASK>", generalModel.EvaluationCriteries.practice.PracticeTask);
+
                 {
-                    rangeForPractTaskDescr.InsertAfter(Environment.NewLine);
-                    rangeForPractTaskDescr.InsertAfter(generalModel.EvaluationCriteries.practice.PracticeTaskDescription);
+                    Word.Range rangeForPractTaskDescr = FindByTag("<PRACTICE_TASK_DESCRIPTION>");
+
+                    rangeForPractTaskDescr.Text = "";
+
+                    rangeForPractTaskDescr.Collapse(WdCollapseDirection.wdCollapseEnd);
+
+                    if (generalModel.EvaluationCriteries.practice.PracticeTaskDescription != "")
+                    {
+                        rangeForPractTaskDescr.InsertAfter(Environment.NewLine);
+                        rangeForPractTaskDescr.InsertAfter(generalModel.EvaluationCriteries.practice.PracticeTaskDescription);
+                    }
                 }
             }
         }
@@ -1538,7 +1776,7 @@ namespace TestWord
             bool semesterCountMoreThan1 = generalModel.Semesters.Count > 1;
 
             int colomn_count = 2 + generalModel.DisciplineCompetencies.Count();
-            int row_count = 1 + generalModel.SemesterQuestionCodes.Count + (semesterCountMoreThan1 ? generalModel.Semesters.Count : 0);
+            int row_count = 1 + generalModel.SemesterQuestionCodes.Sum(x => x.Value.Count) + (semesterCountMoreThan1 ? generalModel.Semesters.Count : 0);
 
             Word.Table wordTable = wordDocument.Tables.Add(wordRange, row_count, colomn_count);
 
@@ -1559,7 +1797,7 @@ namespace TestWord
                 wordTable.Cell(1, 3 + i).Range.Text = generalModel.DisciplineCompetencies[i];
 
             int currentRow = 2, questionNumber = 1;
-            foreach(var semesterQuestions in generalModel.SemesterQuestionCodes)
+            foreach (var semesterQuestions in generalModel.SemesterQuestionCodes)
             {
                 if (semesterCountMoreThan1)
                 {
@@ -1574,9 +1812,9 @@ namespace TestWord
 
                 var questions = semesterQuestions.Value;
 
-                if(questions.Count > 0)
+                if (questions.Count > 0)
                 {
-                    foreach(var  question in questions)
+                    foreach (var question in questions)
                     {
                         wordTable.Cell(currentRow, 1).Range.Text = questionNumber.ToString();
                         wordTable.Cell(currentRow, 2).Range.Text = question.Question;
@@ -1638,7 +1876,7 @@ namespace TestWord
             int rowNumber = 3;
 
             // Данные
-            foreach(var semesterCompetencyTasks in test)
+            foreach (var semesterCompetencyTasks in test)
             {
                 if (semestersCountMoreThan1)
                 {
@@ -1654,13 +1892,16 @@ namespace TestWord
 
                 var competenciesWithOwnTasks = semesterCompetencyTasks.Value;
 
-                if(competenciesWithOwnTasks.Count > 0)
+                if (competenciesWithOwnTasks.Count > 0)
                 {
                     foreach (var competencyTasks in competenciesWithOwnTasks)
                     {
                         wordTable.Cell(rowNumber, 1).Range.Text = string.Join(", ", competencyTasks.Key);
 
-                        wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumber + competencyTasks.Value.Count - 1, 1));
+                        int rowNumberForMerge = rowNumber + competencyTasks.Value.Count - 1;
+
+                        if(rowNumber != rowNumberForMerge)
+                            wordTable.Cell(rowNumber, 1).Merge(wordTable.Cell(rowNumberForMerge, 1));
 
                         foreach (var lineTask in competencyTasks.Value)
                         {
@@ -1757,7 +1998,7 @@ namespace TestWord
                     wordRange.Collapse(WdCollapseDirection.wdCollapseEnd);
                 }
 
-                
+
                 // Making tables
                 {
                     SemesterModuleData[] semesterModules = new SemesterModuleData[] {
@@ -1806,13 +2047,19 @@ namespace TestWord
                         + "-" + semesterModules[1].CurrentControl_Testing.Item2;
 
                     //общее кол-во баллов
-                    wordTable.Cell(3, 2).Range.Text = semesterModules[0].TotalPointsCount.Item1
+                    wordTable.Cell(4, 2).Range.Text = semesterModules[0].TotalPointsCount.Item1
                         + "-" + semesterModules[0].TotalPointsCount.Item2;
-                    wordTable.Cell(3, 3).Range.Text = semesterModules[1].TotalPointsCount.Item1
+                    wordTable.Cell(4, 3).Range.Text = semesterModules[1].TotalPointsCount.Item1
                         + "-" + semesterModules[1].TotalPointsCount.Item2;
 
                     //итоговый балл
-                    wordTable.Cell(5, 2).Range.Text = "35-60";
+                    wordTable.Cell(5, 2).Range.Text = generalModel.OffsetSemesterNumbers.Contains(semesterNumber)
+                        ? "35-60"
+                        : generalModel.OffsetWithMarkSemesterNumbers.Contains(semesterNumber)
+                            ? "55-100"
+                            : generalModel.ExamSemesterNumbers.Contains(semesterNumber)
+                                ? "55-100"
+                                : "??-??";
 
                     //форматирование
                     wordTable.Borders.Enable = 1;
@@ -1830,7 +2077,7 @@ namespace TestWord
                             wordTable.Cell(i, j).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
                     wordTable.Cell(5, 2).Merge(wordTable.Cell(5, 3));
 
-                    
+
                     // ТАБЛИЦЫ - дисциплинарный модуль 1,2
                     for (int module = 1; module <= 2; module++)
                     {
@@ -1854,7 +2101,7 @@ namespace TestWord
 
                         wordTable.Range.Font.Size = 12;
 
-                        wordTable.Cell(1, 1).Range.Text = "№п/п";
+                        wordTable.Cell(1, 1).Range.Text = "№\nп/п";
                         wordTable.Cell(1, 2).Range.Text = "Виды работ";
                         wordTable.Cell(1, 3).Range.Text = "Максимальный балл";
                         wordTable.Cell(2, 1).Range.Text = "Текущий контроль";
@@ -1876,11 +2123,11 @@ namespace TestWord
                         wordTable.Cell(1, 3).Range.Bold = 1;
                         wordTable.Cell(2, 1).Range.Bold = 1;
 
-                        int current_row = 3;
+                        int current_row = 3, objectNumber = 1;
                         if (lecture_list is not null)
                             for (int index = 0; index < lecture_list.Count; index++)
                             {
-                                wordTable.Cell(current_row, 1).Range.Text = (index + 1).ToString();
+                                wordTable.Cell(current_row, 1).Range.Text = (objectNumber++).ToString();
                                 wordTable.Cell(current_row, 2).Range.Text = $"Лекция-{current_lecture} {lecture_list[index].ThemeText}";
                                 wordTable.Cell(current_row, 3).Range.Text = lecture_list[index].MaxPoints.ToString();
 
@@ -1894,7 +2141,7 @@ namespace TestWord
                         if (laboratory_list is not null)
                             for (int index = 0; index < laboratory_list.Count; index++)
                             {
-                                wordTable.Cell(current_row, 1).Range.Text = (index + 1).ToString();
+                                wordTable.Cell(current_row, 1).Range.Text = (objectNumber++).ToString();
                                 wordTable.Cell(current_row, 2).Range.Text = $"Л.Р.-{current_laboratories} {laboratory_list[index].ThemeText}";
                                 wordTable.Cell(current_row, 3).Range.Text = laboratory_list[index].MaxPoints.ToString();
 
@@ -1908,7 +2155,7 @@ namespace TestWord
                         if (practical_list is not null)
                             for (int index = 0; index < practical_list.Count; index++)
                             {
-                                wordTable.Cell(current_row, 1).Range.Text = (index + 1).ToString();
+                                wordTable.Cell(current_row, 1).Range.Text = (objectNumber++).ToString();
                                 wordTable.Cell(current_row, 2).Range.Text = $"П.З.-{current_practical} {practical_list[index].ThemeText}";
                                 wordTable.Cell(current_row, 3).Range.Text = practical_list[index].MaxPoints.ToString();
 
@@ -1923,7 +2170,7 @@ namespace TestWord
                         wordTable.Cell(current_row, 1).Range.Text = "Итого:";
                         wordTable.Cell(current_row, 3).Range.Text = points.ToString();
 
-                        //форматирование
+                        // форматирование
                         wordTable.Cell(current_row, 1).Range.Bold = 1;
                         wordTable.Cell(current_row, 3).Range.Bold = 1;
                         wordTable.Cell(current_row, 1).Merge(wordTable.Cell(current_row, 2));
@@ -1931,22 +2178,24 @@ namespace TestWord
                         current_row++;
                         wordTable.Cell(current_row, 1).Range.Text = "Текущий контроль";
 
-                        //форматирование
+                        // форматирование
                         wordTable.Cell(current_row, 1).Range.Bold = 1;
                         wordTable.Cell(current_row, 1).Merge(wordTable.Cell(current_row, 3));
                         current_row++;
+
+                        int testing_val = generalModel.DisciplineThematicPlan[new SemesterModuleNumbers(semesterNumber, module)].CurrentControl_Testing.Item2;
                         wordTable.Cell(current_row, 1).Range.Text = "1";
                         wordTable.Cell(current_row, 2).Range.Text = "Тестирование";
-                        wordTable.Cell(current_row, 3).Range.Text = "15";
+                        wordTable.Cell(current_row, 3).Range.Text = testing_val.ToString();
 
-                        //форматирование
+                        // форматирование
                         wordTable.Cell(current_row, 2).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                         wordTable.Cell(current_row, 3).Range.Bold = 1;
                         current_row++;
                         wordTable.Cell(current_row, 1).Range.Text = $"Итого по ДМ {semesterNumber}.{module}";
-                        wordTable.Cell(current_row, 3).Range.Text = (points + 15).ToString();
+                        wordTable.Cell(current_row, 3).Range.Text = (points + testing_val).ToString();
 
-                        //форматирование
+                        // форматирование
                         wordTable.Cell(current_row, 1).Range.Bold = 1;
                         wordTable.Cell(current_row, 3).Range.Bold = 1;
                         wordTable.Cell(current_row, 1).Merge(wordTable.Cell(current_row, 2));
@@ -1964,6 +2213,109 @@ namespace TestWord
                     wordRange = FindByTag(tagForNextSemestersRatingTables);
                 }
             }
+        }
+
+        private void CreateAttestationEvaluationCretariesForms()
+        {
+            var rangeForArea = FindByTag("<ATTESTATION_EVALUATION_CRETARIES_FORMS>");
+
+            rangeForArea.Text = "";
+
+            string offsetTag = "<OFFSET_ATTESTATION_EVALUATION_CRETARIES_FORM>",
+                offsetWithMarkTag = "<OFFSET_WITH_MARK_ATTESTATION_EVALUATION_CRETARIES_FORM>",
+                examTag = "<EXAM_ATTESTATION_EVALUATION_CRETARIES_FORM>";
+
+            if (generalModel.IsOffset)
+            {
+                rangeForArea.InsertAfter(offsetTag + (generalModel.IsOffsetWithMark | generalModel.IsExam ? Environment.NewLine : "") + Environment.NewLine);
+                rangeForArea.Collapse(WdCollapseDirection.wdCollapseEnd);
+            }
+
+            if (generalModel.IsOffsetWithMark)
+            {
+                rangeForArea.InsertAfter(offsetWithMarkTag + (generalModel.IsExam ? Environment.NewLine : "") + Environment.NewLine);
+                rangeForArea.Collapse(WdCollapseDirection.wdCollapseEnd);
+            }
+
+            if (generalModel.IsExam)
+            {
+                rangeForArea.InsertAfter(examTag + Environment.NewLine);
+                rangeForArea.Collapse(WdCollapseDirection.wdCollapseEnd);
+            }
+
+            Dictionary<string, string> tagsToReplace = new Dictionary<string, string>();
+
+            if (generalModel.IsOffset)
+            {
+                var rangeForOffsetArea = FindByTag(offsetTag);
+            }
+
+            if (generalModel.IsOffsetWithMark)
+            {
+                var rangeForOffsetArea = FindByTag(offsetWithMarkTag);
+            }
+
+            if (generalModel.IsExam)
+            {
+                rangeForArea = FindByTag(examTag);
+
+                rangeForArea.Text = "";
+
+                rangeForArea.InsertAfter("Критерии оценки знаний студентов в рамках промежуточной аттестации в форме экзамена, проводимого:" + Environment.NewLine);
+                rangeForArea.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
+                rangeForArea.Font.Bold = 1;
+                rangeForArea.Collapse(WdCollapseDirection.wdCollapseEnd);
+
+                rangeForArea.InsertAfter("- в форме компьютерного тестирования" + Environment.NewLine);
+                rangeForArea.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
+                rangeForArea.Collapse(WdCollapseDirection.wdCollapseEnd);
+
+                string tagForText = "<_EXAM_EVAL_CRIT_TEXT>";
+                rangeForArea.InsertAfter(tagForText + Environment.NewLine);
+                tagsToReplace.Add(tagForText, "На экзамене, который проводится в форме компьютерного тестирования, студенту предоставляется блок тестовых заданий в количестве 30 шт., которые генерируются автоматической тестирующей системой персонально в случайном порядке и содержат вопросы по всему перечню тем дисциплины. Каждое правильно выполненное тестовое задание оценивается в 1 балл. Максимальное количество баллов, которое студент имеет возможность набрать – 40.");
+                rangeForArea.Font.Bold = 0;
+                rangeForArea.Collapse(WdCollapseDirection.wdCollapseEnd);
+
+                rangeForArea.InsertAfter("Для получения экзаменационной оценки общая сумма баллов (за дисциплинарные модули и экзамен) должна составлять от 55 до 100 баллов (см. шкалу перевода рейтинговых баллов)." + Environment.NewLine);
+                rangeForArea.Collapse(WdCollapseDirection.wdCollapseEnd);
+
+                rangeForArea.InsertAfter("Шкала перевода рейтинговых баллов" + Environment.NewLine);
+                rangeForArea.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
+                rangeForArea.Font.Bold = 1;
+                rangeForArea.Collapse(WdCollapseDirection.wdCollapseEnd);
+
+                string tagForTable = "<_TRANSFORM_TABLE_EXAM_POINTS>";
+                rangeForArea.InsertAfter(tagForTable);
+                rangeForArea.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
+                rangeForArea.Font.Bold = 0;
+                rangeForArea.Collapse(WdCollapseDirection.wdCollapseEnd);
+
+                {
+                    Word.Range rangeForTable = FindByTag(tagForTable);
+                    rangeForTable.Text = "";
+
+                    var wordTable = wordDocument.Tables.Add(rangeForTable, 4, 2);
+
+                    wordTable.Range.Font.Size = 12;
+                    wordTable.Borders.Enable = 1;
+                    wordTable.Range.Paragraphs.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
+
+                    wordTable.Cell(1, 1).Range.Text = "Общее количество набранных баллов";
+                    wordTable.Cell(1, 2).Range.Text = "Оценка";
+                    wordTable.Rows[1].Range.Bold = 1;
+
+                    wordTable.Cell(2, 1).Range.Text = "55-70";
+                    wordTable.Cell(2, 2).Range.Text = "3 (удовлетворительно)";
+
+                    wordTable.Cell(3, 1).Range.Text = "71-85";
+                    wordTable.Cell(3, 2).Range.Text = "4 (хорошо)";
+
+                    wordTable.Cell(4, 1).Range.Text = "86-100";
+                    wordTable.Cell(4, 2).Range.Text = "5 (отлично)";
+                }
+            }
+
+            replaceText(tagsToReplace);
         }
 
 
@@ -1985,7 +2337,7 @@ namespace TestWord
             wordTable.Range.Font.Size = 12;
             wordTable.Borders.Enable = 1;
 
-            wordTable.Cell(1, 1).Range.Text = "№ п/п";
+            wordTable.Cell(1, 1).Range.Text = "№\nп/п";
             wordTable.Cell(1, 2).Range.Text = "Библиографическое описание";
             wordTable.Cell(1, 3).Range.Text = "Количество печатных экземпляров или адрес электронного ресурса";
             wordTable.Cell(1, 4).Range.Text = "Коэффициент обеспеченности";
@@ -2036,6 +2388,7 @@ namespace TestWord
                 wordTable.Cell(rowNumber, 2).Range.Text = $"{additional[i].Name}";
                 wordTable.Cell(rowNumber, 3).Range.Text = additional[i].Link is not null ? $"Режим доступа:\n{additional[i].Link}" : $"{additional[i].Count} экз.";
                 wordTable.Cell(rowNumber, 4).Range.Text = additional[i].Coefficient is 0 ? "" : $"{additional[i].Coefficient}";
+                
                 // Форматирование
                 wordTable.Cell(rowNumber, 2).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
                 wordTable.Cell(rowNumber, 3).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
@@ -2226,14 +2579,15 @@ namespace TestWord
 
             rangeForLearningThemes.Text = "";
 
-            List<(int semesterNumber, SemesterModuleData.DisciplineThematicTheme theme)> themes = new List<(int semesterNumber, SemesterModuleData.DisciplineThematicTheme theme)>();
+            List<(int semesterNumber, SemesterModuleData.DisciplineThematicTheme theme)> semesterNumber_Themes = generalModel.DisciplineThematicPlan.SelectMany(
+                semesterModuleTh => semesterModuleTh.Value.DisciplineThematicPlan.Select(x => (semesterModuleTh.Key.SemesterNumber, x))).ToList();
             var semesterNumbers = generalModel.Semesters.Select(x => x.SemesterNumber).OrderBy(x => x).ToArray();
             bool semesterMoreThan1 = semesterNumbers.Length > 1;
 
             foreach (var semesterNumber in semesterNumbers)
             {
-                var semesterThemes = themes.Where(x => x.semesterNumber == semesterNumber).Select(x => x.theme).ToList();
-                
+                var semesterThemes = semesterNumber_Themes.Where(x => x.semesterNumber == semesterNumber).Select(x => x.theme).ToList();
+
                 // For learning themes cell
                 if (semesterMoreThan1)
                 {
@@ -2247,7 +2601,7 @@ namespace TestWord
                     rangeForLearningThemes.Collapse(WdCollapseDirection.wdCollapseEnd);
                 }
 
-                foreach(var semesterTheme in semesterThemes)
+                foreach (var semesterTheme in semesterThemes)
                 {
                     rangeForLearningThemes.Collapse(WdCollapseDirection.wdCollapseEnd);
 
@@ -2258,11 +2612,14 @@ namespace TestWord
 
                     rangeForLearningThemes.Collapse(WdCollapseDirection.wdCollapseEnd);
 
-                    if(semesterTheme != semesterThemes.Last())
+                    if (semesterTheme != semesterThemes.Last())
                     {
                         rangeForLearningThemes.InsertAfter(Environment.NewLine);
                     }
                 }
+
+                if (semesterNumber != semesterNumbers.Last())
+                    rangeForLearningThemes.InsertAfter(Environment.NewLine);
             }
 
             // For attestation cell
@@ -2290,7 +2647,7 @@ namespace TestWord
                 rangeForAttestationsDate.InsertAfter("в " + semesterNumber.ToString() + " семестре");
                 rangeForAttestationsDate.Font.Bold = 0;
 
-                if(semesterNumber != semesterNumbers.Last())
+                if (semesterNumber != semesterNumbers.Last())
                 {
                     rangeForAttestationsDate.InsertAfter(Environment.NewLine);
                 }

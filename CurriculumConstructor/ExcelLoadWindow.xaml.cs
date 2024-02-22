@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -22,6 +23,7 @@ using System.Runtime.ConstrainedExecution;
 using System.Text.Json;
 using System.IO;
 using CurriculumConstructor.UserClassJsomConverters;
+using System.Runtime.InteropServices;
 
 namespace CurriculumConstructor
 {
@@ -52,11 +54,11 @@ namespace CurriculumConstructor
             (sender as Button).IsEnabled = false;
             (sender as Button).Content = "Загружается";
 
-            OpenFileDialog openFileDialog = new OpenFileDialog();
+            var openFileDialog = new System.Windows.Forms.OpenFileDialog();
 
             openFileDialog.Filter = "Excel files (*.xls, *.xlsx)|*.xls;*.xlsx";
 
-            if (openFileDialog.ShowDialog() == true)
+            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 string filePathName = openFileDialog.FileName;
 
@@ -75,28 +77,31 @@ namespace CurriculumConstructor
         {
             app = new Excel.Application();
             Excel.Workbook workbook = app.Workbooks.Open(filePathName);
+
+            TitleData = new TitleDataClass();
+            ParentGroupId_Block_Part = new Dictionary<int, (string, string)>();
             Dictionary<string, List<int>> discipline_courseworkSemesters = new Dictionary<string, List<int>>();
 
             var GetCell = (Worksheet worksheet, int lineNumber, int columnNumber) =>
-            {
-                return Convert.ToString((worksheet.Cells[lineNumber, columnNumber] as Excel.Range).Value2);
-            };
+                Convert.ToString((worksheet.Cells[lineNumber, columnNumber] as Excel.Range).Value2);
             
             {
                 var titularWorksheet = workbook.Worksheets.Item["Титул"];
 
-                TitleData.ProfileNumber = GetCell(titularWorksheet, 16, 2);
-                TitleData.ProfileName = GetCell(titularWorksheet, 19, 2);
-                TitleData.DepartmentName = GetCell(titularWorksheet, 26, 2);
-                TitleData.StartYear = GetCell(titularWorksheet, 29, 20);
+                TitleData.ProfileNumber = GetCell(titularWorksheet, 16, 2).Trim();
+                TitleData.ProfileName = GetCell(titularWorksheet, 19, 2).Trim();
+                TitleData.DepartmentName = GetCell(titularWorksheet, 26, 2).Trim();
+                TitleData.StartYear = GetCell(titularWorksheet, 29, 20).Trim();
 
-                TitleData.EducationForm = GetCell(titularWorksheet, 31, 1);
-                TitleData.EducationPeriod = GetCell(titularWorksheet, 32, 1);
-                TitleData.Qualification = GetCell(titularWorksheet, 29, 1);
+                TitleData.EducationForm = GetCell(titularWorksheet, 31, 1).Trim();
+                TitleData.EducationPeriod = GetCell(titularWorksheet, 32, 1).Trim();
+                TitleData.Qualification = GetCell(titularWorksheet, 29, 1).Trim();
 
                 TitleData.EducationForm = TitleData.EducationForm.Substring(TitleData.EducationForm.IndexOf(": ") + 2);
                 TitleData.EducationPeriod = TitleData.EducationPeriod.Substring(TitleData.EducationPeriod.IndexOf(": ") + 2);
                 TitleData.Qualification = TitleData.Qualification.Substring(TitleData.Qualification.IndexOf(": ") + 2);
+
+                Marshal.ReleaseComObject(titularWorksheet);
             }
 
             int rowNumber = 2;
@@ -108,7 +113,7 @@ namespace CurriculumConstructor
 
                 while (Value != null)
                 {
-                    string disciplineName = Value;
+                    string disciplineName = Value.Trim();
 
                     List<int> courseworkSemesters = new List<int>();
                     rowNumber++;
@@ -128,6 +133,8 @@ namespace CurriculumConstructor
 
                     Value = GetCell(courseworkWorksheet, rowNumber, 1);
                 }
+
+                Marshal.ReleaseComObject(courseworkWorksheet);
             }
 
             rowNumber = 3;
@@ -155,6 +162,8 @@ namespace CurriculumConstructor
 
                     Value = GetCell(competencyWorksheet, rowNumber, 2);
                 };
+
+                Marshal.ReleaseComObject(competencyWorksheet);
             }
 
             var worksheet = workbook.Worksheets.Item["План"];
@@ -235,8 +244,8 @@ namespace CurriculumConstructor
                 rowElement.ParentGroup = parentGroupId;
                 rowElement.rowNumber = rowNumber;
 
-                rowElement.Index = GetCell(worksheet, rowNumber, 2);
-                rowElement.DisciplineName = GetCell(worksheet, rowNumber, 3);
+                rowElement.Index = GetCell(worksheet, rowNumber, 2) ?? "";
+                rowElement.DisciplineName = GetCell(worksheet, rowNumber, 3)?.Trim() ?? "";
                 rowElement.Exam = GetCell(worksheet, rowNumber, 4) ?? "";
                 rowElement.Offset = GetCell(worksheet, rowNumber, 5) ?? "";
                 rowElement.OffsetWithMark = GetCell(worksheet, rowNumber, 6) ?? "";
@@ -269,7 +278,7 @@ namespace CurriculumConstructor
                 }
 
                 rowElement.Code = Convert.ToInt32(GetCell(worksheet, rowNumber, 16 + 7 * semestersCount));
-                rowElement.DepartmentName = GetCell(worksheet, rowNumber, 16 + 7 * semestersCount + 1);
+                rowElement.DepartmentName = GetCell(worksheet, rowNumber, 16 + 7 * semestersCount + 1).Trim();
                 rowElement.Competencies = GetCell(worksheet, rowNumber, 16 + 7 * semestersCount + 2).Split("; ");
 
                 if (discipline_courseworkSemesters.ContainsKey(rowElement.DisciplineName))
@@ -282,13 +291,20 @@ namespace CurriculumConstructor
                 rowNumber++;
             }
 
-            workbook.Close();
-            app.Quit();
+            Marshal.ReleaseComObject(worksheet);
+            Marshal.ReleaseComObject(workbook);
+            Marshal.ReleaseComObject(app);
+
+            // workbook.Close(false);
+            // app.Quit();
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
 
             return disciplineRows;
         }
 
-        private void DataGridDisciplines_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private async void DataGridDisciplines_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             DataGrid dataGrid = sender as DataGrid;
             int selectedIndex = dataGrid.SelectedIndex;
@@ -302,16 +318,38 @@ namespace CurriculumConstructor
 
             SettingMenuWindow settingMenuWindow = new SettingMenuWindow(ParentGroupId_Block_Part[rowElement.ParentGroup], TitleData, rowElement);
 
-            Hide();
-            settingMenuWindow.ShowDialog();
-            Show();
+            try
+            {
+                Hide();
+                settingMenuWindow.ShowDialog();
+                Show();
+            }
+            catch(Exception ex)
+            {
+                System.Windows.MessageBox.Show("Ошибка! " + ex.Message + "\n" +
+                        ex.StackTrace + "\n" +
+                        ex.TargetSite + "\n" +
+                        ex.HelpLink);
+
+                using (var path_dialog = new System.Windows.Forms.SaveFileDialog())
+                    if (path_dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        // Путь к директории
+                        await settingMenuWindow.SaveArgsAsync(path_dialog.FileName);
+
+                        System.Windows.MessageBox.Show("Успешное сохранение!");
+                    };
+
+                settingMenuWindow.Close();
+                Show();
+            }
         }
 
         private async void FileParamsSelectClickAsync(object sender, RoutedEventArgs e)
         {
-            var openFileDiallog = new OpenFileDialog();
+            var openFileDiallog = new System.Windows.Forms.OpenFileDialog();
 
-            if (openFileDiallog.ShowDialog() != true)
+            if (openFileDiallog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
                 return;
 
             string path = openFileDiallog.FileName;
@@ -322,23 +360,38 @@ namespace CurriculumConstructor
 
             if(jsonString != null)
             {
-                var options = new JsonSerializerOptions
-                {
-                    IncludeFields = true,
-                    WriteIndented = true,
-                    Converters = { new SemesterModuleNumbersConverter() }
-                };
-
-                GeneralModel? generalModel = JsonSerializer.Deserialize<GeneralModel>(jsonString, options);
+                GeneralModel? generalModel = GeneralModel.DeserializeFromJson(jsonString);
 
                 if (generalModel == null)
                     return;
 
                 SettingMenuWindow settingMenuWindow = new SettingMenuWindow(generalModel);
 
-                Hide();
-                settingMenuWindow.ShowDialog();
-                Show();
+                try
+                {
+                    Hide();
+                    settingMenuWindow.ShowDialog();
+                    Show();
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show("Ошибка! " + ex.Message + "\n" +
+                            ex.StackTrace + "\n" +
+                            ex.TargetSite + "\n" +
+                            ex.HelpLink);
+
+                    using (var path_dialog = new System.Windows.Forms.SaveFileDialog())
+                        if (path_dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                        {
+                            // Путь к директории
+                            await settingMenuWindow.SaveArgsAsync(path_dialog.FileName);
+
+                            System.Windows.MessageBox.Show("Успешное сохранение!");
+                        };
+
+                    settingMenuWindow.Close();
+                    Show();
+                }
             }
         }
     }

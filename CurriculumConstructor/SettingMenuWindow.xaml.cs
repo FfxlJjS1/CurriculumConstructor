@@ -14,6 +14,7 @@ using System.Text.Json;
 using System.IO;
 using System.Windows.Forms;
 using CurriculumConstructor.UserClassJsomConverters;
+using System.Threading.Tasks;
 
 namespace CurriculumConstructor
 {
@@ -67,6 +68,8 @@ namespace CurriculumConstructor
 
         private void MeuButton_Checked(object sender, RoutedEventArgs e)
         {
+            this.Cursor = System.Windows.Input.Cursors.Wait;
+
             if (ContentFrame.Content is WordPreview)
             {
                 (ContentFrame.Content as WordPreview).RemoveState();
@@ -105,6 +108,10 @@ namespace CurriculumConstructor
                 {
                     System.Windows.Forms.MessageBox.Show("Неизвестная ошибка! Не удалось создать шаблон. Обратитесь к разработчикам или администраторам.");
                 }
+            }
+            else if(senderName == generalInformationMenuButton.Name)
+            {
+                ContentFrame.Navigate(new GeneralInformationPage(ref generalModel));
             }
             else if (senderName == titleMenuButton.Name)
             {
@@ -150,42 +157,42 @@ namespace CurriculumConstructor
             {
                 ContentFrame.Navigate(new MaterialTechnicalBasePage(ref generalModel));
             }
+
+            this.Cursor = System.Windows.Input.Cursors.Arrow;
         }
 
         private void btnSignOut_Click(object sender, RoutedEventArgs e)
         {
+            if (ContentFrame.Content is WordPreview)
+            {
+                (ContentFrame.Content as WordPreview).RemoveState();
+            }
+
             this.Close();
         }
 
-        private async void btnSaveArgs_Click(object sender, RoutedEventArgs e)
+        private async void btnSaveArgs_ClickAsync(object sender, RoutedEventArgs e)
         {
             // Выбор пути и сохранение
             using (var path_dialog = new SaveFileDialog())
                 if (path_dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     // Путь к директории
-                    string path = path_dialog.FileName;
-
-                    var options = new JsonSerializerOptions
-                    {
-                        IncludeFields = true,
-                        WriteIndented = true,
-                        Converters = {
-                            new SemesterModuleNumbersConverter()
-                        }
-                    };
-
-                    string json = JsonSerializer.Serialize(new GeneralModel.SemesterModuleNumbers(1, 2), options);
-
-                    string jsonString = JsonSerializer.Serialize(generalModel, options);
-
-                    using (StreamWriter writer = new StreamWriter(path, false))
-                    {
-                        await writer.WriteLineAsync(jsonString);
-                    }
+                    await SaveArgsAsync(path_dialog.FileName);
 
                     System.Windows.MessageBox.Show("Успешное сохранение!");
                 };
+        }
+
+
+        public async Task SaveArgsAsync(string path)
+        {
+            string jsonString = GeneralModel.SerializeToJson(generalModel);
+
+            using (StreamWriter writer = new StreamWriter(path, false))
+            {
+                await writer.WriteLineAsync(jsonString);
+            }
         }
     }
 }

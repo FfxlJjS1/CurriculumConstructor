@@ -11,8 +11,8 @@
         Background="Transparent"
         AllowsTransparency="True"
         Title="SettingMenuWindow"
-        MinHeight="510" MinWidth="600"
-        Height="650" Width="1300"
+        MinHeight="600" MinWidth="600"
+        Height="700" Width="1300"
         Loaded="Window_Loaded">
     <Border Background="#eff2f7" CornerRadius="20"  MouseDown="Border_MouseDown">
         <Grid>
@@ -30,6 +30,11 @@
                     
                     <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                            <RadioButton x:Name="generalInformationMenuButton" Content="Общая информация"
+                                 Height="35"
+                                 Foreground="#eff2f7"
+                                 Checked="MeuButton_Checked"
+                                 Style="{StaticResource MenuButtonTheme}"/>
                             <RadioButton x:Name="titleMenuButton" Content="Титульник" 
                                  Height="35"
                                  Foreground="#eff2f7"
@@ -94,7 +99,7 @@
                     </ScrollViewer>
 
                     <StackPanel Grid.Row="1">
-                        <Button Content="Сохранить параметры"  FontSize="17" Padding="2" x:Name="btnSaveArgs" Margin="20 10" VerticalAlignment="Bottom" Click="btnSaveArgs_Click" Style="{StaticResource ModernWhiteButton}"/>
+                        <Button Content="Сохранить параметры"  FontSize="17" Padding="2" x:Name="btnSaveArgs" Margin="20 10" VerticalAlignment="Bottom" Click="btnSaveArgs_ClickAsync" Style="{StaticResource ModernWhiteButton}"/>
                         <Button Content="Выйти" Padding="2" FontSize="17" x:Name="btnSignOut" Margin="20 10" VerticalAlignment="Bottom" Click="btnSignOut_Click" Style="{StaticResource ModernWhiteButton}"/>
                     </StackPanel>
                 </Grid>
